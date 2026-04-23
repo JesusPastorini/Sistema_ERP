@@ -1,0 +1,101 @@
+﻿@model Fornecedor
+
+@{
+    ViewData["Title"] = "Editar Fornecedor";
+}
+
+<div class="container-fluid">
+
+    <div class="card shadow-lg p-4 mt-4">
+
+        <h3 class="mb-4">Editar Fornecedor</h3>
+
+        <form asp-action="Edit" method="post">
+
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row">
+
+                <!-- Nome Fantasia -->
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label fw-bold">Nome Fantasia</label>
+                    <input asp-for="NomeFantasia" class="form-control form-control-lg" />
+                    <span asp-validation-for="NomeFantasia" class="text-danger"></span>
+                </div>
+
+                <!-- Razão Social -->
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label fw-bold">Razão Social</label>
+                    <input asp-for="RazaoSocial" class="form-control form-control-lg" />
+                    <span asp-validation-for="RazaoSocial" class="text-danger"></span>
+                </div>
+
+                <!-- CNPJ -->
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label fw-bold">CNPJ</label>
+                    <input asp-for="Cnpj" class="form-control form-control-lg" />
+                    <span asp-validation-for="Cnpj" class="text-danger"></span>
+                </div>
+
+                <!-- Telefone -->
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label fw-bold">Telefone</label>
+                    <input asp-for="Telefone" class="form-control form-control-lg" />
+                </div>
+
+                <!-- Email -->
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label fw-bold">Email</label>
+                    <input asp-for="Email" class="form-control form-control-lg" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+            </div>
+
+            <hr class="my-4" />
+
+            <h5 class="mb-3">Endereço</h5>
+
+            <div class="row">
+
+                <!-- Rua -->
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label fw-bold">Rua</label>
+                    <input asp-for="Rua" class="form-control form-control-lg" />
+                </div>
+
+                <!-- Número -->
+                <div class="col-12 col-md-2 mb-3">
+                    <label class="form-label fw-bold">Número</label>
+                    <input asp-for="Numero" class="form-control form-control-lg" />
+                </div>
+
+                <!-- Bairro -->
+                <div class="col-12 col-md-4 mb-3">
+                    <label class="form-label fw-bold">Bairro</label>
+                    <input asp-for="Bairro" class="form-control form-control-lg" />
+                </div>
+
+                <!-- Cidade -->
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label fw-bold">Cidade</label>
+                    <input asp-for="Cidade" class="form-control form-control-lg" />
+                </div>
+
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-warning btn-lg px-5">
+                    ✏️ Atualizar
+                </button>
+
+                <a asp-action="Index" class="btn btn-secondary btn-lg px-5">
+                    Voltar
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

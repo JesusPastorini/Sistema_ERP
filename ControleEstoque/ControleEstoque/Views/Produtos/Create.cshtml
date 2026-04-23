@@ -1,0 +1,53 @@
+﻿@model Produto
+
+<h2>Criar Produto</h2>
+
+<form asp-action="Create" method="post">
+
+    <div class="mb-2">
+        <input asp-for="Categoria" class="form-control" placeholder="Categoria" />
+        <span asp-validation-for="Categoria" class="text-danger"></span>
+    </div>
+
+    <div class="mb-2">
+        <input asp-for="TipoMadeira" class="form-control" placeholder="Tipo Madeira" />
+        <span asp-validation-for="TipoMadeira" class="text-danger"></span>
+    </div>
+
+    <div class="mb-2">
+        <input asp-for="Descricao" class="form-control" placeholder="Descrição" />
+        <span asp-validation-for="Descricao" class="text-danger"></span>
+    </div>
+
+    <div class="mb-2">
+        <input asp-for="Dimensoes" class="form-control" placeholder="Dimensões" />
+        <span asp-validation-for="Dimensoes" class="text-danger"></span>
+    </div>
+
+    <div class="mb-2">
+        <input asp-for="UnidadeMedida" class="form-control" placeholder="Unidade de Medida" />
+        <span asp-validation-for="UnidadeMedida" class="text-danger"></span>
+    </div>
+
+    <div class="mb-2">
+        <input asp-for="QuantidadeEstoque" class="form-control" placeholder="Estoque" />
+        <span asp-validation-for="QuantidadeEstoque" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <select asp-for="FornecedorId"
+                asp-items="ViewBag.Fornecedores"
+                class="form-control">
+            <option value="">Selecione um fornecedor</option>
+        </select>
+        <span asp-validation-for="FornecedorId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

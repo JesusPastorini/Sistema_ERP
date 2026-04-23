@@ -1,0 +1,26 @@
+﻿@model MovimentacaoEstoque
+
+<h2>Movimentar Estoque</h2>
+
+<form asp-action="Create" method="post">
+
+    <select asp-for="ProdutoId"
+            asp-items="ViewBag.Produtos"
+            class="form-control mb-2">
+        <option value="">Selecione o Produto</option>
+    </select>
+
+    <input asp-for="Quantidade"
+           class="form-control mb-2"
+           placeholder="Quantidade" />
+
+    <select asp-for="TipoMovimentacao"
+            class="form-control mb-3">
+        <option value="">Selecione</option>
+        <option value="Entrada">Entrada</option>
+        <option value="Saida">Saída</option>
+    </select>
+
+    <button type="submit" class="btn btn-success">Salvar</button>
+
+</form>
