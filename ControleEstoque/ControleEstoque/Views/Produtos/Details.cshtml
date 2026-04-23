@@ -1,0 +1,13 @@
+﻿@model Produto
+
+<h2>Detalhes</h2>
+
+<p><strong>Categoria:</strong> @Model.Categoria</p>
+<p><strong>Tipo:</strong> @Model.TipoMadeira</p>
+<p><strong>Descrição:</strong> @Model.Descricao</p>
+<p><strong>Dimensões:</strong> @Model.Dimensoes</p>
+<p><strong>Unidade:</strong> @Model.UnidadeMedida</p>
+<p><strong>Estoque:</strong> @Model.QuantidadeEstoque</p>
+<p><strong>Fornecedor:</strong> @Model.Fornecedor?.NomeFantasia</p>
+
+<a asp-action="Index" class="btn btn-secondary">Voltar</a>

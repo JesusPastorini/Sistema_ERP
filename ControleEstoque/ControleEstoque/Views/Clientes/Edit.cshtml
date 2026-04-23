@@ -1,0 +1,36 @@
+﻿@model Cliente
+
+<h2>Editar Cliente</h2>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label>Nome</label>
+        <input asp-for="Nome" class="form-control" />
+        <span asp-validation-for="Nome" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label>Documento</label>
+        <input asp-for="CpfCnpj" class="form-control" />
+        <span asp-validation-for="CpfCnpj" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label>Telefone</label>
+        <input asp-for="Telefone" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Email</label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-warning btn-lg px-5">
+        ✏️ Atualizar
+    </button>
+    <a asp-action="Index" class="btn btn-secondary btn-lg px-5">
+        Voltar
+    </a>
+</form>

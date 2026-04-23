@@ -1,0 +1,19 @@
+﻿@model List<Produto>
+
+@foreach (var item in Model)
+{
+    <div class="card mb-2">
+        <div class="card-body">
+            Categoria: @item.Categoria <br />
+            Tipo: @item.TipoMadeira <br />
+            Estoque: @item.QuantidadeEstoque <br />
+            Fornecedor: @item.Fornecedor?.NomeFantasia
+
+            <div class="mt-2">
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Visualizar</a>
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Editar</a>
+                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Deletar</a>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,21 @@
+﻿@model Produto
+
+<h2>Editar Produto</h2>
+
+<form asp-action="Create" method="post">
+
+    <input asp-for="Categoria" class="form-control mb-2" placeholder="Categoria" />
+    <input asp-for="TipoMadeira" class="form-control mb-2" placeholder="Tipo Madeira" />
+    <input asp-for="Descricao" class="form-control mb-2" placeholder="Descrição" />
+    <input asp-for="Dimensoes" class="form-control mb-2" placeholder="Dimensões" />
+    <input asp-for="UnidadeMedida" class="form-control mb-2" placeholder="Unidade de Medida" />
+    <input asp-for="QuantidadeEstoque" class="form-control mb-2" placeholder="Estoque" />
+
+    <select asp-for="FornecedorId"
+            asp-items="ViewBag.Fornecedores"
+            class="form-control mb-3">
+        <option value="">Selecione um fornecedor</option>
+    </select>
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+</form>

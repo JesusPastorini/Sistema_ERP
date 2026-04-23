@@ -1,0 +1,37 @@
+﻿@model List<Produto>
+
+<h2>Produtos</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3">
+    + Criar Produto
+</a>
+
+<h4>Produtos Recentes</h4>
+
+<div id="listaProdutos">
+    @await Html.PartialAsync("_ListaProdutos", Model)
+</div>
+
+<script>
+    let skip = 10;
+    let carregando = false;
+
+    window.addEventListener("scroll", function () {
+
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+
+            if (!carregando) {
+                carregando = true;
+
+                fetch(`/Produto/CarregarMais?skip=${skip}`)
+                    .then(res => res.text())
+                    .then(data => {
+                        document.getElementById("listaProdutos")
+                            .insertAdjacentHTML("beforeend", data);
+                        skip += 10;
+                        carregando = false;
+                    });
+            }
+        }
+    });
+</script>

@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Controle de Estoque</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+</head>
+<body>
+
+    <div class="sidebar">
+
+        <div class="text-center p-3">
+            <img src="~/images/logo.png" style="max-width:120px;" />
+        </div>
+
+        <a asp-controller="Home" asp-action="Index">📊 Dashboard</a>
+        <a asp-controller="Produtos" asp-action="Index">📦 Produtos</a>
+        <a asp-controller="MovimentacaoEstoque" asp-action="Create">📥 Entradas</a>
+        <a asp-controller="MovimentacaoEstoque" asp-action="Saida">📤 Saídas</a>
+        @{
+            var podeGerenciar = User.FindFirst("PodeGerenciarUsuarios")?.Value;
+        }
+
+        @if (podeGerenciar == "True")
+        {
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Usuario" asp-action="Index">
+                    Usuários
+                </a>
+            </li>
+        }
+        <a asp-controller="Clientes" asp-action="Index">👥 Clientes</a>
+        <a asp-controller="Fornecedores" asp-action="Index">🏭 Fornecedores</a>
+        <hr />
+        
+        <a asp-controller="Account" asp-action="Logout" class="text-danger">
+            🚪 Sair
+        </a>
+
+    </div>
+
+    <div class="content">
+        @RenderBody()
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Saída de Estoque";
+}
+
+<h2>Saída de Estoque</h2>
+
+<form asp-action="Saida" method="post">
+
+    <div class="mb-3">
+        <label>Produto</label>
+        <select name="produtoId" class="form-control" asp-items="ViewBag.Produtos">
+            <option value="">Selecione</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label>Quantidade</label>
+        <input name="quantidade" type="number" step="0.01" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-danger">Registrar Saída</button>
+
+</form>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="text-danger mt-3">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
