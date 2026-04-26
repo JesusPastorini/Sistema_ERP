@@ -1,0 +1,67 @@
+﻿@model IEnumerable<ControleEstoque.Models.ContasPagar>
+
+    <h2 class="mb-4">💸 Contas a Pagar</h2>
+
+    <div class="mb-3">
+        <a asp-action="Create" class="btn btn-danger">➕ Nova Conta / Nota</a>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Vencimento</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Valor</th>
+                <th>Documento</th> <!-- Coluna para o Drive -->
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model) // O "item" nasce aqui
+        {
+            <tr>
+                <td>@item.DataVencimento.ToShortDateString()</td>
+                <td>@item.Descricao</td>
+                <td><span class="badge bg-secondary">@item.Categoria</span></td>
+                <td>@item.Valor.ToString("C")</td>
+
+                <!-- O "item" funciona aqui dentro -->
+                <td>
+                    @if (!string.IsNullOrEmpty(item.UrlDocumento))
+                    {
+                    <a href="@item.UrlDocumento" target="_blank" class="btn btn-sm btn-link">
+                        folder Ver no Drive
+                    </a>
+                    }
+                    else
+                    {
+                    <span class="text-muted small">Sem nota</span>
+                    }
+                </td>
+
+                <td>
+                    @if (item.DataPagamento.HasValue)
+                    {
+                    <span class="badge bg-success">Pago</span>
+                    }
+                    else
+                    {
+                    <span class="badge bg-warning text-dark">Pendente</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Editar</a>
+
+                    @if (!item.DataPagamento.HasValue)
+                    {
+                    <form asp-action="Baixar" asp-route-id="@item.Id" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-success">Baixar</button>
+                    </form>
+                    }
+                </td>
+            </tr>
+        } @* O "item" morre aqui *@
+    </tbody>
+</table>

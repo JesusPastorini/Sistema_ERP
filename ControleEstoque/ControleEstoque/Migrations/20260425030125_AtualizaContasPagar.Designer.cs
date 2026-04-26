@@ -3,6 +3,7 @@ using System;
 using ControleEstoque.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ControleEstoque.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260425030125_AtualizaContasPagar")]
+    partial class AtualizaContasPagar
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -100,10 +103,6 @@ namespace ControleEstoque.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Categoria")
-                        .HasColumnType("text")
-                        .HasColumnName("categoria");
-
                     b.Property<DateTime?>("DataPagamento")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("data_pagamento");
@@ -124,10 +123,6 @@ namespace ControleEstoque.Migrations
                     b.Property<string>("NumeroNota")
                         .HasColumnType("text")
                         .HasColumnName("numero_nota");
-
-                    b.Property<string>("UrlDocumento")
-                        .HasColumnType("text")
-                        .HasColumnName("url_documento");
 
                     b.Property<decimal>("Valor")
                         .HasColumnType("numeric")

@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
+var builder = WebApplication.CreateBuilder(args);
+Console.WriteLine(builder.Environment.WebRootPath);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

@@ -1,0 +1,69 @@
+﻿@model ControleEstoque.Models.ContasPagar
+
+<form asp-action="Create" method="post">
+    <!-- Resumo de erros de validação (útil para debugar se não salvar) -->
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">🧾 Lançamento de Nota / Despesa</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">Nº da Nota</label>
+                    <input asp-for="NumeroNota" class="form-control" placeholder="Ex: NF 1050 (Opcional)" />
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label fw-bold">🔗 Link da Nota (Google Drive)</label>
+                    <input asp-for="UrlDocumento" class="form-control" placeholder="Cole aqui o link de compartilhamento do Drive" />
+                    <small class="text-muted">Dica: No Drive, clique em "Compartilhar" e mude para "Qualquer pessoa com o link".</small>
+                </div>
+                <div class="col-md-5 mb-3">
+                    <label class="form-label fw-bold">Descrição / Gasto</label>
+                    <input asp-for="Descricao" class="form-control" placeholder="Ex: Compra de Ripas ou Conserto de Máquina" required />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Categoria</label>
+                    <select asp-for="Categoria" class="form-select">
+                        <option value="Madeira">🌲 Compra de Madeira</option>
+                        <option value="Frete">🚚 Frete/Transporte</option>
+                        <option value="Energia">⚡ Energia Elétrica</option>
+                        <option value="Manutenção">⚙️ Manutenção</option>
+                        <option value="Outros">💰 Outros Gastos</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Fornecedor (da nota)</label>
+                    @* O ajuste principal está na linha abaixo: o (ViewBag... as SelectList) *@
+                    <select asp-for="FornecedorId" class="form-select"
+                            asp-items="@(ViewBag.FornecedorId as Microsoft.AspNetCore.Mvc.Rendering.SelectList)">
+                        <option value="">-- Sem Fornecedor / Gasto Externo --</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">Valor Total (R$)</label>
+                    <input asp-for="Valor" type="number" step="0.01" class="form-control form-control-lg border-primary" required />
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">Vencimento</label>
+                    <input asp-for="DataVencimento" type="date" class="form-control" required />
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Data Pagto</label>
+                    <input asp-for="DataPagamento" type="date" class="form-control" />
+                    <small class="text-muted">Preecha se já pagou</small>
+                </div>
+            </div>
+
+            <hr />
+            <div class="text-end">
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-danger btn-lg">🚀 Confirmar Lançamento</button>
+            </div>
+        </div>
+    </div>
+</form>

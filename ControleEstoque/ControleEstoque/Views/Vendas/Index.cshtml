@@ -1,0 +1,33 @@
+﻿@model IEnumerable<ControleEstoque.Models.Venda>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📋 Histórico de Vendas</h2>
+        <a asp-action="Create" class="btn btn-primary">➕ Nova Venda</a>
+    </div>
+
+    <table class="table table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Data</th>
+                <th>Cliente</th>
+                <th>Vendedor</th>
+                <th>Total</th>
+                <th>Pagamento</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model) {
+            <tr>
+                <td>@item.DataVenda.ToShortDateString()</td>
+                <td>@item.Cliente.Nome</td>
+                <td>@item.Usuario.Nome</td>
+                <td>@item.ValorTotal.ToString("C")</td>
+                <td>@item.FormaPagamento</td>
+                <td>
+                    <button class="btn btn-sm btn-info text-white">Ver Itens</button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>

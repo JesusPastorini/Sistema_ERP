@@ -1,0 +1,49 @@
+﻿@model IEnumerable<ControleEstoque.Models.ContasReceber>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>💰 Contas a Receber</h2>
+        <div class="text-end">
+            <span class="badge bg-secondary">Total Pendente: @Model.Where(c => c.DataPagamento == null).Sum(c => c.Valor).ToString("C")</span>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Cliente</th>
+                <th>Vencimento</th>
+                <th>Valor</th>
+                <th>Status</th>
+                <th width="200">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Venda.Cliente.Nome</td>
+                <td>@item.DataVencimento.ToShortDateString()</td>
+                <td>@item.Valor.ToString("C")</td>
+                <td>
+                    @if (item.DataPagamento.HasValue)
+                    {
+                    <span class="badge bg-success">✅ Pago em @item.DataPagamento.Value.ToShortDateString()</span>
+                    }
+                    else
+                    {
+                    <span class="badge bg-danger">⏳ Pendente</span>
+                    }
+                </td>
+                <td>
+                    @if (!item.DataPagamento.HasValue)
+                    {
+                    <form asp-action="Baixar" asp-route-id="@item.Id" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-success">Dar Baixa</button>
+                    </form>
+                    }
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white">Detalhes</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>

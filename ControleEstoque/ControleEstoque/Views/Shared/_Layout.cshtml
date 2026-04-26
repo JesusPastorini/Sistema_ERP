@@ -18,25 +18,34 @@
         </div>
 
         <a asp-controller="Home" asp-action="Index">📊 Dashboard</a>
+        <a asp-controller="Vendas" asp-action="Index">🛒 Vendas</a>
+        <a asp-controller="Clientes" asp-action="Index">👥 Clientes</a>
+
         <a asp-controller="Produtos" asp-action="Index">📦 Produtos</a>
         <a asp-controller="MovimentacaoEstoque" asp-action="Create">📥 Entradas</a>
         <a asp-controller="MovimentacaoEstoque" asp-action="Saida">📤 Saídas</a>
+        <!-- NOVO: Seção de Financeiro -->
+        <hr />
+        <small class="text-muted ms-3">FINANCEIRO</small>
+        <a asp-controller="ContasReceber" asp-action="Index">💰 Contas a Receber</a>
+        <a asp-controller="ContasPagar" asp-action="Index">💸 Contas a Pagar</a>
+        <hr />
         @{
             var podeGerenciar = User.FindFirst("PodeGerenciarUsuarios")?.Value;
         }
 
         @if (podeGerenciar == "True")
         {
-            <li class="nav-item">
-                <a class="nav-link" asp-controller="Usuario" asp-action="Index">
-                    Usuários
-                </a>
-            </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Usuario" asp-action="Index">
+                Usuários
+            </a>
+        </li>
         }
-        <a asp-controller="Clientes" asp-action="Index">👥 Clientes</a>
+
         <a asp-controller="Fornecedores" asp-action="Index">🏭 Fornecedores</a>
         <hr />
-        
+
         <a asp-controller="Account" asp-action="Logout" class="text-danger">
             🚪 Sair
         </a>
