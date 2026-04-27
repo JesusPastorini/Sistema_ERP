@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+ï»¿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ControleEstoque.Data;
@@ -16,6 +16,21 @@ namespace ControleEstoque.Controllers
             _context = context;
         }
 
+        public async Task<IActionResult> Detalhes(int id)
+        {
+            var venda = await _context.Vendas
+                .Include(v => v.Cliente)
+                .Include(v => v.Usuario)
+                .Include(v => v.Itens)
+                    .ThenInclude(i => i.Produto)
+                .FirstOrDefaultAsync(v => v.Id == id);
+
+            if (venda == null)
+                return NotFound();
+
+            return View(venda);
+        }
+
         public async Task<IActionResult> Index()
         {
             var vendas = await _context.Vendas
@@ -28,89 +43,111 @@ namespace ControleEstoque.Controllers
 
         public IActionResult Create()
         {
-            ViewBag.ClienteId = new SelectList(_context.Set<Cliente>(), "Id", "Nome");
-            ViewBag.ProdutoId = new SelectList(_context.Produtos, "Id", "TipoMadeira");
+            ViewBag.ClienteId = new SelectList(_context.Set<Cliente>().OrderBy(c => c.Nome), "Id", "Nome");
             return View();
+        }
+
+        // NOVO MÃ‰TODO: Busca com PaginaÃ§Ã£o (Scroll Infinito) e Filtro em 3 campos
+        [HttpGet]
+        public async Task<IActionResult> BuscarProdutosPaginado(string termo, int pagina = 1)
+        {
+            int itensPorPagina = 10;
+            var consulta = _context.Produtos.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(termo))
+            {
+                var busca = termo.ToLower();
+                // Busca flexÃ­vel: Categoria OR Tipo OR DimensÃµes
+                consulta = consulta.Where(p =>
+                    p.Categoria.ToLower().Contains(busca) ||
+                    p.TipoMadeira.ToLower().Contains(busca) ||
+                    p.Dimensoes.ToLower().Contains(busca));
+            }
+
+            var totalItens = await consulta.CountAsync();
+
+            var produtos = await consulta
+                .OrderBy(p => p.TipoMadeira)
+                .Skip((pagina - 1) * itensPorPagina)
+                .Take(itensPorPagina)
+                .Select(p => new {
+                    id = p.Id,
+                    text = $"{p.Categoria} - {p.TipoMadeira} ({p.Dimensoes})",
+                    estoque = p.QuantidadeEstoque
+                })
+                .ToListAsync();
+
+            // O Select2 espera o campo 'more' para saber se continua o scroll
+            return Json(new
+            {
+                items = produtos,
+                pagination = new { more = (pagina * itensPorPagina) < totalItens }
+            });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Venda venda, int[] ProdutoId, decimal[] Quantidade, decimal[] PrecoUnitario)
         {
-            // 1. Identificação do Usuário
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            venda.UsuarioId = string.IsNullOrEmpty(userIdClaim) ? (await _context.Usuarios.FirstAsync()).Id : int.Parse(userIdClaim);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            venda.UsuarioId = string.IsNullOrEmpty(userIdClaim) ? (await _context.Usuarios.FirstOrDefaultAsync())?.Id ?? 1 : int.Parse(userIdClaim);
             venda.DataVenda = DateTime.UtcNow;
 
-            // 2. VALIDAÇÃO DE ESTOQUE (Antes de salvar qualquer coisa)
-            for (int i = 0; i < ProdutoId.Length; i++)
+            ModelState.Remove("Usuario");
+            ModelState.Remove("Cliente");
+            ModelState.Remove("Itens");
+
+            if (ProdutoId == null || ProdutoId.Length == 0)
             {
-                var pId = ProdutoId[i];
-                var qtdSolicitada = Quantidade[i];
-                var produto = await _context.Produtos.FindAsync(pId);
-
-                if (produto == null || produto.QuantidadeEstoque < qtdSolicitada)
+                ModelState.AddModelError("", "âš ï¸ Adicione ao menos um item na venda.");
+            }
+            else
+            {
+                for (int i = 0; i < ProdutoId.Length; i++)
                 {
-                    ModelState.AddModelError("", $"Estoque insuficiente para: {(produto?.TipoMadeira ?? "Produto não encontrado")}. Disponível: {(produto?.QuantidadeEstoque ?? 0)}");
-
-                    ViewBag.ClienteId = new SelectList(_context.Set<Cliente>(), "Id", "Nome", venda.ClienteId);
-                    ViewBag.ProdutoId = new SelectList(_context.Produtos, "Id", "TipoMadeira");
-                    return View(venda);
+                    var produto = await _context.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == ProdutoId[i]);
+                    if (produto == null || produto.QuantidadeEstoque < Quantidade[i])
+                    {
+                        ModelState.AddModelError("", $"âŒ Estoque insuficiente para {produto?.TipoMadeira}.");
+                    }
                 }
             }
 
-            // 3. SALVAR A VENDA
-            ModelState.Remove("Usuario");
-            ModelState.Remove("Cliente");
+            if (!ModelState.IsValid)
+            {
+                ViewBag.ClienteId = new SelectList(_context.Set<Cliente>().OrderBy(c => c.Nome), "Id", "Nome", venda.ClienteId);
+                return View(venda);
+            }
 
             _context.Vendas.Add(venda);
             await _context.SaveChangesAsync();
 
-            decimal totalCalculado = 0; // Nome alterado para evitar conflito
-
-            // 4. PROCESSAR ITENS E BAIXAR ESTOQUE
+            decimal totalCalculado = 0;
             for (int i = 0; i < ProdutoId.Length; i++)
             {
                 var pId = ProdutoId[i];
                 var qtd = Quantidade[i];
                 var preco = PrecoUnitario[i];
 
-                // Registrar o Item da Venda
-                var item = new VendaItem
-                {
-                    VendaId = venda.Id,
-                    ProdutoId = pId,
-                    Quantidade = qtd,
-                    PrecoUnitario = preco
-                };
-                _context.VendaItens.Add(item);
+                _context.VendaItens.Add(new VendaItem { VendaId = venda.Id, ProdutoId = pId, Quantidade = qtd, PrecoUnitario = preco });
 
-                // Baixar o estoque fisicamente
-                var produtoEstoque = await _context.Produtos.FindAsync(pId);
-                if (produtoEstoque != null)
-                {
-                    produtoEstoque.QuantidadeEstoque -= qtd;
-                }
+                var prodEstoque = await _context.Produtos.FindAsync(pId);
+                if (prodEstoque != null) prodEstoque.QuantidadeEstoque -= qtd;
 
                 totalCalculado += (qtd * preco);
             }
 
-            // 5. ATUALIZAR VALOR FINAL E GERAR FINANCEIRO
             venda.ValorTotal = totalCalculado;
-
-            var contaReceber = new ContasReceber
+            _context.ContasReceber.Add(new ContasReceber
             {
                 VendaId = venda.Id,
                 Valor = totalCalculado,
                 DataVencimento = DateTime.UtcNow.AddDays(30),
-                Observacao = $"Venda ref. #{venda.Id}"
-            };
+                Observacao = $"Venda #{venda.Id}"
+            });
 
-            _context.ContasReceber.Add(contaReceber);
             await _context.SaveChangesAsync();
-
             return RedirectToAction(nameof(Index));
         }
-
     }
 }

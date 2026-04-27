@@ -25,7 +25,9 @@
                 <td>@item.ValorTotal.ToString("C")</td>
                 <td>@item.FormaPagamento</td>
                 <td>
-                    <button class="btn btn-sm btn-info text-white">Ver Itens</button>
+                    <a asp-action="Detalhes" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white">
+                        Ver Itens
+                    </a>
                 </td>
             </tr>
         }

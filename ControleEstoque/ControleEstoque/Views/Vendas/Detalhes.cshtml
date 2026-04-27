@@ -1,0 +1,30 @@
+﻿@model ControleEstoque.Models.Venda
+
+<h2>🧾 Detalhes da Venda</h2>
+
+<p><b>Cliente:</b> @Model.Cliente.Nome</p>
+<p><b>Data:</b> @Model.DataVenda.ToShortDateString()</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Produto</th>
+            <th>Qtd</th>
+            <th>Preço</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Itens)
+        {
+        <tr>
+            <td>@item.Produto.TipoMadeira</td>
+            <td>@item.Quantidade</td>
+            <td>@item.PrecoUnitario.ToString("C")</td>
+            <td>@((item.Quantidade * item.PrecoUnitario).ToString("C"))</td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Voltar</a>
