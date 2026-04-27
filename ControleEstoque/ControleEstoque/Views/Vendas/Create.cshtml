@@ -1,0 +1,162 @@
+﻿@model ControleEstoque.Models.Venda
+
+@{
+    ViewData["Title"] = "Nova Venda";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>🛒 Realizar Nova Venda</h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">Voltar ao Histórico</a>
+    </div>
+
+    <form asp-action="Create" method="post" id="formVenda">
+        <div class="row">
+
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <!-- Coluna da Esquerda: Dados do Cliente e Pagamento -->
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Dados Gerais</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Cliente</label>
+                            <select asp-for="ClienteId" class="form-select" asp-items="ViewBag.ClienteId" required>
+                                <option value="">-- Selecione o Cliente --</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Forma de Pagamento</label>
+                            <select asp-for="FormaPagamento" class="form-select" required>
+                                <option value="Dinheiro">💵 Dinheiro</option>
+                                <option value="Pix">📱 Pix</option>
+                                <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
+                                <option value="Cartão de Débito">💳 Cartão de Débito</option>
+                                <option value="Boleto">📄 Boleto / Prazo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-success">
+                    <div class="card-body text-center">
+                        <h4 class="text-muted">Total da Venda</h4>
+                        <h1 class="display-4 fw-bold text-success" id="valorTotalDisplay">R$ 0,00</h1>
+                        <input type="hidden" name="ValorTotal" id="ValorTotalInput" value="0" />
+
+                        <button type="submit" class="btn btn-success btn-lg w-100 mt-3">
+                            ✅ Finalizar Venda
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna da Direita: Seleção de Produtos -->
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Itens da Venda (Madeiras e Produtos)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3 align-items-end mb-4">
+                            <div class="col-md-5">
+                                <label class="form-label fw-bold">Produto/Madeira</label>
+                                <select id="selectProduto" class="form-select" asp-items="ViewBag.ProdutoId">
+                                    <option value="">-- Selecione o Item --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold">Qtd</label>
+                                <input type="number" id="inputQtd" class="form-control" value="1" step="0.01" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Preço Un. (R$)</label>
+                                <input type="number" id="inputPreco" class="form-control" placeholder="0,00" step="0.01" />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" id="btnAdicionar" class="btn btn-primary w-100">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <table class="table table-striped align-middle" id="tabelaItens">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Produto</th>
+                                    <th width="100">Qtd</th>
+                                    <th width="150">Preço Un.</th>
+                                    <th width="150">Subtotal</th>
+                                    <th width="50"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Itens adicionados via JS aparecerão aqui -->
+                            </tbody>
+                        </table>
+
+                        <div id="listaInputsEscondidos"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>let totalGeral = 0;
+
+        document.getElementById('btnAdicionar').addEventListener('click', function() {
+            const select = document.getElementById('selectProduto');
+            const produtoId = select.value;
+            const produtoNome = select.options[select.selectedIndex].text;
+            const qtd = parseFloat(document.getElementById('inputQtd').value);
+            const preco = parseFloat(document.getElementById('inputPreco').value);
+
+            if (!produtoId || isNaN(qtd) || isNaN(preco)) {
+                alert("Preencha todos os campos do produto!");
+                return;
+            }
+
+            const subtotal = qtd * preco;
+            totalGeral += subtotal;
+
+            // Adiciona na tabela visual
+            const tabela = document.querySelector('#tabelaItens tbody');
+            const novaLinha = `
+                <tr>
+                    <td>${produtoNome}</td>
+                    <td>${qtd}</td>
+                    <td>R$ ${preco.toFixed(2)}</td>
+                    <td>R$ ${subtotal.toFixed(2)}</td>
+                    <td><button type="button" class="btn btn-sm btn-danger" onclick="removerItem(this, ${subtotal})">X</button></td>
+                </tr>
+            `;
+            tabela.innerHTML += novaLinha;
+
+            // Adiciona inputs escondidos para enviar ao Controller
+            const divInputs = document.getElementById('listaInputsEscondidos');
+            divInputs.innerHTML += `
+                <input type="hidden" name="ProdutoId" value="${produtoId}" />
+                <input type="hidden" name="Quantidade" value="${qtd}" />
+                <input type="hidden" name="PrecoUnitario" value="${preco}" />
+            `;
+
+            // Atualiza o display do Total
+            document.getElementById('valorTotalDisplay').innerText = `R$ ${totalGeral.toFixed(2)}`;
+            document.getElementById('ValorTotalInput').value = totalGeral;
+
+            // Limpa campos
+            select.value = "";
+            document.getElementById('inputPreco').value = "";
+        });
+
+        function removerItem(btn, subtotal) {
+            btn.closest('tr').remove();
+            totalGeral -= subtotal;
+            document.getElementById('valorTotalDisplay').innerText = `R$ ${totalGeral.toFixed(2)}`;
+            document.getElementById('ValorTotalInput').value = totalGeral;
+        }</script>
+}

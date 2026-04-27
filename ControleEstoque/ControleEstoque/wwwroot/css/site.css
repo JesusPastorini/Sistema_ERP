@@ -1,13 +1,9 @@
 body {
-    background-color: red !important;
-}
-/*
-body {
     margin: 0;
     font-size: 17px;
     background-color: #f4f6f9;
 }
-    */
+  
 .sidebar {
     width: 300px; /* aumentamos */
     min-height: 100vh;

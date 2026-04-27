@@ -3,6 +3,7 @@ using System;
 using ControleEstoque.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ControleEstoque.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260423182556_SistemaFinanceirodotnet")]
+    partial class SistemaFinanceirodotnet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,7 +40,7 @@ namespace ControleEstoque.Migrations
                         .HasColumnName("cpf_cnpj");
 
                     b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("criado_em");
 
                     b.Property<string>("Email")
@@ -71,7 +74,7 @@ namespace ControleEstoque.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DataCompra")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("data_compra");
 
                     b.Property<int>("FornecedorId")
@@ -100,16 +103,12 @@ namespace ControleEstoque.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Categoria")
-                        .HasColumnType("text")
-                        .HasColumnName("categoria");
-
                     b.Property<DateTime?>("DataPagamento")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("data_pagamento");
 
                     b.Property<DateTime>("DataVencimento")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("data_vencimento");
 
                     b.Property<string>("Descricao")
@@ -120,14 +119,6 @@ namespace ControleEstoque.Migrations
                     b.Property<int?>("FornecedorId")
                         .HasColumnType("integer")
                         .HasColumnName("fornecedor_id");
-
-                    b.Property<string>("NumeroNota")
-                        .HasColumnType("text")
-                        .HasColumnName("numero_nota");
-
-                    b.Property<string>("UrlDocumento")
-                        .HasColumnType("text")
-                        .HasColumnName("url_documento");
 
                     b.Property<decimal>("Valor")
                         .HasColumnType("numeric")
@@ -152,11 +143,11 @@ namespace ControleEstoque.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("DataPagamento")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("data_pagamento");
 
                     b.Property<DateTime>("DataVencimento")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("data_vencimento");
 
                     b.Property<string>("Observacao")
@@ -256,7 +247,7 @@ namespace ControleEstoque.Migrations
                         .HasColumnName("cliente_id");
 
                     b.Property<DateTime>("DataVenda")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("data_venda");
 
                     b.Property<string>("FormaPagamento")
@@ -391,7 +382,7 @@ namespace ControleEstoque.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DataMovimentacao")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("data_movimentacao");
 
                     b.Property<int>("ProdutoId")
@@ -432,7 +423,7 @@ namespace ControleEstoque.Migrations
                         .HasColumnName("categoria");
 
                     b.Property<DateTime>("DataCriacao")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("data_criacao");
 
                     b.Property<string>("Descricao")

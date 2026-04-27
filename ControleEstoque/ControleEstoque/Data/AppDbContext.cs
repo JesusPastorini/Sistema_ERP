@@ -18,5 +18,11 @@ namespace ControleEstoque.Data
         public DbSet<Produto> Produtos { get; set; }
         public DbSet<Compra> Compras { get; set; }
         public DbSet<MovimentacaoEstoque> MovimentacoesEstoque { get; set; }
+
+        public DbSet<Venda> Vendas { get; set; }
+        public DbSet<VendaItem> VendaItens { get; set; }
+        public DbSet<ContasReceber> ContasReceber { get; set; }
+        public DbSet<ContasPagar> ContasPagar { get; set; }
+
     }
 }
