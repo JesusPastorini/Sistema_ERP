@@ -4,7 +4,11 @@
     ViewData["Title"] = "Nova Venda";
 }
 
-<div class="container-fluid">
+<!-- ✅ CSS CORRETO -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+<div class="container-fluid" id="vendaContainer">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>🛒 Realizar Nova Venda</h2>
         <a asp-action="Index" class="btn btn-outline-secondary">Voltar ao Histórico</a>
@@ -12,15 +16,12 @@
 
     <form asp-action="Create" method="post" id="formVenda">
         <div class="row">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div asp-validation-summary="All" class="text-danger"></div>
-
-            <!-- Coluna da Esquerda: Dados do Cliente e Pagamento -->
+            <!-- 🔹 DADOS -->
             <div class="col-md-4">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0">Dados Gerais</h5>
-                    </div>
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header bg-dark text-white"><h5>Dados Gerais</h5></div>
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Cliente</label>
@@ -34,67 +35,62 @@
                             <select asp-for="FormaPagamento" class="form-select" required>
                                 <option value="Dinheiro">💵 Dinheiro</option>
                                 <option value="Pix">📱 Pix</option>
-                                <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
-                                <option value="Cartão de Débito">💳 Cartão de Débito</option>
-                                <option value="Boleto">📄 Boleto / Prazo</option>
+                                <option value="Cartão">💳 Cartão</option>
+                                <option value="Boleto">📄 Boleto</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
-                <div class="card shadow-sm border-success">
+                <!-- 🔹 TOTAL -->
+                <div class="card shadow-sm border-success bg-light border-0">
                     <div class="card-body text-center">
-                        <h4 class="text-muted">Total da Venda</h4>
+                        <h4 class="text-muted small fw-bold">TOTAL DA VENDA</h4>
                         <h1 class="display-4 fw-bold text-success" id="valorTotalDisplay">R$ 0,00</h1>
                         <input type="hidden" name="ValorTotal" id="ValorTotalInput" value="0" />
-
-                        <button type="submit" class="btn btn-success btn-lg w-100 mt-3">
-                            ✅ Finalizar Venda
-                        </button>
+                        <button type="submit" class="btn btn-success btn-lg w-100 mt-3 shadow">🚀 Finalizar Venda</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Coluna da Direita: Seleção de Produtos -->
+            <!-- 🔹 ITENS -->
             <div class="col-md-8">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Itens da Venda (Madeiras e Produtos)</h5>
-                    </div>
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-primary text-white"><h5>Itens da Venda</h5></div>
                     <div class="card-body">
-                        <div class="row g-3 align-items-end mb-4">
-                            <div class="col-md-5">
-                                <label class="form-label fw-bold">Produto/Madeira</label>
-                                <select id="selectProduto" class="form-select" asp-items="ViewBag.ProdutoId">
-                                    <option value="">-- Selecione o Item --</option>
-                                </select>
+
+                        <div class="row g-2 align-items-end mb-4 bg-light p-3 rounded">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small">🔎 BUSCAR</label>
+                                <select id="selectProdutoBusca" class="form-control"></select>
                             </div>
+
                             <div class="col-md-2">
-                                <label class="form-label fw-bold">Qtd</label>
-                                <input type="number" id="inputQtd" class="form-control" value="1" step="0.01" />
+                                <label class="form-label fw-bold small">QTD</label>
+                                <input type="number" id="inputQtd" class="form-control" step="1" min="1" />
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label fw-bold">Preço Un. (R$)</label>
-                                <input type="number" id="inputPreco" class="form-control" placeholder="0,00" step="0.01" />
-                            </div>
+
                             <div class="col-md-2">
-                                <button type="button" id="btnAdicionar" class="btn btn-primary w-100">Adicionar</button>
+                                <label class="form-label fw-bold small">PREÇO</label>
+                                <input type="number" id="inputPreco" class="form-control" step="0.01" />
+                            </div>
+
+                            <div class="col-md-2">
+                                <button type="button" id="btnAdicionar" class="btn btn-primary w-100 fw-bold">Adicionar</button>
                             </div>
                         </div>
 
-                        <table class="table table-striped align-middle" id="tabelaItens">
-                            <thead class="table-light">
+                        <table class="table table-hover" id="tabelaItens">
+                            <thead>
                                 <tr>
-                                    <th>Produto</th>
-                                    <th width="100">Qtd</th>
-                                    <th width="150">Preço Un.</th>
-                                    <th width="150">Subtotal</th>
-                                    <th width="50"></th>
+                                    <th>Descrição</th>
+                                    <th>Qtd</th>
+                                    <th>Preço</th>
+                                    <th>Subtotal</th>
+                                    <th></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <!-- Itens adicionados via JS aparecerão aqui -->
-                            </tbody>
+                            <tbody></tbody>
                         </table>
 
                         <div id="listaInputsEscondidos"></div>
@@ -106,57 +102,148 @@
 </div>
 
 @section Scripts {
-    <script>let totalGeral = 0;
 
-        document.getElementById('btnAdicionar').addEventListener('click', function() {
-            const select = document.getElementById('selectProduto');
-            const produtoId = select.value;
-            const produtoNome = select.options[select.selectedIndex].text;
-            const qtd = parseFloat(document.getElementById('inputQtd').value);
-            const preco = parseFloat(document.getElementById('inputPreco').value);
+    <!-- ✅ JS CORRETO (ORDEM IMPORTA) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-            if (!produtoId || isNaN(qtd) || isNaN(preco)) {
-                alert("Preencha todos os campos do produto!");
+    <script>
+        let totalGeral = 0;
+        let estoqueLocal = {};
+
+        $(document).ready(function () {
+
+            $('#selectProdutoBusca').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Digite ou clique para buscar...',
+                minimumInputLength: 0, // 🔥 já abre ao clicar
+                ajax: {
+                    url: '/Vendas/BuscarProdutosPaginado',
+                    dataType: 'json',
+                    delay: 150,
+                    data: function (params) {
+                        return {
+                            termo: params.term || '',
+                            pagina: params.page || 1
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: data.items.map(item => ({
+                                id: item.id,
+                                text: item.text,
+                                estoque: item.estoque
+                            })),
+                            pagination: {
+                                more: data.pagination.more
+                            }
+                        };
+                    }
+                }
+            });
+
+        });
+
+        $(document).on('click', '#btnAdicionar', function () {
+
+            const selected = $('#selectProdutoBusca').select2('data');
+
+            if (!selected || selected.length === 0) {
+                alert("Selecione um produto!");
                 return;
             }
 
+            const data = selected[0];
+
+            const qtd = parseInt(document.getElementById('inputQtd').value);
+            const preco = parseFloat(document.getElementById('inputPreco').value);
+
+            if (isNaN(qtd) || qtd <= 0) {
+                alert("Quantidade inválida!");
+                return;
+            }
+
+            if (isNaN(preco) || preco <= 0) {
+                alert("Preço inválido!");
+                return;
+            }
+
+            const produtoId = data.id;
+
+            let jaNaLista = estoqueLocal[produtoId] || 0;
+
+            if (data.estoque !== undefined) {
+
+                const disponivel = data.estoque - jaNaLista;
+
+                if (disponivel <= 0) {
+                    alert(`❌ Produto sem estoque disponível.\n\nEstoque total: ${data.estoque}`);
+                    return;
+                }
+
+                if (qtd > disponivel) {
+                    alert(`❌ Estoque insuficiente!\n\nDisponível: ${disponivel}\nJá adicionado: ${jaNaLista}\nEstoque total: ${data.estoque}`);
+                    return;
+                }
+            }
+
+            estoqueLocal[produtoId] = jaNaLista + qtd;
+
             const subtotal = qtd * preco;
+            const idUnico = Date.now();
+
+            $('#tabelaItens tbody').append(`
+        <tr id="tr-${idUnico}">
+            <td>${data.text}</td>
+            <td>${qtd}</td>
+            <td>R$ ${preco.toFixed(2)}</td>
+            <td>R$ ${subtotal.toFixed(2)}</td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm"
+                    onclick="removerItem(${idUnico}, ${subtotal}, ${produtoId}, ${qtd})">
+                    X
+                </button>
+            </td>
+        </tr>
+    `);
+
+            $('#listaInputsEscondidos').append(`
+        <div id="cont-${idUnico}">
+            <input type="hidden" name="ProdutoId" value="${produtoId}" />
+            <input type="hidden" name="Quantidade" value="${qtd}" />
+            <input type="hidden" name="PrecoUnitario" value="${preco}" />
+        </div>
+    `);
+
             totalGeral += subtotal;
+            atualizarTotal();
 
-            // Adiciona na tabela visual
-            const tabela = document.querySelector('#tabelaItens tbody');
-            const novaLinha = `
-                <tr>
-                    <td>${produtoNome}</td>
-                    <td>${qtd}</td>
-                    <td>R$ ${preco.toFixed(2)}</td>
-                    <td>R$ ${subtotal.toFixed(2)}</td>
-                    <td><button type="button" class="btn btn-sm btn-danger" onclick="removerItem(this, ${subtotal})">X</button></td>
-                </tr>
-            `;
-            tabela.innerHTML += novaLinha;
-
-            // Adiciona inputs escondidos para enviar ao Controller
-            const divInputs = document.getElementById('listaInputsEscondidos');
-            divInputs.innerHTML += `
-                <input type="hidden" name="ProdutoId" value="${produtoId}" />
-                <input type="hidden" name="Quantidade" value="${qtd}" />
-                <input type="hidden" name="PrecoUnitario" value="${preco}" />
-            `;
-
-            // Atualiza o display do Total
-            document.getElementById('valorTotalDisplay').innerText = `R$ ${totalGeral.toFixed(2)}`;
-            document.getElementById('ValorTotalInput').value = totalGeral;
-
-            // Limpa campos
-            select.value = "";
+            $('#selectProdutoBusca').val(null).trigger('change');
             document.getElementById('inputPreco').value = "";
+            document.getElementById('inputQtd').value = "1";
         });
 
-        function removerItem(btn, subtotal) {
-            btn.closest('tr').remove();
-            totalGeral -= subtotal;
-            document.getElementById('valorTotalDisplay').innerText = `R$ ${totalGeral.toFixed(2)}`;
-            document.getElementById('ValorTotalInput').value = totalGeral;
-        }</script>
+        function removerItem(id, sub, prodId, qtd) {
+            $(`#tr-${id}`).remove();
+            $(`#cont-${id}`).remove();
+
+            estoqueLocal[prodId] -= qtd;
+            totalGeral -= sub;
+
+            atualizarTotal();
+        }
+
+        function atualizarTotal() {
+            if (totalGeral < 0) totalGeral = 0;
+
+            document.getElementById('valorTotalDisplay').innerText =
+                totalGeral.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                });
+
+            document.getElementById('ValorTotalInput').value =
+                totalGeral.toFixed(2).replace('.', ',');
+        }
+    </script>
 }
