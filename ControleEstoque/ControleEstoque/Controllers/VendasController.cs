@@ -87,16 +87,26 @@ namespace ControleEstoque.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Venda venda, int[] ProdutoId, decimal[] Quantidade, decimal[] PrecoUnitario)
+        public async Task<IActionResult> Create(
+    Venda venda,
+    int[] ProdutoId,
+    decimal[] Quantidade,
+    decimal[] PrecoUnitario,
+    int QtdParcelas,
+    decimal Juros)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            venda.UsuarioId = string.IsNullOrEmpty(userIdClaim) ? (await _context.Usuarios.FirstOrDefaultAsync())?.Id ?? 1 : int.Parse(userIdClaim);
+            venda.UsuarioId = string.IsNullOrEmpty(userIdClaim)
+                ? (await _context.Usuarios.FirstOrDefaultAsync())?.Id ?? 1
+                : int.Parse(userIdClaim);
+
             venda.DataVenda = DateTime.UtcNow;
 
             ModelState.Remove("Usuario");
             ModelState.Remove("Cliente");
             ModelState.Remove("Itens");
 
+            // 🔴 VALIDAÇÃO ITENS
             if (ProdutoId == null || ProdutoId.Length == 0)
             {
                 ModelState.AddModelError("", "⚠️ Adicione ao menos um item na venda.");
@@ -105,7 +115,10 @@ namespace ControleEstoque.Controllers
             {
                 for (int i = 0; i < ProdutoId.Length; i++)
                 {
-                    var produto = await _context.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == ProdutoId[i]);
+                    var produto = await _context.Produtos
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(p => p.Id == ProdutoId[i]);
+
                     if (produto == null || produto.QuantidadeEstoque < Quantidade[i])
                     {
                         ModelState.AddModelError("", $"❌ Estoque insuficiente para {produto?.TipoMadeira}.");
@@ -115,38 +128,75 @@ namespace ControleEstoque.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.ClienteId = new SelectList(_context.Set<Cliente>().OrderBy(c => c.Nome), "Id", "Nome", venda.ClienteId);
+                ViewBag.ClienteId = new SelectList(
+                    _context.Set<Cliente>().OrderBy(c => c.Nome),
+                    "Id",
+                    "Nome",
+                    venda.ClienteId
+                );
+
                 return View(venda);
             }
 
+            // 🔥 SALVA VENDA
             _context.Vendas.Add(venda);
             await _context.SaveChangesAsync();
 
             decimal totalCalculado = 0;
+
+            // 🔥 SALVA ITENS + BAIXA ESTOQUE
             for (int i = 0; i < ProdutoId.Length; i++)
             {
                 var pId = ProdutoId[i];
                 var qtd = Quantidade[i];
                 var preco = PrecoUnitario[i];
 
-                _context.VendaItens.Add(new VendaItem { VendaId = venda.Id, ProdutoId = pId, Quantidade = qtd, PrecoUnitario = preco });
+                _context.VendaItens.Add(new VendaItem
+                {
+                    VendaId = venda.Id,
+                    ProdutoId = pId,
+                    Quantidade = qtd,
+                    PrecoUnitario = preco
+                });
 
                 var prodEstoque = await _context.Produtos.FindAsync(pId);
-                if (prodEstoque != null) prodEstoque.QuantidadeEstoque -= qtd;
+                if (prodEstoque != null)
+                    prodEstoque.QuantidadeEstoque -= qtd;
 
                 totalCalculado += (qtd * preco);
             }
 
             venda.ValorTotal = totalCalculado;
-            _context.ContasReceber.Add(new ContasReceber
+
+            // =========================
+            // 🔥 PARCELAMENTO INTELIGENTE
+            // =========================
+
+            int parcelas = QtdParcelas <= 0 ? 1 : QtdParcelas;
+
+            // 🔥 REGRA PROFISSIONAL (máximo 12)
+            if (parcelas > 12)
+                parcelas = 12;
+
+            decimal jurosValor = Juros > 0 ? totalCalculado * (Juros / 100) : 0;
+            decimal totalComJuros = totalCalculado + jurosValor;
+            decimal valorParcela = totalComJuros / parcelas;
+
+            for (int i = 1; i <= parcelas; i++)
             {
-                VendaId = venda.Id,
-                Valor = totalCalculado,
-                DataVencimento = DateTime.UtcNow.AddDays(30),
-                Observacao = $"Venda #{venda.Id}"
-            });
+                _context.ContasReceber.Add(new ContasReceber
+                {
+                    VendaId = venda.Id,
+                    Valor = valorParcela,
+                    DataVencimento = DateTime.UtcNow.AddDays(30 * i),
+                    Observacao = parcelas > 1
+                        ? $"Parcela {i}/{parcelas} - Venda #{venda.Id}"
+                        : $"Venda #{venda.Id}"
+                });
+            }
 
             await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
     }

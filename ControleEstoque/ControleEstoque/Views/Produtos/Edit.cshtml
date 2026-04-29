@@ -2,8 +2,8 @@
 
 <h2>Editar Produto</h2>
 
-<form asp-action="Create" method="post">
-
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
     <input asp-for="Categoria" class="form-control mb-2" placeholder="Categoria" />
     <input asp-for="TipoMadeira" class="form-control mb-2" placeholder="Tipo Madeira" />
     <input asp-for="Descricao" class="form-control mb-2" placeholder="Descrição" />

@@ -15,6 +15,7 @@ namespace ControleEstoque.Controllers
             _context = context;
         }
 
+        // ================= INDEX =================
         public async Task<IActionResult> Index()
         {
             var contas = await _context.ContasPagar
@@ -25,55 +26,116 @@ namespace ControleEstoque.Controllers
             return View(contas);
         }
 
-        // GET: ContasPagar/Create
+        // ================= CREATE (GET) =================
         public IActionResult Create()
         {
-            // Buscamos os fornecedores e usamos "NomeFantasia" como o texto que aparece no site
-            var fornecedores = _context.Fornecedores.OrderBy(f => f.NomeFantasia).ToList();
-
-            ViewBag.FornecedorId = new SelectList(fornecedores, "Id", "NomeFantasia");
+            ViewBag.FornecedorId = new SelectList(
+                _context.Fornecedores.OrderBy(f => f.NomeFantasia),
+                "Id",
+                "NomeFantasia"
+            );
 
             return View();
         }
 
-        // POST: ContasPagar/Create
+        // ================= CREATE (POST) =================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ContasPagar contasPagar)
         {
-            // 1. Forçar a Data de Vencimento para UTC
             contasPagar.DataVencimento = DateTime.SpecifyKind(contasPagar.DataVencimento, DateTimeKind.Utc);
 
-            // 2. Se houver Data de Pagamento, converter também
             if (contasPagar.DataPagamento.HasValue)
             {
                 contasPagar.DataPagamento = DateTime.SpecifyKind(contasPagar.DataPagamento.Value, DateTimeKind.Utc);
             }
 
-            // Remover validações de objetos de navegação para evitar erros de validação
             ModelState.Remove("Fornecedor");
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(contasPagar);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ViewBag.FornecedorId = new SelectList(
+                    _context.Fornecedores,
+                    "Id",
+                    "NomeFantasia",
+                    contasPagar.FornecedorId
+                );
+
+                return View(contasPagar);
             }
 
-            ViewBag.FornecedorId = new SelectList(_context.Fornecedores, "Id", "NomeFantasia", contasPagar.FornecedorId);
-            return View(contasPagar);
+            _context.Add(contasPagar);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
+        // ================= EDIT (GET) =================
+        public async Task<IActionResult> Edit(int id)
+        {
+            var conta = await _context.ContasPagar.FindAsync(id);
+
+            if (conta == null)
+                return NotFound();
+
+            ViewBag.FornecedorId = new SelectList(
+                _context.Fornecedores,
+                "Id",
+                "NomeFantasia",
+                conta.FornecedorId
+            );
+
+            return View(conta);
+        }
+
+        // ================= EDIT (POST) =================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, ContasPagar conta)
+        {
+            if (id != conta.Id)
+                return NotFound();
+
+            conta.DataVencimento = DateTime.SpecifyKind(conta.DataVencimento, DateTimeKind.Utc);
+
+            if (conta.DataPagamento.HasValue)
+            {
+                conta.DataPagamento = DateTime.SpecifyKind(conta.DataPagamento.Value, DateTimeKind.Utc);
+            }
+
+            ModelState.Remove("Fornecedor");
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.FornecedorId = new SelectList(
+                    _context.Fornecedores,
+                    "Id",
+                    "NomeFantasia",
+                    conta.FornecedorId
+                );
+
+                return View(conta);
+            }
+
+            _context.Update(conta);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ================= BAIXAR =================
         [HttpPost]
         public async Task<IActionResult> Baixar(int id)
         {
             var conta = await _context.ContasPagar.FindAsync(id);
+
             if (conta != null)
             {
                 conta.DataPagamento = DateTime.UtcNow;
                 _context.Update(conta);
                 await _context.SaveChangesAsync();
             }
+
             return RedirectToAction(nameof(Index));
         }
     }

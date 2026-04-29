@@ -47,6 +47,7 @@ public class ProdutosController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Produto produto)
     {
         if (!ModelState.IsValid)
@@ -109,6 +110,7 @@ public class ProdutosController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, Produto produto)
     {
         if (id != produto.Id)
@@ -142,6 +144,7 @@ public class ProdutosController : Controller
     }
 
     [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var produto = await _context.Produtos.FindAsync(id);

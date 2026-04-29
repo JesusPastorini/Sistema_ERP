@@ -37,10 +37,32 @@
                                 <option value="Pix">📱 Pix</option>
                                 <option value="Cartão">💳 Cartão</option>
                                 <option value="Boleto">📄 Boleto</option>
+                                <option value="Link">🔗 Link de pagamento</option>
                             </select>
+                            <div id="parcelamentoBox" class="mt-3" style="display:none;">
+
+                                <div class="mb-2">
+                                    <label>Quantidade de Parcelas</label>
+                                    <input type="number" id="qtdParcelas" class="form-control" min="1" value="1" />
+                                </div>
+
+                                <div class="mb-2">
+                                    <label>Juros (%)</label>
+                                    <input type="number" id="juros" class="form-control" step="0.01" value="0" />
+                                </div>
+
+                                <div class="mb-2">
+                                    <label>Valor da Parcela</label>
+                                    <input type="text" id="valorParcela" class="form-control" readonly />
+                                </div>
+
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <input type="hidden" name="QtdParcelas" id="hiddenParcelas" />
+                <input type="hidden" name="Juros" id="hiddenJuros" />
 
                 <!-- 🔹 TOTAL -->
                 <div class="card shadow-sm border-success bg-light border-0">
@@ -244,6 +266,64 @@
 
             document.getElementById('ValorTotalInput').value =
                 totalGeral.toFixed(2).replace('.', ',');
+
+            calcularParcelas();
         }
+        // Mostrar e esconder parcelamento
+        $(document).ready(function () {
+
+            const formaPagamento = document.querySelector('[name="FormaPagamento"]');
+            const boxParcelamento = document.getElementById('parcelamentoBox');
+
+            formaPagamento.addEventListener('change', function () {
+
+                const precisaParcelar = ["Cartão", "Boleto", "Link"];
+
+                if (precisaParcelar.includes(this.value)) {
+                    boxParcelamento.style.display = "block";
+                } else {
+                    boxParcelamento.style.display = "none";
+                }
+            });
+
+        });
+
+        // calcular parcelas
+        function calcularParcelas() {
+            const total = totalGeral;
+            const parcelas = parseInt(document.getElementById('qtdParcelas').value);
+            const juros = parseFloat(document.getElementById('juros').value) || 0;
+
+            if (!parcelas || parcelas <= 0) return;
+
+            if (parcelas > 12) {
+                alert("Máximo de 12 parcelas");
+                document.getElementById('qtdParcelas').value = 12;
+                return;
+            }
+
+            const totalComJuros = total + (total * (juros / 100));
+            const valorParcela = totalComJuros / parcelas;
+
+            document.getElementById('valorParcela').value =
+                valorParcela.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        document.getElementById('qtdParcelas').addEventListener('input', calcularParcelas);
+        document.getElementById('juros').addEventListener('input', calcularParcelas);
+
+        document.getElementById('formVenda').addEventListener('submit', function () {
+
+            const forma = document.querySelector('[name="FormaPagamento"]').value;
+
+            if (["Cartão", "Boleto", "Link"].includes(forma)) {
+                document.getElementById('hiddenParcelas').value = document.getElementById('qtdParcelas').value;
+                document.getElementById('hiddenJuros').value = document.getElementById('juros').value;
+            } else {
+                document.getElementById('hiddenParcelas').value = 1;
+                document.getElementById('hiddenJuros').value = 0;
+            }
+
+        });
     </script>
 }
