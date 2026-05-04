@@ -1,30 +1,136 @@
 ﻿@model ControleEstoque.Models.Venda
 
-<h2>🧾 Detalhes da Venda</h2>
+@{
+    ViewData["Title"] = "Detalhes da Venda";
+}
 
-<p><b>Cliente:</b> @Model.Cliente.Nome</p>
-<p><b>Data:</b> @Model.DataVenda.ToShortDateString()</p>
+<div class="container mt-4">
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Produto</th>
-            <th>Qtd</th>
-            <th>Preço</th>
-            <th>Subtotal</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Itens)
-        {
-        <tr>
-            <td>@item.Produto.TipoMadeira</td>
-            <td>@item.Quantidade</td>
-            <td>@item.PrecoUnitario.ToString("C")</td>
-            <td>@((item.Quantidade * item.PrecoUnitario).ToString("C"))</td>
-        </tr>
-        }
-    </tbody>
-</table>
+    <h2 class="mb-4">🧾 Detalhes da Venda</h2>
 
-<a asp-action="Index" class="btn btn-secondary">Voltar</a>
+    <!-- 🔹 RESUMO -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-muted">Cliente</h6>
+                    <h5>@Model.Cliente?.Nome</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-muted">Data da Venda</h6>
+                    <h5>@Model.DataVenda.ToString("dd/MM/yyyy HH:mm")</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-muted">Forma de Pagamento</h6>
+                    <h5>@Model.FormaPagamento</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔹 CONDIÇÃO -->
+    @if (Model.CondicaoPagamento != null)
+    {
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <h5 class="mb-3">💳 Condição de Pagamento</h5>
+
+            <p><b>Nome:</b> @Model.CondicaoPagamento.Nome</p>
+            <p><b>Parcelas:</b> @Model.CondicaoPagamento.Parcelas x</p>
+            <p><b>Juros:</b> @Model.CondicaoPagamento.Juros %</p>
+            <p><b>Taxa:</b> @Model.CondicaoPagamento.TaxaOperadora %</p>
+        </div>
+    </div>
+    }
+
+    <!-- 🔹 ITENS -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Itens da Venda</h5>
+        </div>
+
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Produto</th>
+                        <th>Qtd</th>
+                        <th>Preço Unitário</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Itens)
+                    {
+                    <tr>
+                        <td>@item.Produto?.TipoMadeira</td>
+                        <td>@item.Quantidade</td>
+                        <td>@item.PrecoUnitario.ToString("C")</td>
+                        <td>@((item.Quantidade * item.PrecoUnitario).ToString("C"))</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 🔹 TOTAL -->
+    <div class="card shadow-sm border-success bg-light border-0 mb-4">
+        <div class="card-body text-center">
+            <h6 class="text-muted">TOTAL DA VENDA</h6>
+            <h2 class="text-success fw-bold">
+                @Model.ValorTotal.ToString("C")
+            </h2>
+        </div>
+    </div>
+
+    <!-- 🔹 PARCELAS -->
+    @if (Model.ContasReceber != null && Model.ContasReceber.Any())
+    {
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">📅 Parcelas</h5>
+        </div>
+
+        <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Vencimento</th>
+                        <th>Valor</th>
+                        <th>Observação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var parcela in Model.ContasReceber)
+                        {
+                    <tr>
+                        <td>@parcela.Id</td>
+                        <td>@parcela.DataVencimento.ToString("dd/MM/yyyy")</td>
+                        <td>@parcela.Valor.ToString("C")</td>
+                        <td>@parcela.Observacao</td>
+                    </tr>
+                        }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    }
+
+    <!-- 🔹 BOTÃO -->
+    <a asp-action="Index" class="btn btn-secondary">
+        ← Voltar
+    </a>
+
+</div>

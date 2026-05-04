@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using ControleEstoque.Models;
 
 namespace ControleEstoque.Models
 {
@@ -24,5 +25,12 @@ namespace ControleEstoque.Models
 
         // Relacionamento com os itens vendidos
         public ICollection<VendaItem> Itens { get; set; }
+
+        public int? CondicaoPagamentoId { get; set; }
+        public CondicaoPagamento? CondicaoPagamento { get; set; }
+
+        public virtual ICollection<ContasReceber> ContasReceber { get; set; } = new List<ContasReceber>();
+
+        public ICollection<MovimentacaoEstoque> Movimentacoes { get; set; }
     }
 }

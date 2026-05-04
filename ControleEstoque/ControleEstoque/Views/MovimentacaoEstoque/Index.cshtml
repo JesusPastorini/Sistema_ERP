@@ -1,0 +1,142 @@
+﻿@model List<MovimentacaoEstoque>
+
+    <div class="container-fluid">
+
+        <h2 class="mb-4">📦 Movimentação de Estoque</h2>
+
+        <!-- 🔎 FILTROS -->
+        <form method="get" class="card p-3 mb-4 shadow-sm">
+            <div class="row">
+
+                <div class="col-md-4">
+                    <input type="text" name="busca" class="form-control"
+                           placeholder="Buscar produto..." />
+                </div>
+
+                <div class="col-md-3">
+                    <input type="date" name="dataInicio" class="form-control" />
+                </div>
+
+                <div class="col-md-3">
+                    <input type="date" name="dataFim" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <button class="btn btn-dark w-100">🔍 Filtrar</button>
+                </div>
+
+            </div>
+        </form>
+
+        <div class="row">
+
+            <!-- 🔹 FORM -->
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        Nova Movimentação
+                    </div>
+
+                    <div class="card-body">
+
+                        <form asp-action="Movimentar" method="post">
+
+                            <select name="ProdutoId" class="form-control mb-2" asp-items="ViewBag.Produtos">
+                                <option value="">Selecione...</option>
+                            </select>
+
+                            <input name="Quantidade" class="form-control mb-2" placeholder="Quantidade" />
+
+                            <select name="TipoMovimentacao" class="form-control mb-2">
+                                <option value="">Selecione</option>
+                                <option value="Entrada">📥 Entrada</option>
+                                <option value="Saida">📤 Saída</option>
+                            </select>
+
+                            <!-- 🔥 NOVO -->
+                            <textarea name="Descricao" class="form-control mb-2"
+                                      placeholder="Descrição (opcional)"></textarea>
+
+                            <button class="btn btn-success w-100">Salvar</button>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🔹 HISTÓRICO -->
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+
+                    <div class="card-header bg-primary text-white">
+                        Histórico
+                    </div>
+
+                    <table class="table mb-0">
+
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Produto</th>
+                                <th>Tipo</th>
+                                <th>Qtd</th>
+                                <th>Origem</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <td>@item.DataMovimentacao.ToString("dd/MM HH:mm")</td>
+
+                                <td>
+                                    @item.Produto.TipoMadeira <br />
+                                    <small class="text-muted">
+                                        @item.Produto.Categoria (@item.Produto.Dimensoes)
+                                    </small>
+                                </td>
+
+                                <td>
+                                    @if (item.TipoMovimentacao == "Venda")
+                                    {
+                                    <span class="badge bg-info">🛒 Venda</span>
+                                    }
+                                    else if (item.TipoMovimentacao == "Entrada")
+                                    {
+                                    <span class="badge bg-success">Entrada</span>
+                                    }
+                                    else
+                                    {
+                                    <span class="badge bg-danger">Saída</span>
+                                    }
+                                </td>
+
+                                <td>@item.Quantidade</td>
+
+                                <td>
+                                    @if (item.TipoMovimentacao == "Venda")
+                                    {
+                                    <span class="text-primary fw-bold">
+                                        Venda #@item.VendaId
+                                    </span>
+                                    }
+                                    else
+                                    {
+                                    @item.Descricao
+                                    }
+                                </td>
+
+                            </tr>
+                        }
+                        </tbody>
+
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+    </div>

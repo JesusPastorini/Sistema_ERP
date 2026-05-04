@@ -39,30 +39,28 @@
                                 <option value="Boleto">📄 Boleto</option>
                                 <option value="Link">🔗 Link de pagamento</option>
                             </select>
-                            <div id="parcelamentoBox" class="mt-3" style="display:none;">
+                            <div id="condicaoBox" style="display:none;" class="mt-3">
+                                <label class="fw-bold">Condição</label>
+                                <select name="CondicaoPagamentoId" id="condicaoPagamento" class="form-control">
+                                    <option value="">Selecione...</option>
 
-                                <div class="mb-2">
-                                    <label>Quantidade de Parcelas</label>
-                                    <input type="number" id="qtdParcelas" class="form-control" min="1" value="1" />
-                                </div>
-
-                                <div class="mb-2">
-                                    <label>Juros (%)</label>
-                                    <input type="number" id="juros" class="form-control" step="0.01" value="0" />
-                                </div>
-
-                                <div class="mb-2">
-                                    <label>Valor da Parcela</label>
-                                    <input type="text" id="valorParcela" class="form-control" readonly />
-                                </div>
-
+                                    @if (ViewBag.Condicoes != null)
+    {
+        foreach (var item in ViewBag.Condicoes)
+        {
+                                    <option value="@item.Id"
+                                            data-juros="@item.Juros"
+                                            data-parcelas="@item.Parcelas"
+                                            data-taxa="@item.TaxaOperadora">
+                                        @item.Nome
+                                    </option>
+        }
+    }
+                                </select>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <input type="hidden" name="QtdParcelas" id="hiddenParcelas" />
-                <input type="hidden" name="Juros" id="hiddenJuros" />
 
                 <!-- 🔹 TOTAL -->
                 <div class="card shadow-sm border-success bg-light border-0">
@@ -138,7 +136,7 @@
             $('#selectProdutoBusca').select2({
                 theme: 'bootstrap-5',
                 placeholder: 'Digite ou clique para buscar...',
-                minimumInputLength: 0, // 🔥 já abre ao clicar
+                minimumInputLength: 0,
                 ajax: {
                     url: '/Vendas/BuscarProdutosPaginado',
                     dataType: 'json',
@@ -149,7 +147,7 @@
                             pagina: params.page || 1
                         };
                     },
-                    processResults: function (data, params) {
+                    processResults: function (data) {
                         return {
                             results: data.items.map(item => ({
                                 id: item.id,
@@ -164,6 +162,19 @@
                 }
             });
 
+            const formaPagamento = document.querySelector('[name="FormaPagamento"]');
+            const condicaoBox = document.getElementById('condicaoBox');
+
+            formaPagamento.addEventListener('change', function () {
+                const precisaCondicao = ["Cartão", "Boleto", "Link"];
+
+                if (precisaCondicao.includes(this.value)) {
+                    condicaoBox.style.display = "block";
+                } else {
+                    condicaoBox.style.display = "none";
+                    document.getElementById('condicaoPagamento').value = "";
+                }
+            });
         });
 
         $(document).on('click', '#btnAdicionar', function () {
@@ -176,7 +187,6 @@
             }
 
             const data = selected[0];
-
             const qtd = parseInt(document.getElementById('inputQtd').value);
             const preco = parseFloat(document.getElementById('inputPreco').value);
 
@@ -191,20 +201,18 @@
             }
 
             const produtoId = data.id;
-
             let jaNaLista = estoqueLocal[produtoId] || 0;
 
             if (data.estoque !== undefined) {
-
                 const disponivel = data.estoque - jaNaLista;
 
                 if (disponivel <= 0) {
-                    alert(`❌ Produto sem estoque disponível.\n\nEstoque total: ${data.estoque}`);
+                    alert(`❌ Produto sem estoque disponível.`);
                     return;
                 }
 
                 if (qtd > disponivel) {
-                    alert(`❌ Estoque insuficiente!\n\nDisponível: ${disponivel}\nJá adicionado: ${jaNaLista}\nEstoque total: ${data.estoque}`);
+                    alert(`❌ Estoque insuficiente! Disponível: ${disponivel}`);
                     return;
                 }
             }
@@ -215,27 +223,27 @@
             const idUnico = Date.now();
 
             $('#tabelaItens tbody').append(`
-        <tr id="tr-${idUnico}">
-            <td>${data.text}</td>
-            <td>${qtd}</td>
-            <td>R$ ${preco.toFixed(2)}</td>
-            <td>R$ ${subtotal.toFixed(2)}</td>
-            <td>
-                <button type="button" class="btn btn-danger btn-sm"
-                    onclick="removerItem(${idUnico}, ${subtotal}, ${produtoId}, ${qtd})">
-                    X
-                </button>
-            </td>
-        </tr>
-    `);
+                <tr id="tr-${idUnico}">
+                    <td>${data.text}</td>
+                    <td>${qtd}</td>
+                    <td>R$ ${preco.toFixed(2)}</td>
+                    <td>R$ ${subtotal.toFixed(2)}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm"
+                            onclick="removerItem(${idUnico}, ${subtotal}, ${produtoId}, ${qtd})">
+                            X
+                        </button>
+                    </td>
+                </tr>
+            `);
 
             $('#listaInputsEscondidos').append(`
-        <div id="cont-${idUnico}">
-            <input type="hidden" name="ProdutoId" value="${produtoId}" />
-            <input type="hidden" name="Quantidade" value="${qtd}" />
-            <input type="hidden" name="PrecoUnitario" value="${preco}" />
-        </div>
-    `);
+                <div id="cont-${idUnico}">
+                    <input type="hidden" name="ProdutoId" value="${produtoId}" />
+                    <input type="hidden" name="Quantidade" value="${qtd}" />
+                    <input type="hidden" name="PrecoUnitario" value="${preco}" />
+                </div>
+            `);
 
             totalGeral += subtotal;
             atualizarTotal();
@@ -256,74 +264,69 @@
         }
 
         function atualizarTotal() {
-            if (totalGeral < 0) totalGeral = 0;
 
-            document.getElementById('valorTotalDisplay').innerText =
-                totalGeral.toLocaleString('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL'
-                });
+            let total = totalGeral;
 
-            document.getElementById('ValorTotalInput').value =
-                totalGeral.toFixed(2).replace('.', ',');
+            const select = document.getElementById('condicaoPagamento');
 
-            calcularParcelas();
-        }
-        // Mostrar e esconder parcelamento
-        $(document).ready(function () {
+            if (select && select.selectedIndex > 0) {
 
-            const formaPagamento = document.querySelector('[name="FormaPagamento"]');
-            const boxParcelamento = document.getElementById('parcelamentoBox');
+                const selected = select.options[select.selectedIndex];
 
-            formaPagamento.addEventListener('change', function () {
+                const juros = parseFloat(selected.getAttribute('data-juros')) || 0;
+                const taxa = parseFloat(selected.getAttribute('data-taxa')) || 0;
+                const parcelas = parseInt(selected.getAttribute('data-parcelas')) || 1;
 
-                const precisaParcelar = ["Cartão", "Boleto", "Link"];
-
-                if (precisaParcelar.includes(this.value)) {
-                    boxParcelamento.style.display = "block";
-                } else {
-                    boxParcelamento.style.display = "none";
+                // aplica juros
+                if (juros > 0) {
+                    total += total * (juros / 100);
                 }
-            });
 
-        });
+                // aplica taxa
+                if (taxa > 0) {
+                    total += total * (taxa / 100);
+                }
 
-        // calcular parcelas
-        function calcularParcelas() {
-            const total = totalGeral;
-            const parcelas = parseInt(document.getElementById('qtdParcelas').value);
-            const juros = parseFloat(document.getElementById('juros').value) || 0;
+                // 🔥 SE FOR PARCELADO
+                if (parcelas > 1) {
 
-            if (!parcelas || parcelas <= 0) return;
+                    const valorParcela = total / parcelas;
 
-            if (parcelas > 12) {
-                alert("Máximo de 12 parcelas");
-                document.getElementById('qtdParcelas').value = 12;
-                return;
+                    document.getElementById('valorTotalDisplay').innerText =
+                        `${parcelas}x de ${valorParcela.toLocaleString('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL'
+                        })}`;
+                }
+                else {
+                    // pagamento à vista
+                    document.getElementById('valorTotalDisplay').innerText =
+                        total.toLocaleString('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL'
+                        });
+                }
+
+            } else {
+                // sem condição
+                document.getElementById('valorTotalDisplay').innerText =
+                    total.toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                    });
             }
 
-            const totalComJuros = total + (total * (juros / 100));
-            const valorParcela = totalComJuros / parcelas;
-
-            document.getElementById('valorParcela').value =
-                valorParcela.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            // 🔥 BACKEND SEMPRE RECEBE TOTAL
+            document.getElementById('ValorTotalInput').value =
+                total.toFixed(2).replace('.', ',');
         }
 
-        document.getElementById('qtdParcelas').addEventListener('input', calcularParcelas);
-        document.getElementById('juros').addEventListener('input', calcularParcelas);
+        document.addEventListener('DOMContentLoaded', function () {
+            const select = document.getElementById('condicaoPagamento');
 
-        document.getElementById('formVenda').addEventListener('submit', function () {
-
-            const forma = document.querySelector('[name="FormaPagamento"]').value;
-
-            if (["Cartão", "Boleto", "Link"].includes(forma)) {
-                document.getElementById('hiddenParcelas').value = document.getElementById('qtdParcelas').value;
-                document.getElementById('hiddenJuros').value = document.getElementById('juros').value;
-            } else {
-                document.getElementById('hiddenParcelas').value = 1;
-                document.getElementById('hiddenJuros').value = 0;
+            if (select) {
+                select.addEventListener('change', atualizarTotal);
             }
-
         });
     </script>
 }

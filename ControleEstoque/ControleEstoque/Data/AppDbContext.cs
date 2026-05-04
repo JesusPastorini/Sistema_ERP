@@ -23,6 +23,6 @@ namespace ControleEstoque.Data
         public DbSet<VendaItem> VendaItens { get; set; }
         public DbSet<ContasReceber> ContasReceber { get; set; }
         public DbSet<ContasPagar> ContasPagar { get; set; }
-
+        public DbSet<CondicaoPagamento> CondicoesPagamento { get; set; }
     }
 }

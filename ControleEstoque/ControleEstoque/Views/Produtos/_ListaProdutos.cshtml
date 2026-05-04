@@ -1,18 +1,30 @@
-﻿@model List<Produto>
+@model List<Produto>
 
-@foreach (var item in Model)
+    @foreach (var item in Model)
 {
-    <div class="card mb-2">
-        <div class="card-body">
-            Categoria: @item.Categoria <br />
-            Tipo: @item.TipoMadeira <br />
-            Estoque: @item.QuantidadeEstoque <br />
-            Fornecedor: @item.Fornecedor?.NomeFantasia
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0 h-100">
 
-            <div class="mt-2">
-                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Visualizar</a>
+            <div class="card-header bg-dark text-white">
+                <strong>@item.TipoMadeira</strong>
+            </div>
+
+            <div class="card-body">
+                <p><strong>Categoria:</strong> @item.Categoria</p>
+                <p><strong>Fornecedor:</strong> @(item.Fornecedor?.NomeFantasia ?? "N/A")</p>
+
+                <p>
+                    <strong>Estoque:</strong>
+                    <span class="badge @(item.QuantidadeEstoque > 5 ? "bg-success" : item.QuantidadeEstoque > 0 ? "bg-warning text-dark" : "bg-danger")">
+                        @item.QuantidadeEstoque
+                    </span>
+                </p>
+            </div>
+
+            <div class="card-footer d-flex justify-content-between">
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white">Ver</a>
                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Editar</a>
-                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Deletar</a>
+                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Del</a>
             </div>
         </div>
     </div>

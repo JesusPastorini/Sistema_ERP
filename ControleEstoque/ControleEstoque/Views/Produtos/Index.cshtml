@@ -1,37 +1,87 @@
 ﻿@model List<Produto>
 
-<h2>Produtos</h2>
+    @{
+    ViewData["Title"] = "Produtos";
+    }
 
-<a asp-action="Create" class="btn btn-primary mb-3">
-    + Criar Produto
-</a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📦 Produtos</h2>
 
-<h4>Produtos Recentes</h4>
+        <a asp-action="Create" class="btn btn-primary">
+            ➕ Criar Produto
+        </a>
+    </div>
 
-<div id="listaProdutos">
-    @await Html.PartialAsync("_ListaProdutos", Model)
-</div>
+    <!-- 🔎 BUSCA -->
+    <form method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="busca" class="form-control"
+                   placeholder="Buscar produto..."
+                   value="@ViewBag.Busca" />
 
-<script>
-    let skip = 10;
-    let carregando = false;
+            <button class="btn btn-dark">🔍 Buscar</button>
+        </div>
+    </form>
 
-    window.addEventListener("scroll", function () {
+    <!-- 📦 LISTA -->
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
 
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+                <thead class="table-dark">
+                    <tr>
+                        <th>Produto</th>
+                        <th>Categoria</th>
+                        <th>Fornecedor</th>
+                        <th>Estoque</th>
+                        <th></th>
+                    </tr>
+                </thead>
 
-            if (!carregando) {
-                carregando = true;
+                <tbody>
+                    @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@item.TipoMadeira</strong><br />
+                            <small class="text-muted">@item.Dimensoes</small>
+                        </td>
 
-                fetch(`/Produto/CarregarMais?skip=${skip}`)
-                    .then(res => res.text())
-                    .then(data => {
-                        document.getElementById("listaProdutos")
-                            .insertAdjacentHTML("beforeend", data);
-                        skip += 10;
-                        carregando = false;
-                    });
-            }
-        }
-    });
-</script>
+                        <td>@item.Categoria</td>
+
+                        <td>
+                            @(item.Fornecedor?.NomeFantasia ?? "N/A")
+                        </td>
+
+                        <!-- ESTOQUE COLORIDO -->
+                        <td>
+                            <span class="badge @(item.QuantidadeEstoque > 5 ? "bg-success" :
+                                                item.QuantidadeEstoque > 0 ? "bg-warning text-dark" :
+                                                "bg-danger")">
+                                @item.QuantidadeEstoque
+                            </span>
+                        </td>
+
+                        <td class="text-end">
+                            <a asp-action="Details" asp-route-id="@item.Id"
+                               class="btn btn-sm btn-info text-white">
+                                👁
+                            </a>
+
+                            <a asp-action="Edit" asp-route-id="@item.Id"
+                               class="btn btn-sm btn-warning">
+                                ✏
+                            </a>
+
+                            <a asp-action="Delete" asp-route-id="@item.Id"
+                               class="btn btn-sm btn-danger">
+                                🗑
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+
+            </table>
+        </div>
+    </div>

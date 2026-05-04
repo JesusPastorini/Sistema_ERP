@@ -12,9 +12,28 @@ public class FornecedoresController : Controller
     }
 
     // LISTAR
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string busca)
     {
-        var fornecedores = await _context.Fornecedores.ToListAsync();
+        var query = _context.Fornecedores.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(busca))
+        {
+            busca = busca.ToLower();
+
+            query = query.Where(f =>
+                f.NomeFantasia.ToLower().Contains(busca) ||
+                f.RazaoSocial.ToLower().Contains(busca) ||
+                f.Cnpj.Contains(busca)
+            );
+        }
+
+        var fornecedores = await query
+            .OrderByDescending(f => f.Id)
+            .Take(10)
+            .ToListAsync();
+
+        ViewBag.Busca = busca;
+
         return View(fornecedores);
     }
 
