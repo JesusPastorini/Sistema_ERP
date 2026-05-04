@@ -1,4 +1,5 @@
 ﻿using ControleEstoque.Data;
+using ControleEstoque.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,86 +13,81 @@ public class MovimentacaoEstoqueController : Controller
         _context = context;
     }
 
-    // GET
-    public IActionResult Create()
+    // 🔹 TELA PRINCIPAL
+    public async Task<IActionResult> Index(string busca, DateTime? dataInicio, DateTime? dataFim)
     {
-        ViewBag.Produtos = new SelectList(_context.Produtos, "Id", "Categoria");
-        return View();
-    }
-
-    // POST
-    [HttpPost]
-    public async Task<IActionResult> Create(MovimentacaoEstoque movimentacao)
-    {
-        if (ModelState.IsValid)
-        {
-            var produto = await _context.Produtos.FindAsync(movimentacao.ProdutoId);
-
-            if (produto == null)
-                return NotFound();
-
-            if (movimentacao.TipoMovimentacao == "Entrada")
-            {
-                produto.QuantidadeEstoque += movimentacao.Quantidade;
-            }
-            else if (movimentacao.TipoMovimentacao == "Saida")
-            {
-                if (produto.QuantidadeEstoque < movimentacao.Quantidade)
+        ViewBag.Produtos = new SelectList(
+            _context.Produtos
+                .Select(p => new
                 {
-                    ModelState.AddModelError("", "Estoque insuficiente.");
-                    ViewBag.Produtos = new SelectList(_context.Produtos, "Id", "Categoria");
-                    return View(movimentacao);
-                }
+                    p.Id,
+                    NomeCompleto = p.TipoMadeira + " - " + p.Categoria + " (" + p.Dimensoes + ")"
+                }),
+            "Id",
+            "NomeCompleto"
+        );
 
-                produto.QuantidadeEstoque -= movimentacao.Quantidade;
-            }
+        var query = _context.MovimentacoesEstoque
+            .Include(m => m.Produto)
+            .Include(m => m.Venda)
+            .AsQueryable();
 
-            _context.MovimentacoesEstoque.Add(movimentacao);
-            await _context.SaveChangesAsync();
+        // 🔎 BUSCA
+        if (!string.IsNullOrWhiteSpace(busca))
+        {
+            busca = busca.ToLower();
 
-            return RedirectToAction("Index", "Produto");
+            query = query.Where(m =>
+                m.Produto.TipoMadeira.ToLower().Contains(busca) ||
+                m.Produto.Categoria.ToLower().Contains(busca)
+            );
         }
 
-        ViewBag.Produtos = new SelectList(_context.Produtos, "Id", "Categoria");
-        return View(movimentacao);
+        // 📅 FILTRO DATA
+        if (dataInicio.HasValue)
+            query = query.Where(m => m.DataMovimentacao >= dataInicio.Value);
+
+        if (dataFim.HasValue)
+            query = query.Where(m => m.DataMovimentacao <= dataFim.Value);
+
+        var historico = await query
+            .OrderByDescending(m => m.DataMovimentacao)
+            .Take(50)
+            .ToListAsync();
+
+        return View(historico);
     }
 
-    // GET - Saida
-    public IActionResult Saida()
-    {
-        ViewBag.Produtos = new SelectList(_context.Produtos, "Id", "Descricao");
-        return View();
-    }
-
-    // POST - Saida
+    // 🔹 MOVIMENTAR
     [HttpPost]
-    public async Task<IActionResult> Saida(int produtoId, decimal quantidade)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Movimentar(MovimentacaoEstoque movimentacao)
     {
-        var produto = await _context.Produtos.FindAsync(produtoId);
+        var produto = await _context.Produtos.FindAsync(movimentacao.ProdutoId);
 
         if (produto == null)
             return NotFound();
 
-        if (produto.QuantidadeEstoque < quantidade)
+        if (movimentacao.TipoMovimentacao == "Entrada")
         {
-            ModelState.AddModelError("", "Estoque insuficiente.");
-            ViewBag.Produtos = new SelectList(_context.Produtos, "Id", "Descricao");
-            return View();
+            produto.QuantidadeEstoque += movimentacao.Quantidade;
+        }
+        else if (movimentacao.TipoMovimentacao == "Saida")
+        {
+            if (produto.QuantidadeEstoque < movimentacao.Quantidade)
+            {
+                ModelState.AddModelError("", "❌ Estoque insuficiente.");
+                return RedirectToAction(nameof(Index));
+            }
+
+            produto.QuantidadeEstoque -= movimentacao.Quantidade;
         }
 
-        produto.QuantidadeEstoque -= quantidade;
-
-        var movimentacao = new MovimentacaoEstoque
-        {
-            ProdutoId = produtoId,
-            Quantidade = quantidade,
-            TipoMovimentacao = "Saida",
-            DataMovimentacao = DateTime.Now
-        };
+        movimentacao.DataMovimentacao = DateTime.Now;
 
         _context.MovimentacoesEstoque.Add(movimentacao);
         await _context.SaveChangesAsync();
 
-        return RedirectToAction("Index", "Produto");
+        return RedirectToAction(nameof(Index));
     }
 }

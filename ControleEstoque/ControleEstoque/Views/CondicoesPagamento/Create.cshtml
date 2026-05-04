@@ -1,0 +1,25 @@
+@model CondicaoPagamento
+
+<h2>Nova Condição de Pagamento</h2>
+
+<form asp-action="Create" method="post">
+
+    <input asp-for="Nome" class="form-control mb-2" placeholder="Nome" />
+
+    <select asp-for="Tipo" class="form-control mb-2">
+        <option value="Cartao">Cartão</option>
+        <option value="Boleto">Boleto</option>
+        <option value="Link">Link</option>
+    </select>
+
+    <input asp-for="Parcelas" type="number" class="form-control mb-2" placeholder="Parcelas" />
+
+    <input asp-for="Juros" type="number" step="0.01" class="form-control mb-2" placeholder="Juros %" />
+
+    <input asp-for="TaxaOperadora" type="number" step="0.01" class="form-control mb-2" placeholder="Taxa %" />
+
+    <input asp-for="DiasRecebimento" type="number" class="form-control mb-2" placeholder="Dias para receber" />
+
+    <button class="btn btn-success">Salvar</button>
+
+</form>

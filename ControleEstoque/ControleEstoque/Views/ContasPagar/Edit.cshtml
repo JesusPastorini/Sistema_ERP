@@ -1,0 +1,36 @@
+﻿@model ControleEstoque.Models.ContasPagar
+
+<h2>Editar Conta</h2>
+
+<form asp-action="Edit" method="post">
+
+    <!-- 🔥 ESSENCIAL -->
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-2">
+        <label>Descrição</label>
+        <input asp-for="Descricao" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Categoria</label>
+        <input asp-for="Categoria" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Valor</label>
+        <input asp-for="Valor" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Vencimento</label>
+        <input asp-for="DataVencimento" type="date" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>URL Documento</label>
+        <input asp-for="UrlDocumento" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-warning">Salvar</button>
+</form>

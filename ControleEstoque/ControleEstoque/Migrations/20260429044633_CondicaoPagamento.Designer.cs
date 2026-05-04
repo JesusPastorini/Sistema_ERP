@@ -3,6 +3,7 @@ using System;
 using ControleEstoque.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ControleEstoque.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260429044633_CondicaoPagamento")]
+    partial class CondicaoPagamento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,51 +92,6 @@ namespace ControleEstoque.Migrations
                         .HasDatabaseName("ix_compras_fornecedor_id");
 
                     b.ToTable("compras", (string)null);
-                });
-
-            modelBuilder.Entity("ControleEstoque.Models.CondicaoPagamento", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Ativo")
-                        .HasColumnType("boolean")
-                        .HasColumnName("ativo");
-
-                    b.Property<int>("DiasRecebimento")
-                        .HasColumnType("integer")
-                        .HasColumnName("dias_recebimento");
-
-                    b.Property<decimal>("Juros")
-                        .HasColumnType("numeric")
-                        .HasColumnName("juros");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("nome");
-
-                    b.Property<int>("Parcelas")
-                        .HasColumnType("integer")
-                        .HasColumnName("parcelas");
-
-                    b.Property<decimal>("TaxaOperadora")
-                        .HasColumnType("numeric")
-                        .HasColumnName("taxa_operadora");
-
-                    b.Property<string>("Tipo")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("tipo");
-
-                    b.HasKey("Id")
-                        .HasName("pk_condicoes_pagamento");
-
-                    b.ToTable("condicoes_pagamento", (string)null);
                 });
 
             modelBuilder.Entity("ControleEstoque.Models.ContasPagar", b =>
@@ -226,52 +184,6 @@ namespace ControleEstoque.Migrations
                     b.ToTable("contas_receber", (string)null);
                 });
 
-            modelBuilder.Entity("ControleEstoque.Models.MovimentacaoEstoque", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DataMovimentacao")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("data_movimentacao");
-
-                    b.Property<string>("Descricao")
-                        .HasColumnType("text")
-                        .HasColumnName("descricao");
-
-                    b.Property<int>("ProdutoId")
-                        .HasColumnType("integer")
-                        .HasColumnName("produto_id");
-
-                    b.Property<decimal>("Quantidade")
-                        .HasColumnType("numeric")
-                        .HasColumnName("quantidade");
-
-                    b.Property<string>("TipoMovimentacao")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("tipo_movimentacao");
-
-                    b.Property<int?>("VendaId")
-                        .HasColumnType("integer")
-                        .HasColumnName("venda_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_movimentacoes_estoque");
-
-                    b.HasIndex("ProdutoId")
-                        .HasDatabaseName("ix_movimentacoes_estoque_produto_id");
-
-                    b.HasIndex("VendaId")
-                        .HasDatabaseName("ix_movimentacoes_estoque_venda_id");
-
-                    b.ToTable("movimentacoes_estoque", (string)null);
-                });
-
             modelBuilder.Entity("ControleEstoque.Models.Permissao", b =>
                 {
                     b.Property<int>("Id")
@@ -346,10 +258,6 @@ namespace ControleEstoque.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("cliente_id");
 
-                    b.Property<int?>("CondicaoPagamentoId")
-                        .HasColumnType("integer")
-                        .HasColumnName("condicao_pagamento_id");
-
                     b.Property<DateTime>("DataVenda")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("data_venda");
@@ -372,9 +280,6 @@ namespace ControleEstoque.Migrations
 
                     b.HasIndex("ClienteId")
                         .HasDatabaseName("ix_vendas_cliente_id");
-
-                    b.HasIndex("CondicaoPagamentoId")
-                        .HasDatabaseName("ix_vendas_condicao_pagamento_id");
 
                     b.HasIndex("UsuarioId")
                         .HasDatabaseName("ix_vendas_usuario_id");
@@ -479,6 +384,41 @@ namespace ControleEstoque.Migrations
                     b.ToTable("fornecedores", (string)null);
                 });
 
+            modelBuilder.Entity("MovimentacaoEstoque", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataMovimentacao")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("data_movimentacao");
+
+                    b.Property<int>("ProdutoId")
+                        .HasColumnType("integer")
+                        .HasColumnName("produto_id");
+
+                    b.Property<decimal>("Quantidade")
+                        .HasColumnType("numeric")
+                        .HasColumnName("quantidade");
+
+                    b.Property<string>("TipoMovimentacao")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("tipo_movimentacao");
+
+                    b.HasKey("Id")
+                        .HasName("pk_movimentacoes_estoque");
+
+                    b.HasIndex("ProdutoId")
+                        .HasDatabaseName("ix_movimentacoes_estoque_produto_id");
+
+                    b.ToTable("movimentacoes_estoque", (string)null);
+                });
+
             modelBuilder.Entity("Produto", b =>
                 {
                     b.Property<int>("Id")
@@ -564,30 +504,11 @@ namespace ControleEstoque.Migrations
             modelBuilder.Entity("ControleEstoque.Models.ContasReceber", b =>
                 {
                     b.HasOne("ControleEstoque.Models.Venda", "Venda")
-                        .WithMany("ContasReceber")
+                        .WithMany()
                         .HasForeignKey("VendaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_contas_receber_vendas_venda_id");
-
-                    b.Navigation("Venda");
-                });
-
-            modelBuilder.Entity("ControleEstoque.Models.MovimentacaoEstoque", b =>
-                {
-                    b.HasOne("Produto", "Produto")
-                        .WithMany()
-                        .HasForeignKey("ProdutoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_movimentacoes_estoque_produtos_produto_id");
-
-                    b.HasOne("ControleEstoque.Models.Venda", "Venda")
-                        .WithMany("Movimentacoes")
-                        .HasForeignKey("VendaId")
-                        .HasConstraintName("fk_movimentacoes_estoque_vendas_venda_id");
-
-                    b.Navigation("Produto");
 
                     b.Navigation("Venda");
                 });
@@ -613,11 +534,6 @@ namespace ControleEstoque.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_vendas_clientes_cliente_id");
 
-                    b.HasOne("ControleEstoque.Models.CondicaoPagamento", "CondicaoPagamento")
-                        .WithMany()
-                        .HasForeignKey("CondicaoPagamentoId")
-                        .HasConstraintName("fk_vendas_condicoes_pagamento_condicao_pagamento_id");
-
                     b.HasOne("ControleEstoque.Models.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
@@ -626,8 +542,6 @@ namespace ControleEstoque.Migrations
                         .HasConstraintName("fk_vendas_usuarios_usuario_id");
 
                     b.Navigation("Cliente");
-
-                    b.Navigation("CondicaoPagamento");
 
                     b.Navigation("Usuario");
                 });
@@ -653,6 +567,18 @@ namespace ControleEstoque.Migrations
                     b.Navigation("Venda");
                 });
 
+            modelBuilder.Entity("MovimentacaoEstoque", b =>
+                {
+                    b.HasOne("Produto", "Produto")
+                        .WithMany()
+                        .HasForeignKey("ProdutoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_movimentacoes_estoque_produtos_produto_id");
+
+                    b.Navigation("Produto");
+                });
+
             modelBuilder.Entity("Produto", b =>
                 {
                     b.HasOne("Fornecedor", "Fornecedor")
@@ -670,11 +596,7 @@ namespace ControleEstoque.Migrations
 
             modelBuilder.Entity("ControleEstoque.Models.Venda", b =>
                 {
-                    b.Navigation("ContasReceber");
-
                     b.Navigation("Itens");
-
-                    b.Navigation("Movimentacoes");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,0 +1,48 @@
+﻿@model ControleEstoque.Models.ContasReceber
+
+<h2>📄 Detalhes da Conta a Receber</h2>
+
+<div class="mb-3">
+    <strong>Cliente:</strong> @Model.Venda.Cliente.Nome <br />
+    <strong>Data da Venda:</strong> @Model.Venda.DataVenda.ToShortDateString() <br />
+    <strong>Vencimento:</strong> @Model.DataVencimento.ToShortDateString() <br />
+    <strong>Valor:</strong> @Model.Valor.ToString("C") <br />
+
+    <strong>Status:</strong>
+    @if (Model.DataPagamento.HasValue)
+    {
+    <span class="badge bg-success">Pago em @Model.DataPagamento.Value.ToShortDateString()</span>
+    }
+    else
+    {
+    <span class="badge bg-danger">Pendente</span>
+    }
+</div>
+
+<hr />
+
+<h4>🛒 Itens da Venda</h4>
+
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Produto</th>
+            <th>Qtd</th>
+            <th>Preço</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Venda.Itens)
+        {
+        <tr>
+            <td>@item.Produto.TipoMadeira</td>
+            <td>@item.Quantidade</td>
+            <td>@item.PrecoUnitario.ToString("C")</td>
+            <td>@((item.Quantidade * item.PrecoUnitario).ToString("C"))</td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Voltar</a>

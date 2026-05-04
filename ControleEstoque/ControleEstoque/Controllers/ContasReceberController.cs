@@ -27,6 +27,23 @@ namespace ControleEstoque.Controllers
             return View(contas);
         }
 
+        // ================= DETAILS =================
+        public async Task<IActionResult> Details(int id)
+        {
+            var conta = await _context.ContasReceber
+                .Include(c => c.Venda)
+                    .ThenInclude(v => v.Cliente)
+                .Include(c => c.Venda)
+                    .ThenInclude(v => v.Itens)
+                        .ThenInclude(i => i.Produto)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (conta == null)
+                return NotFound();
+
+            return View(conta);
+        }
+
         // Método para dar baixa (pagar)
         [HttpPost]
         public async Task<IActionResult> Baixar(int id)

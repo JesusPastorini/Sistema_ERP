@@ -12,11 +12,26 @@ public class ClientesController : Controller
     }
 
     // LISTAR
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string busca)
     {
-        var clientes = await _context.Clientes
-            .OrderBy(c => c.Nome)
+        var query = _context.Clientes.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(busca))
+        {
+            busca = busca.ToLower();
+
+            query = query.Where(c =>
+                c.Nome.ToLower().Contains(busca) ||
+                c.CpfCnpj.Contains(busca)
+            );
+        }
+
+        var clientes = await query
+            .OrderByDescending(c => c.Id)
+            .Take(10)
             .ToListAsync();
+
+        ViewBag.Busca = busca;
 
         return View(clientes);
     }
