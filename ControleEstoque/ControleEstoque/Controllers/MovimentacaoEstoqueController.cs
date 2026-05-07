@@ -58,6 +58,29 @@ public class MovimentacaoEstoqueController : Controller
         return View(historico);
     }
 
+    // Scrool infinito
+    public async Task<IActionResult> CarregarMais(int skip = 0)
+    {
+        var movs = await _context.MovimentacoesEstoque
+            .OrderByDescending(m => m.DataMovimentacao)
+            .Skip(skip)
+            .Take(20)
+            .Select(m => new
+            {
+                data = m.DataMovimentacao.ToString("dd/MM HH:mm"),
+                produto = m.Produto.TipoMadeira,
+                categoria = m.Produto.Categoria,
+                dimensoes = m.Produto.Dimensoes,
+                tipo = m.TipoMovimentacao,
+                quantidade = m.Quantidade,
+                vendaId = m.VendaId,
+                descricao = m.Descricao
+            })
+            .ToListAsync();
+
+        return Json(movs);
+    }
+
     // 🔹 MOVIMENTAR
     [HttpPost]
     [ValidateAntiForgeryToken]

@@ -28,5 +28,6 @@ namespace ControleEstoque.Models
 
         public string? UrlDocumento { get; set; }
 
+        public string? NomeFornecedor { get; set; }
     }
 }

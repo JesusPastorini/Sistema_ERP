@@ -4,42 +4,150 @@
     ViewData["Title"] = "Condições de Pagamento";
     }
 
-    <div class="container mt-4">
+    <!-- 🔹 HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>💳 Condições de Pagamento</h2>
 
-        <a asp-action="Create" class="btn btn-primary mb-3">
+        <a asp-action="Create" class="btn btn-primary">
             ➕ Nova Condição
         </a>
-
-        <table class="table table-hover table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th>Nome</th>
-                    <th>Tipo</th>
-                    <th>Parcelas</th>
-                    <th>Juros</th>
-                    <th>Taxa</th>
-                    <th>Dias</th>
-                    <th style="width:180px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.Nome</td>
-                    <td>@item.Tipo</td>
-                    <td>@item.Parcelas</td>
-                    <td>@item.Juros %</td>
-                    <td>@item.TaxaOperadora %</td>
-                    <td>@item.DiasRecebimento</td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Ver</a>
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Editar</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Excluir</a>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
     </div>
+
+    <!-- 📋 TABELA -->
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive"
+             style="max-height: calc(100vh - 200px); overflow-y: auto;"
+             id="scrollContainerCondicoes">
+
+            <table class="table table-hover align-middle mb-0" id="tabelaCondicoes">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Parcelas</th>
+                        <th>Juros</th>
+                        <th>Taxa</th>
+                        <th>Dias</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><strong>@item.Nome</strong></td>
+
+                        <td>
+                            <span class="badge bg-secondary">
+                                @item.Tipo
+                            </span>
+                        </td>
+
+                        <td>@item.Parcelas x</td>
+
+                        <td class="text-danger">
+                            @item.Juros %
+                        </td>
+
+                        <td class="text-warning">
+                            @item.TaxaOperadora %
+                        </td>
+
+                        <td>@item.DiasRecebimento dias</td>
+
+                        <td class="text-end">
+
+                            <a asp-action="Details"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-info text-white px-2 py-1">
+                                👁
+                            </a>
+
+                            <a asp-action="Edit"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-warning px-2 py-1">
+                                ✏
+                            </a>
+
+                            <a asp-action="Delete"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-danger px-2 py-1">
+                                🗑
+                            </a>
+
+                        </td>
+                    </tr>
+                }
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+    <script>
+    let carregando = false;
+    let skip = 10;
+    let primeiraCarga = true;
+
+    const container = document.getElementById('scrollContainerCondicoes');
+
+    container.addEventListener('scroll', async () => {
+
+        if (primeiraCarga) {
+            primeiraCarga = false;
+            return;
+        }
+
+        if (carregando) return;
+
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
+
+            carregando = true;
+
+            const url = `/CondicoesPagamento/CarregarMais?skip=${skip}`;
+
+            const response = await fetch(url);
+            const dados = await response.json();
+
+            if (dados.length === 0) return;
+
+            const tabela = document.querySelector('#tabelaCondicoes tbody');
+
+            dados.forEach(c => {
+
+                const linha = `
+                    <tr>
+                        <td><strong>${c.nome}</strong></td>
+
+                        <td>
+                            <span class="badge bg-secondary">
+                                ${c.tipo}
+                            </span>
+                        </td>
+
+                        <td>${c.parcelas}x</td>
+
+                        <td class="text-danger">${c.juros}%</td>
+
+                        <td class="text-warning">${c.taxa}%</td>
+
+                        <td>${c.dias} dias</td>
+
+                        <td class="text-end">
+                            <a href="/CondicoesPagamento/Details/${c.id}" class="btn btn-sm btn-info text-white px-2 py-1">👁</a>
+                            <a href="/CondicoesPagamento/Edit/${c.id}" class="btn btn-sm btn-warning px-2 py-1">✏</a>
+                            <a href="/CondicoesPagamento/Delete/${c.id}" class="btn btn-sm btn-danger px-2 py-1">🗑</a>
+                        </td>
+                    </tr>
+                `;
+
+                tabela.insertAdjacentHTML('beforeend', linha);
+            });
+
+            skip += 20;
+            carregando = false;
+        }
+    });
+    </script>

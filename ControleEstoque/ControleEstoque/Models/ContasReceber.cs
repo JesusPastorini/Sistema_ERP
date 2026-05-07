@@ -6,8 +6,8 @@ namespace ControleEstoque.Models
     {
         public int Id { get; set; }
 
-        public int VendaId { get; set; }
-        public Venda Venda { get; set; }
+        public int? VendaId { get; set; }
+        public Venda? Venda { get; set; }
 
         [Required]
         public decimal Valor { get; set; }
@@ -15,8 +15,13 @@ namespace ControleEstoque.Models
         [Required]
         public DateTime DataVencimento { get; set; }
 
-        public DateTime? DataPagamento { get; set; } // Se null, está em aberto
+        public DateTime? DataPagamento { get; set; }
 
-        public string Observacao { get; set; }
+        public string? Observacao { get; set; }
+
+        public int? ClienteId { get; set; }
+        public Cliente? Cliente { get; set; }
+
+        public string? Descricao { get; set; }
     }
 }

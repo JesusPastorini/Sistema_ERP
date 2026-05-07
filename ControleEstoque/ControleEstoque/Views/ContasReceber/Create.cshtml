@@ -1,0 +1,68 @@
+﻿@model ControleEstoque.Models.ContasReceber
+
+<div class="container mt-4">
+
+    <!-- 🔹 HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>➕ Nova Conta a Receber</h2>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            ⬅ Voltar
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <form asp-action="Create" method="post">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Cliente</label>
+                        <select asp-for="ClienteId"
+                                class="form-control"
+                                asp-items="ViewBag.Clientes">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Valor</label>
+                        <input asp-for="Valor" class="form-control" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Vencimento</label>
+                        <input asp-for="DataVencimento" type="date" class="form-control" />
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Descrição</label>
+                        <textarea asp-for="Descricao"
+                                  class="form-control"
+                                  rows="2"
+                                  placeholder="Ex: Serviço, cobrança manual..."></textarea>
+                    </div>
+
+                </div>
+
+                <!-- 🔘 BOTÕES -->
+                <div class="d-flex justify-content-end gap-2 mt-4">
+
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+
+                    <button class="btn btn-success px-4">
+                        💾 Salvar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>

@@ -23,6 +23,27 @@ namespace ControleEstoque.Controllers
 
             return View(lista);
         }
+        // Scroll infinito
+        public async Task<IActionResult> CarregarMais(int skip = 0)
+        {
+            var condicoes = await _context.CondicoesPagamento
+                .OrderByDescending(c => c.Id)
+                .Skip(skip)
+                .Take(20)
+                .Select(c => new
+                {
+                    id = c.Id,
+                    nome = c.Nome,
+                    tipo = c.Tipo,
+                    parcelas = c.Parcelas,
+                    juros = c.Juros,
+                    taxa = c.TaxaOperadora,
+                    dias = c.DiasRecebimento
+                })
+                .ToListAsync();
+
+            return Json(condicoes);
+        }
 
         // 🔹 CREATE (GET)
         public IActionResult Create()

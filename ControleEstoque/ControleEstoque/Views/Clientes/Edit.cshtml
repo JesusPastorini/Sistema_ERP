@@ -1,36 +1,188 @@
 ﻿@model Cliente
 
-<h2>Editar Cliente</h2>
+@{
+    ViewData["Title"] = "Editar Cliente";
+}
 
-<form asp-action="Edit">
-    <input type="hidden" asp-for="Id" />
+<div class="container-fluid">
 
-    <div class="mb-3">
-        <label>Nome</label>
-        <input asp-for="Nome" class="form-control" />
-        <span asp-validation-for="Nome" class="text-danger"></span>
+    <div class="card shadow-lg border-0 mt-4">
+
+        <div class="card-header bg-warning text-dark">
+            <h3 class="mb-0">✏️ Editar Cliente</h3>
+        </div>
+
+        <div class="card-body p-4">
+
+            <form asp-action="Edit" method="post">
+
+                <input type="hidden" asp-for="Id" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <!-- ================= DADOS PRINCIPAIS ================= -->
+                <h5 class="mb-3">👤 Dados do Cliente</h5>
+
+                <div class="row">
+
+                    <!-- Nome -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Nome / Razão Social</label>
+                        <input asp-for="Nome"
+                               class="form-control form-control-lg"
+                               placeholder="Digite o nome do cliente" />
+
+                        <span asp-validation-for="Nome" class="text-danger"></span>
+                    </div>
+
+                    <!-- CNPJ -->
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">CNPJ</label>
+                        <input asp-for="CpfCnpj"
+                               class="form-control form-control-lg"
+                               placeholder="00.000.000/0000-00" />
+
+                        <span asp-validation-for="CpfCnpj" class="text-danger"></span>
+                    </div>
+
+                    <!-- Telefone -->
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">Telefone</label>
+                        <input asp-for="Telefone"
+                               class="form-control form-control-lg"
+                               placeholder="(00) 00000-0000" />
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Email</label>
+                        <input asp-for="Email"
+                               class="form-control form-control-lg"
+                               placeholder="cliente@email.com" />
+                    </div>
+
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- ================= ENDEREÇO ================= -->
+                <h5 class="mb-3">📍 Endereço</h5>
+
+                <div class="row">
+
+                    <!-- CEP -->
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">CEP</label>
+
+                        <input asp-for="Cep"
+                               id="cep"
+                               class="form-control form-control-lg"
+                               placeholder="00000-000" />
+                    </div>
+
+                    <!-- Rua -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Logradouro</label>
+
+                        <input asp-for="Rua"
+                               id="rua"
+                               class="form-control form-control-lg"
+                               placeholder="Rua / Avenida" />
+                    </div>
+
+                    <!-- Número -->
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">Número</label>
+
+                        <input asp-for="Numero"
+                               class="form-control form-control-lg"
+                               placeholder="Nº" />
+                    </div>
+
+                    <!-- Complemento -->
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Complemento</label>
+
+                        <input asp-for="Complemento"
+                               class="form-control form-control-lg"
+                               placeholder="Casa, Sala, Galpão..." />
+                    </div>
+
+                    <!-- Bairro -->
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Bairro</label>
+
+                        <input asp-for="Bairro"
+                               id="bairro"
+                               class="form-control form-control-lg"
+                               placeholder="Bairro" />
+                    </div>
+
+                    <!-- Cidade -->
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">Cidade</label>
+
+                        <input asp-for="Cidade"
+                               id="cidade"
+                               class="form-control form-control-lg"
+                               placeholder="Cidade" />
+                    </div>
+
+                    <!-- UF -->
+                    <div class="col-md-1 mb-3">
+                        <label class="form-label fw-bold">UF</label>
+
+                        <input asp-for="Uf"
+                               id="uf"
+                               class="form-control form-control-lg text-uppercase"
+                               maxlength="2"
+                               placeholder="UF" />
+                    </div>
+
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- ================= BOTÕES ================= -->
+                <div class="d-flex gap-3 justify-content-end">
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary btn-lg px-5">
+                        Voltar
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-warning btn-lg px-5">
+                        💾 Atualizar Cliente
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
     </div>
+</div>
 
-    <div class="mb-3">
-        <label>Documento</label>
-        <input asp-for="CpfCnpj" class="form-control" />
-        <span asp-validation-for="CpfCnpj" class="text-danger"></span>
-    </div>
+@section Scripts {
+    <script>
+        document.getElementById('cep').addEventListener('blur', async function () {
 
-    <div class="mb-3">
-        <label>Telefone</label>
-        <input asp-for="Telefone" class="form-control" />
-    </div>
+            const cep = this.value.replace(/\D/g, '');
 
-    <div class="mb-3">
-        <label>Email</label>
-        <input asp-for="Email" class="form-control" />
-    </div>
+            if (cep.length !== 8)
+                return;
 
-    <button type="submit" class="btn btn-warning btn-lg px-5">
-        ✏️ Atualizar
-    </button>
-    <a asp-action="Index" class="btn btn-secondary btn-lg px-5">
-        Voltar
-    </a>
-</form>
+            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+            const data = await response.json();
+
+            if (!data.erro) {
+
+                document.getElementById('rua').value = data.logradouro || '';
+                document.getElementById('bairro').value = data.bairro || '';
+                document.getElementById('cidade').value = data.localidade || '';
+                document.getElementById('uf').value = data.uf || '';
+            }
+        });
+    </script>
+}
