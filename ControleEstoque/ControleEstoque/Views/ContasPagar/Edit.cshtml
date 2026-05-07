@@ -1,36 +1,148 @@
 ﻿@model ControleEstoque.Models.ContasPagar
 
-<h2>Editar Conta</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>✏ Editar Conta a Pagar</h2>
+
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        ← Voltar
+    </a>
+</div>
 
 <form asp-action="Edit" method="post">
 
-    <!-- 🔥 ESSENCIAL -->
     <input type="hidden" asp-for="Id" />
 
-    <div class="mb-2">
-        <label>Descrição</label>
-        <input asp-for="Descricao" class="form-control" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-warning">
+            <h5 class="mb-0 text-dark">
+                💸 Alterar Conta
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <!-- 🔹 FORNECEDOR -->
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        Fornecedor
+                    </label>
+
+                    <input asp-for="NomeFornecedor"
+                           class="form-control mb-2"
+                           list="listaFornecedores"
+                           placeholder="Digite ou selecione um fornecedor" />
+
+                    <datalist id="listaFornecedores">
+                        @foreach (var fornecedor in ViewBag.Fornecedores)
+                        {
+                        <option value="@fornecedor.NomeFantasia"></option>
+                        }
+                    </datalist>
+
+                    <select asp-for="FornecedorId"
+                            class="form-select mt-2"
+                            asp-items="@(ViewBag.FornecedorId as Microsoft.AspNetCore.Mvc.Rendering.SelectList)">
+                        <option value="">Selecionar fornecedor do sistema (opcional)</option>
+                    </select>
+                </div>
+
+                <!-- 🔹 VALOR -->
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">
+                        Valor
+                    </label>
+
+                    <input asp-for="Valor"
+                           type="number"
+                           step="0.01"
+                           class="form-control form-control-lg border-danger" />
+                </div>
+
+                <!-- 🔹 VENCIMENTO -->
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">
+                        Vencimento
+                    </label>
+
+                    <input asp-for="DataVencimento"
+                           type="date"
+                           class="form-control" />
+                </div>
+
+                <!-- 🔹 DESCRIÇÃO -->
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                        Descrição
+                    </label>
+
+                    <input asp-for="Descricao"
+                           class="form-control"
+                           placeholder="Ex: Compra de madeira, frete..." />
+                </div>
+
+                <!-- 🔹 CATEGORIA -->
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">
+                        Categoria
+                    </label>
+
+                    <select asp-for="Categoria" class="form-select">
+                        <option value="Madeira">🌲 Compra de Madeira</option>
+                        <option value="Frete">🚚 Frete/Transporte</option>
+                        <option value="Energia">⚡ Energia Elétrica</option>
+                        <option value="Manutenção">⚙️ Manutenção</option>
+                        <option value="Outros">💰 Outros Gastos</option>
+                    </select>
+                </div>
+
+                <!-- 🔹 DATA PAGAMENTO -->
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">
+                        Data Pagamento
+                    </label>
+
+                    <input asp-for="DataPagamento"
+                           type="date"
+                           class="form-control" />
+                </div>
+
+                <!-- 🔹 URL -->
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">
+                        🔗 Documento / Nota
+                    </label>
+
+                    <input asp-for="UrlDocumento"
+                           class="form-control"
+                           placeholder="Link Google Drive..." />
+                </div>
+
+                <!-- 🔹 BOTÕES -->
+                <div class="col-md-12">
+                    <div class="d-flex justify-content-end gap-2 mt-2">
+
+                        <a asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-warning px-4">
+                            💾 Salvar Alterações
+                        </button>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="mb-2">
-        <label>Categoria</label>
-        <input asp-for="Categoria" class="form-control" />
-    </div>
-
-    <div class="mb-2">
-        <label>Valor</label>
-        <input asp-for="Valor" class="form-control" />
-    </div>
-
-    <div class="mb-2">
-        <label>Vencimento</label>
-        <input asp-for="DataVencimento" type="date" class="form-control" />
-    </div>
-
-    <div class="mb-2">
-        <label>URL Documento</label>
-        <input asp-for="UrlDocumento" class="form-control" />
-    </div>
-
-    <button type="submit" class="btn btn-warning">Salvar</button>
 </form>

@@ -25,16 +25,24 @@ public class ProdutosController : Controller
     }
 
     // ================= LOAD MORE =================
-    public async Task<IActionResult> CarregarMais(int skip)
+    public async Task<IActionResult> CarregarMais(int skip = 0)
     {
         var produtos = await _context.Produtos
-            .Include(p => p.Fornecedor)
-            .OrderByDescending(p => p.DataCriacao)
+            .OrderByDescending(p => p.Id)
             .Skip(skip)
-            .Take(10)
+            .Take(20)
+            .Select(p => new
+            {
+                id = p.Id,
+                nome = p.TipoMadeira,
+                dimensoes = p.Dimensoes,
+                categoria = p.Categoria,
+                fornecedor = p.Fornecedor != null ? p.Fornecedor.NomeFantasia : null,
+                estoque = p.QuantidadeEstoque
+            })
             .ToListAsync();
 
-        return PartialView("_ListaProdutos", produtos);
+        return Json(produtos);
     }
 
     // ================= CREATE =================

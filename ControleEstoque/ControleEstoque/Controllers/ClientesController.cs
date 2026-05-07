@@ -36,6 +36,26 @@ public class ClientesController : Controller
         return View(clientes);
     }
 
+    // Scroll infinito
+    public async Task<IActionResult> CarregarMais(int skip = 0)
+    {
+        var clientes = await _context.Clientes
+            .OrderByDescending(c => c.Id)
+            .Skip(skip)
+            .Take(20)
+            .Select(c => new
+            {
+                id = c.Id,
+                nome = c.Nome,
+                cpfCnpj = c.CpfCnpj,
+                telefone = c.Telefone,
+                email = c.Email
+            })
+            .ToListAsync();
+
+        return Json(clientes);
+    }
+
     // GET: Criar
     public IActionResult Create()
     {
@@ -105,5 +125,20 @@ public class ClientesController : Controller
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
+    }
+
+    // ================= DETAILS =================
+    public async Task<IActionResult> Details(int? id)
+    {
+        if (id == null)
+            return NotFound();
+
+        var cliente = await _context.Clientes
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (cliente == null)
+            return NotFound();
+
+        return View(cliente);
     }
 }

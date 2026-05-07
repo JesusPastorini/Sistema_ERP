@@ -23,11 +23,37 @@
                 <div class="card shadow-sm mb-4 border-0">
                     <div class="card-header bg-dark text-white"><h5>Dados Gerais</h5></div>
                     <div class="card-body">
+                        <!-- Selecionar Cliente -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Cliente</label>
-                            <select asp-for="ClienteId" class="form-select" asp-items="ViewBag.ClienteId" required>
-                                <option value="">-- Selecione o Cliente --</option>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                <label class="form-label fw-bold mb-0">
+                                    Cliente
+                                </label>
+
+                                <a asp-controller="Clientes"
+                                   asp-action="Create"
+                                   target="_blank"
+                                   class="btn btn-sm btn-outline-primary">
+                                    ➕ Novo Cliente
+                                </a>
+
+                            </div>
+
+                            <select asp-for="ClienteId"
+                                    class="form-select"
+                                    asp-items="ViewBag.ClienteId"
+                                    required>
+
+                                <option value="">
+                                    -- Selecione o Cliente --
+                                </option>
+
                             </select>
+
+                            <small class="text-muted">
+                                Caso o cliente não exista, clique em "Novo Cliente".
+                            </small>
                         </div>
 
                         <div class="mb-3">

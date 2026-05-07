@@ -1,49 +1,230 @@
 ﻿@model IEnumerable<ControleEstoque.Models.ContasReceber>
 
+    <!-- 🔹 HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>💰 Contas a Receber</h2>
-        <div class="text-end">
-            <span class="badge bg-secondary">Total Pendente: @Model.Where(c => c.DataPagamento == null).Sum(c => c.Valor).ToString("C")</span>
+
+        <div class="d-flex gap-2">
+            <span class="badge bg-secondary align-self-center">
+                Total Pendente:
+                @Model.Where(c => c.DataPagamento == null).Sum(c => c.Valor).ToString("C")
+            </span>
+
+            <a asp-action="Create" class="btn btn-primary">
+                ➕ Nova Conta
+            </a>
         </div>
     </div>
 
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>Cliente</th>
-                <th>Vencimento</th>
-                <th>Valor</th>
-                <th>Status</th>
-                <th width="200">Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Venda.Cliente.Nome</td>
-                <td>@item.DataVencimento.ToShortDateString()</td>
-                <td>@item.Valor.ToString("C")</td>
-                <td>
-                    @if (item.DataPagamento.HasValue)
-                    {
-                    <span class="badge bg-success">✅ Pago em @item.DataPagamento.Value.ToShortDateString()</span>
-                    }
+    <!-- 🔎 FILTRO -->
+    <form method="get" class="mb-4">
+        <div class="row g-2 align-items-end">
+
+            <div class="col-md-4">
+                <label class="form-label">Cliente</label>
+                <input type="text" name="cliente"
+                       class="form-control"
+                       value="@ViewBag.Cliente"
+                       placeholder="Nome do cliente..." />
+            </div>
+
+            <!-- 🔥 NOVO PERÍODO -->
+            <div class="col-md-2">
+                <label class="form-label">De</label>
+                <input type="date" name="dataInicio"
+                       class="form-control"
+                       value="@ViewBag.DataInicio" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Até</label>
+                <input type="date" name="dataFim"
+                       class="form-control"
+                       value="@ViewBag.DataFim" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="pendente" selected="@(ViewBag.Status == "pendente")">Pendente</option>
+                    <option value="pago" selected="@(ViewBag.Status == "pago")">Pago</option>
+                    <option value="vencendo" selected="@(ViewBag.Status == "vencendo")">Vencendo</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-dark btn-sm w-100" style="height: 38px;">
+                    🔍
+                </button>
+            </div>
+
+        </div>
+    </form>
+
+    <!-- 📋 TABELA -->
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;" id="scrollContainer">
+
+            <table class="table table-hover align-middle mb-0" id="tabelaContas">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Vencimento</th>
+                        <th>Valor</th>
+                        <th>Origem</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+            {
+                var hoje = DateTime.Today;
+
+                string statusClass;
+                string statusTexto;
+
+                if (item.DataPagamento.HasValue)
+                {
+                    statusClass = "bg-success";
+                    statusTexto = $"Pago em {item.DataPagamento.Value:dd/MM}";
+                }
+                else if (item.DataVencimento < hoje)
+                {
+                    statusClass = "bg-danger";
+                    statusTexto = "Vencido";
+                }
+                else if (item.DataVencimento <= hoje.AddDays(30)) // 🔥 NOVO
+                {
+                    statusClass = "bg-warning text-dark";
+                    statusTexto = "Vencendo";
+                }
+                else
+                {
+                    statusClass = "bg-secondary";
+                    statusTexto = "Pendente";
+                }
+
+                    <tr>
+                        <td>
+                            @(item.Cliente?.Nome ?? item.Venda?.Cliente?.Nome ?? "N/A")
+                        </td>
+
+                        <td>
+                            @item.DataVencimento.ToString("dd/MM/yyyy")
+                        </td>
+
+                        <td class="fw-bold text-success">
+                            @item.Valor.ToString("C")
+                        </td>
+
+                        <td>
+                            @(item.VendaId != null
+                        ? $"Venda #{item.VendaId}"
+                        : item.Descricao ?? "Manual")
+                        </td>
+
+                        <td>
+                            <span class="badge @statusClass">
+                                @statusTexto
+                            </span>
+                        </td>
+
+                        <td class="text-end">
+
+                            @if (!item.DataPagamento.HasValue)
+                        {
+                            <form asp-action="Baixar"
+                                  asp-route-id="@item.Id"
+                                  method="post"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Confirmar baixa desta conta?');">
+
+                                <button class="btn btn-sm btn-success px-2 py-1">
+                                    ✔
+                                </button>
+                            </form>
+                        }
+
+                            <a asp-action="Details"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-info text-white px-2 py-1">
+                                👁
+                            </a>
+
+                        </td>
+                    </tr>
+            }
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let carregando = false;
+        let skip = 10;
+        let primeiraCarga = true;
+
+        const container = document.getElementById('scrollContainer');
+
+        container.addEventListener('scroll', async () => {
+
+            if (primeiraCarga) {
+                primeiraCarga = false;
+                return;
+            }
+
+            if (carregando) return;
+
+            if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
+
+                carregando = true;
+
+                const url = `/ContasReceber/CarregarMais?skip=${skip}`;
+
+                const response = await fetch(url);
+                const dados = await response.json();
+
+                if (dados.length === 0) return;
+
+                const tabela = document.querySelector('#tabelaContas tbody');
+
+                dados.forEach(c => {
+
+                    let status = "";
+
+                    if (c.pago)
+                        status = `<span class="badge bg-success">Pago</span>`;
+                    else if (c.vencido)
+                        status = `<span class="badge bg-danger">Vencido</span>`;
+                    else if (c.vencendo)
+                        status = `<span class="badge bg-warning text-dark">Vencendo</span>`;
                     else
-                    {
-                    <span class="badge bg-danger">⏳ Pendente</span>
-                    }
-                </td>
-                <td>
-                    @if (!item.DataPagamento.HasValue)
-                    {
-                    <form asp-action="Baixar" asp-route-id="@item.Id" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-success">Dar Baixa</button>
-                    </form>
-                    }
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white">Detalhes</a>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+                        status = `<span class="badge bg-secondary">Pendente</span>`;
+
+                    const linha = `
+                        <tr>
+                            <td>${c.cliente}</td>
+                            <td>${c.vencimento}</td>
+                            <td class="fw-bold text-success">R$ ${c.valor}</td>
+                            <td>${c.origem}</td>
+                            <td>${status}</td>
+                            <td class="text-end">
+                                ${!c.pago ? `<button class="btn btn-sm btn-success px-2 py-1">✔</button>` : ""}
+                                <a href="/ContasReceber/Details/${c.id}" class="btn btn-sm btn-info text-white px-2 py-1">👁</a>
+                            </td>
+                        </tr>
+                    `;
+
+                    tabela.insertAdjacentHTML('beforeend', linha);
+                });
+
+                skip += 20;
+                carregando = false;
+            }
+        });
+    </script>

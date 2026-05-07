@@ -4,6 +4,7 @@
     ViewData["Title"] = "Clientes";
     }
 
+    <!-- 🔹 HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>👥 Clientes</h2>
 
@@ -12,28 +13,42 @@
         </a>
     </div>
 
-    <!-- 🔎 BUSCA -->
+    <!-- 🔎 FILTRO -->
     <form method="get" class="mb-4">
-        <div class="input-group">
-            <input type="text"
-                   name="busca"
-                   class="form-control"
-                   placeholder="Buscar por nome, CPF ou CNPJ..."
-                   value="@ViewBag.Busca" />
+        <div class="row g-2 align-items-end">
 
-            <button class="btn btn-dark">🔍 Buscar</button>
+            <div class="col-md-10">
+                <label class="form-label">Buscar</label>
+                <input type="text"
+                       name="busca"
+                       class="form-control"
+                       placeholder="Nome ou CNPJ..."
+                       value="@ViewBag.Busca" />
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-dark btn-sm w-100" style="height: 38px;">
+                    🔍
+                </button>
+            </div>
+
         </div>
     </form>
 
-    <!-- 📋 LISTA -->
+    <!-- 📋 TABELA -->
     <div class="card shadow-sm border-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+        <div class="table-responsive"
+             style="max-height: 500px; overflow-y: auto;"
+             id="scrollContainerClientes">
+
+            <table class="table table-hover align-middle mb-0" id="tabelaClientes">
 
                 <thead class="table-dark">
                     <tr>
                         <th>Cliente</th>
-                        <th>Documento</th>
+                        <th>CNPJ</th>
+                        <th>Cidade</th>
+                        <th>UF</th>
                         <th>Telefone</th>
                         <th>Email</th>
                         <th></th>
@@ -44,6 +59,7 @@
                     @foreach (var item in Model)
                 {
                     <tr>
+
                         <td>
                             <strong>@item.Nome</strong>
                         </td>
@@ -54,7 +70,19 @@
                             </span>
                         </td>
 
-                        <td>@item.Telefone</td>
+                        <td>
+                            @item.Cidade
+                        </td>
+
+                        <td>
+                            <span class="badge bg-dark">
+                                @item.Uf
+                            </span>
+                        </td>
+
+                        <td>
+                            @item.Telefone
+                        </td>
 
                         <td>
                             <small class="text-muted">
@@ -64,19 +92,26 @@
 
                         <td class="text-end">
 
+                            <a asp-action="Details"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-info text-white px-2 py-1">
+                                👁
+                            </a>
+
                             <a asp-action="Edit"
                                asp-route-id="@item.Id"
-                               class="btn btn-sm btn-warning">
+                               class="btn btn-sm btn-warning px-2 py-1">
                                 ✏
                             </a>
 
                             <a asp-action="Delete"
                                asp-route-id="@item.Id"
-                               class="btn btn-sm btn-danger">
+                               class="btn btn-sm btn-danger px-2 py-1">
                                 🗑
                             </a>
 
                         </td>
+
                     </tr>
                 }
                 </tbody>
@@ -84,3 +119,98 @@
             </table>
         </div>
     </div>
+
+    <script>
+        let carregando = false;
+        let skip = 10;
+        let primeiraCarga = true;
+
+        const container = document.getElementById('scrollContainerClientes');
+
+        container.addEventListener('scroll', async () => {
+
+            if (primeiraCarga) {
+                primeiraCarga = false;
+                return;
+            }
+
+            if (carregando) return;
+
+            if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
+
+                carregando = true;
+
+                const url = `/Clientes/CarregarMais?skip=${skip}`;
+
+                const response = await fetch(url);
+                const dados = await response.json();
+
+                if (dados.length === 0) return;
+
+                const tabela = document.querySelector('#tabelaClientes tbody');
+
+                dados.forEach(c => {
+
+                    const linha = `
+                        <tr>
+
+                            <td>
+                                <strong>${c.nome}</strong>
+                            </td>
+
+                            <td>
+                                <span class="badge bg-secondary">
+                                    ${c.cpfCnpj}
+                                </span>
+                            </td>
+
+                            <td>
+                                ${c.cidade ?? ""}
+                            </td>
+
+                            <td>
+                                <span class="badge bg-dark">
+                                    ${c.uf ?? ""}
+                                </span>
+                            </td>
+
+                            <td>
+                                ${c.telefone ?? ""}
+                            </td>
+
+                            <td>
+                                <small class="text-muted">
+                                    ${c.email ?? ""}
+                                </small>
+                            </td>
+
+                            <td class="text-end">
+
+                                <a href="/Clientes/Details/${c.id}"
+                                   class="btn btn-sm btn-info text-white px-2 py-1">
+                                    👁
+                                </a>
+
+                                <a href="/Clientes/Edit/${c.id}"
+                                   class="btn btn-sm btn-warning px-2 py-1">
+                                    ✏
+                                </a>
+
+                                <a href="/Clientes/Delete/${c.id}"
+                                   class="btn btn-sm btn-danger px-2 py-1">
+                                    🗑
+                                </a>
+
+                            </td>
+
+                        </tr>
+                    `;
+
+                    tabela.insertAdjacentHTML('beforeend', linha);
+                });
+
+                skip += 20;
+                carregando = false;
+            }
+        });
+    </script>

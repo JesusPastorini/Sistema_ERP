@@ -16,12 +16,85 @@ namespace ControleEstoque.Controllers
         }
 
         // ================= INDEX =================
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+     string fornecedor,
+     DateTime? dataInicio,
+     DateTime? dataFim,
+     string status)
         {
-            var contas = await _context.ContasPagar
+            var hoje = DateTime.Today;
+
+            var query = _context.ContasPagar
                 .Include(c => c.Fornecedor)
-                .OrderByDescending(c => c.DataVencimento)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(fornecedor))
+            {
+                query = query.Where(c =>
+                    (c.Fornecedor != null &&
+                     c.Fornecedor.NomeFantasia.Contains(fornecedor))
+                    ||
+                    (c.NomeFornecedor != null &&
+                     c.NomeFornecedor.Contains(fornecedor))
+                );
+            }
+
+            if (dataInicio.HasValue)
+            {
+                query = query.Where(c =>
+                    c.DataVencimento.Date >= dataInicio.Value.Date);
+            }
+
+            if (dataFim.HasValue)
+            {
+                query = query.Where(c =>
+                    c.DataVencimento.Date <= dataFim.Value.Date);
+            }
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                if (status == "pendente")
+                {
+                    query = query.Where(c =>
+                        c.DataPagamento == null);
+                }
+
+                if (status == "pago")
+                {
+                    query = query.Where(c =>
+                        c.DataPagamento != null);
+                }
+
+                if (status == "vencido")
+                {
+                    query = query.Where(c =>
+                        c.DataPagamento == null &&
+                        c.DataVencimento < hoje);
+                }
+
+                if (status == "vencendo")
+                {
+                    query = query.Where(c =>
+                        c.DataPagamento == null &&
+                        c.DataVencimento >= hoje &&
+                        c.DataVencimento <= hoje.AddDays(30));
+                }
+            }
+
+            query = query
+                .OrderBy(c => c.DataPagamento != null ? 3 :
+                             c.DataVencimento < hoje ? 0 :
+                             c.DataVencimento <= hoje.AddDays(30) ? 1 : 2)
+                .ThenBy(c => c.DataVencimento);
+
+            var contas = await query
+                .Take(10)
                 .ToListAsync();
+
+            ViewBag.Fornecedor = fornecedor;
+            ViewBag.DataInicio = dataInicio?.ToString("yyyy-MM-dd");
+            ViewBag.DataFim = dataFim?.ToString("yyyy-MM-dd");
+            ViewBag.Status = status;
 
             return View(contas);
         }
@@ -29,11 +102,17 @@ namespace ControleEstoque.Controllers
         // ================= CREATE (GET) =================
         public IActionResult Create()
         {
+            var fornecedores = _context.Fornecedores
+                .OrderBy(f => f.NomeFantasia)
+                .ToList();
+
             ViewBag.FornecedorId = new SelectList(
-                _context.Fornecedores.OrderBy(f => f.NomeFantasia),
+                fornecedores,
                 "Id",
                 "NomeFantasia"
             );
+
+            ViewBag.Fornecedores = fornecedores;
 
             return View();
         }
@@ -43,23 +122,41 @@ namespace ControleEstoque.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ContasPagar contasPagar)
         {
-            contasPagar.DataVencimento = DateTime.SpecifyKind(contasPagar.DataVencimento, DateTimeKind.Utc);
+            contasPagar.DataVencimento =
+                DateTime.SpecifyKind(contasPagar.DataVencimento, DateTimeKind.Utc);
 
             if (contasPagar.DataPagamento.HasValue)
             {
-                contasPagar.DataPagamento = DateTime.SpecifyKind(contasPagar.DataPagamento.Value, DateTimeKind.Utc);
+                contasPagar.DataPagamento =
+                    DateTime.SpecifyKind(
+                        contasPagar.DataPagamento.Value,
+                        DateTimeKind.Utc);
             }
 
             ModelState.Remove("Fornecedor");
 
+            if (string.IsNullOrWhiteSpace(contasPagar.NomeFornecedor)
+                && contasPagar.FornecedorId == null)
+            {
+                ModelState.AddModelError(
+                    "NomeFornecedor",
+                    "Informe um fornecedor.");
+            }
+
             if (!ModelState.IsValid)
             {
+                var fornecedores = _context.Fornecedores
+                    .OrderBy(f => f.NomeFantasia)
+                    .ToList();
+
                 ViewBag.FornecedorId = new SelectList(
-                    _context.Fornecedores,
+                    fornecedores,
                     "Id",
                     "NomeFantasia",
                     contasPagar.FornecedorId
                 );
+
+                ViewBag.Fornecedores = fornecedores;
 
                 return View(contasPagar);
             }
@@ -78,12 +175,18 @@ namespace ControleEstoque.Controllers
             if (conta == null)
                 return NotFound();
 
+            var fornecedores = _context.Fornecedores
+                .OrderBy(f => f.NomeFantasia)
+                .ToList();
+
             ViewBag.FornecedorId = new SelectList(
-                _context.Fornecedores,
+                fornecedores,
                 "Id",
                 "NomeFantasia",
                 conta.FornecedorId
             );
+
+            ViewBag.Fornecedores = fornecedores;
 
             return View(conta);
         }
@@ -107,12 +210,18 @@ namespace ControleEstoque.Controllers
 
             if (!ModelState.IsValid)
             {
+                var fornecedores = _context.Fornecedores
+    .OrderBy(f => f.NomeFantasia)
+    .ToList();
+
                 ViewBag.FornecedorId = new SelectList(
-                    _context.Fornecedores,
+                    fornecedores,
                     "Id",
                     "NomeFantasia",
                     conta.FornecedorId
                 );
+
+                ViewBag.Fornecedores = fornecedores;
 
                 return View(conta);
             }

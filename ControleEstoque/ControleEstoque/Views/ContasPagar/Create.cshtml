@@ -38,10 +38,22 @@
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label class="form-label fw-bold">Fornecedor (da nota)</label>
-                    @* O ajuste principal está na linha abaixo: o (ViewBag... as SelectList) *@
-                    <select asp-for="FornecedorId" class="form-select"
+                    <input asp-for="NomeFornecedor"
+                           class="form-control mb-2"
+                           list="listaFornecedores"
+                           placeholder="Digite ou selecione um fornecedor" />
+
+                    <datalist id="listaFornecedores">
+                        @foreach (var fornecedor in ViewBag.Fornecedores)
+    {
+                        <option value="@fornecedor.NomeFantasia"></option>
+    }
+                    </datalist>
+
+                    <select asp-for="FornecedorId"
+                            class="form-select mt-2"
                             asp-items="@(ViewBag.FornecedorId as Microsoft.AspNetCore.Mvc.Rendering.SelectList)">
-                        <option value="">-- Sem Fornecedor / Gasto Externo --</option>
+                        <option value="">Selecionar fornecedor do sistema (opcional)</option>
                     </select>
                 </div>
                 <div class="col-md-3 mb-3">

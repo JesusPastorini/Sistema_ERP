@@ -1,67 +1,195 @@
 ﻿@model IEnumerable<ControleEstoque.Models.ContasPagar>
 
-    <h2 class="mb-4">💸 Contas a Pagar</h2>
+    <!-- 🔹 HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>💸 Contas a Pagar</h2>
 
-    <div class="mb-3">
-        <a asp-action="Create" class="btn btn-danger">➕ Nova Conta / Nota</a>
+        <div class="d-flex gap-2">
+            <span class="badge bg-secondary align-self-center">
+                Total Pendente:
+                @Model.Where(c => c.DataPagamento == null).Sum(c => c.Valor).ToString("C")
+            </span>
+
+            <a asp-action="Create" class="btn btn-danger">
+                ➕ Nova Conta
+            </a>
+        </div>
     </div>
 
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>Vencimento</th>
-                <th>Descrição</th>
-                <th>Categoria</th>
-                <th>Valor</th>
-                <th>Documento</th> <!-- Coluna para o Drive -->
-                <th>Status</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model) // O "item" nasce aqui
-        {
-            <tr>
-                <td>@item.DataVencimento.ToShortDateString()</td>
-                <td>@item.Descricao</td>
-                <td><span class="badge bg-secondary">@item.Categoria</span></td>
-                <td>@item.Valor.ToString("C")</td>
+    <!-- 🔎 FILTRO -->
+    <form method="get" class="mb-4">
+        <div class="row g-2 align-items-end">
 
-                <!-- O "item" funciona aqui dentro -->
-                <td>
-                    @if (!string.IsNullOrEmpty(item.UrlDocumento))
+            <div class="col-md-3">
+                <label class="form-label">Fornecedor</label>
+                <input type="text"
+                       name="fornecedor"
+                       class="form-control"
+                       value="@ViewBag.Fornecedor"
+                       placeholder="Nome do fornecedor..." />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Data Inicial</label>
+                <input type="date"
+                       name="dataInicio"
+                       class="form-control"
+                       value="@ViewBag.DataInicio" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Data Final</label>
+                <input type="date"
+                       name="dataFim"
+                       class="form-control"
+                       value="@ViewBag.DataFim" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="pendente" selected="@(ViewBag.Status == "pendente")">Pendente</option>
+                    <option value="pago" selected="@(ViewBag.Status == "pago")">Pago</option>
+                    <option value="vencendo" selected="@(ViewBag.Status == "vencendo")">Vencendo</option>
+                    <option value="vencido" selected="@(ViewBag.Status == "vencido")">Vencido</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-dark btn-sm w-100" style="height: 38px;">
+                    🔍
+                </button>
+            </div>
+
+        </div>
+    </form>
+
+    <!-- 📋 TABELA -->
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive"
+             style="max-height: 500px; overflow-y: auto;"
+             id="scrollPagar">
+
+            <table class="table table-hover align-middle mb-0" id="tabelaPagar">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Fornecedor</th>
+                        <th>Vencimento</th>
+                        <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th>Valor</th>
+                        <th>Documento</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                {
+                    var hoje = DateTime.Today;
+
+                    string statusClass;
+                    string statusTexto;
+
+                    if (item.DataPagamento.HasValue)
                     {
-                    <a href="@item.UrlDocumento" target="_blank" class="btn btn-sm btn-link">
-                        folder Ver no Drive
-                    </a>
+                        statusClass = "bg-success";
+                        statusTexto = $"Pago em {item.DataPagamento.Value:dd/MM}";
+                    }
+                    else if (item.DataVencimento < hoje)
+                    {
+                        statusClass = "bg-danger";
+                        statusTexto = "Vencido";
+                    }
+                    else if (item.DataVencimento <= hoje.AddDays(30))
+                    {
+                        statusClass = "bg-warning text-dark";
+                        statusTexto = "Vencendo";
                     }
                     else
                     {
-                    <span class="text-muted small">Sem nota</span>
+                        statusClass = "bg-secondary";
+                        statusTexto = "Pendente";
                     }
-                </td>
 
-                <td>
-                    @if (item.DataPagamento.HasValue)
-                    {
-                    <span class="badge bg-success">Pago</span>
-                    }
-                    else
-                    {
-                    <span class="badge bg-warning text-dark">Pendente</span>
-                    }
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Editar</a>
+                    <tr>
 
-                    @if (!item.DataPagamento.HasValue)
-                    {
-                    <form asp-action="Baixar" asp-route-id="@item.Id" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-success">Baixar</button>
-                    </form>
-                    }
-                </td>
-            </tr>
-        } @* O "item" morre aqui *@
-    </tbody>
-</table>
+                        <td>
+                            @(item.Fornecedor?.NomeFantasia ?? item.NomeFornecedor ?? "Sem fornecedor")
+                        </td>
+
+                        <td>
+                            @item.DataVencimento.ToString("dd/MM/yyyy")
+                        </td>
+
+                        <td>
+                            @item.Descricao
+                        </td>
+
+                        <td>
+                            <span class="badge bg-secondary">
+                                @item.Categoria
+                            </span>
+                        </td>
+
+                        <td class="fw-bold text-danger">
+                            @item.Valor.ToString("C")
+                        </td>
+
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.UrlDocumento))
+                            {
+                            <a href="@item.UrlDocumento"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-primary px-2 py-1">
+                                📄
+                            </a>
+                            }
+                            else
+                            {
+                            <span class="text-muted small">
+                                Sem nota
+                            </span>
+                            }
+                        </td>
+
+                        <td>
+                            <span class="badge @statusClass">
+                                @statusTexto
+                            </span>
+                        </td>
+
+                        <td class="text-end">
+
+                            <a asp-action="Edit"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-warning px-2 py-1">
+                                ✏
+                            </a>
+
+                            @if (!item.DataPagamento.HasValue)
+                            {
+                            <form asp-action="Baixar"
+                                  asp-route-id="@item.Id"
+                                  method="post"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Confirmar baixa desta conta?');">
+
+                                <button class="btn btn-sm btn-success px-2 py-1">
+                                    ✔
+                                </button>
+                            </form>
+                            }
+
+                        </td>
+
+                    </tr>
+                }
+                </tbody>
+
+            </table>
+        </div>
+    </div>
