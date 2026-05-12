@@ -3,24 +3,29 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ControleEstoque.Models
 {
-   // [Table("usuarios")]
     public class Usuario
     {
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Informe o nome")]
         public string Nome { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Informe o email")]
+        [EmailAddress]
         public string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Informe a senha")]
+        [DataType(DataType.Password)]
         public string Senha { get; set; }
 
-       // [Column("permissao_id")]
+        [NotMapped]
+        [Required(ErrorMessage = "Confirme a senha")]
+        [Compare("Senha", ErrorMessage = "As senhas não coincidem")]
+        [DataType(DataType.Password)]
+        public string ConfirmarSenha { get; set; }
+
         public int PermissaoId { get; set; }
 
-        public Permissao Permissao { get; set; }
+        public Permissao? Permissao { get; set; }
     }
 }
-

@@ -3,63 +3,136 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>@ViewData["Title"] - Controle de Estoque</title>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
 </head>
+
 <body>
+
+    @{
+        var nomeUsuario = User.Identity?.Name;
+        var emailUsuario = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+    }
 
     <div class="sidebar">
 
-        <div class="text-center p-3">
-            <img src="~/images/logo.png" style="max-width:120px;" />
+        <!-- LOGO -->
+        <div class="text-center p-4 logo-box">
+            <img src="~/images/logo.png"
+                 style="max-width: 140px;" />
         </div>
 
-        <a asp-controller="Home" asp-action="Index">📊 Dashboard</a>
-        <a asp-controller="Vendas" asp-action="Index">🛒 Vendas</a>
-        <a asp-controller="Clientes" asp-action="Index">👥 Clientes</a>
-        <a asp-controller="CondicoesPagamento" asp-action="Index">💳 Condições de Pagamento</a>
+        <!-- USUÁRIO -->
+        <div class="user-box">
+            <div class="user-name">
+                👤 @nomeUsuario
+            </div>
 
-        <a asp-controller="Produtos" asp-action="Index">📦 Produtos</a>
-        <a asp-controller="MovimentacaoEstoque" asp-action="Index">📥 Movimentação de Estoque</a>
-        <!-- NOVO: Seção de Financeiro -->
-        <hr />
-        <small class="text-muted ms-3">FINANCEIRO</small>
-        <a asp-controller="ContasReceber" asp-action="Index">💰 Contas a Receber</a>
-        <a asp-controller="ContasPagar" asp-action="Index">💸 Contas a Pagar</a>
-        <hr />
-        @{
-            var podeGerenciar = User.FindFirst("PodeGerenciarUsuarios")?.Value;
-        }
+            <div class="user-email">
+                @emailUsuario
+            </div>
+        </div>
 
-        @if (podeGerenciar == "True")
+        <!-- DASHBOARD -->
+        <div class="menu-title">
+            DASHBOARD
+        </div>
+
+        <a asp-controller="Home" asp-action="Index">
+            📊 Dashboard
+        </a>
+
+        <!-- VENDAS -->
+        <div class="menu-title">
+            VENDAS
+        </div>
+
+        <a asp-controller="Vendas" asp-action="Index">
+            🛒 Vendas
+        </a>
+
+        <a asp-controller="CondicoesPagamento" asp-action="Index">
+            💳 Condições de Pagamento
+        </a>
+
+        <!-- ESTOQUE -->
+        <div class="menu-title">
+            ESTOQUE
+        </div>
+
+        <a asp-controller="Produtos" asp-action="Index">
+            📦 Produtos
+        </a>
+
+        <a asp-controller="MovimentacaoEstoque" asp-action="Index">
+            📥 Movimentação de Estoque
+        </a>
+
+        <!-- FINANCEIRO -->
+        @if (User.HasClaim("PodeAcessarFinanceiro", "True"))
         {
-        <li class="nav-item">
-            <a class="nav-link" asp-controller="Usuario" asp-action="Index">
-                Usuários
+        <div class="menu-section">
+            <small class="menu-title">FINANCEIRO</small>
+
+            <a asp-controller="ContasReceber" asp-action="Index">
+                💰 Contas a Receber
             </a>
-        </li>
+
+            <a asp-controller="ContasPagar" asp-action="Index">
+                💸 Contas a Pagar
+            </a>
+        </div>
         }
 
-        <a asp-controller="Fornecedores" asp-action="Index">🏭 Fornecedores</a>
+        <!-- CADASTROS -->
+        <div class="menu-title">
+            CADASTROS
+        </div>
+
+        <a asp-controller="Clientes" asp-action="Index">
+            👥 Clientes
+        </a>
+
+        <a asp-controller="Fornecedores" asp-action="Index">
+            🏭 Fornecedores
+        </a>
+
+        @if (User.HasClaim("PodeGerenciarUsuarios", "True"))
+        {
+        <a asp-controller="Usuario"
+           asp-action="Index">
+            👤 Usuários
+        </a>
+        }
+
         <hr />
 
-        <a asp-controller="Account" asp-action="Logout" class="text-danger">
-            🚪 Sair
+        <!-- LOGOUT -->
+        <a asp-controller="Account"
+           asp-action="Logout"
+           class="logout-btn">
+            🚪 Sair do Sistema
         </a>
 
     </div>
 
+    <!-- CONTEÚDO -->
     <div class="content">
         @RenderBody()
     </div>
 
+    <!-- SCRIPTS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

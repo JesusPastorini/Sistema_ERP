@@ -3,6 +3,7 @@ using System;
 using ControleEstoque.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ControleEstoque.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260510192611_removeSessions")]
+    partial class removeSessions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -328,29 +331,9 @@ namespace ControleEstoque.Migrations
                         .HasColumnType("text")
                         .HasColumnName("nome_perfil");
 
-                    b.Property<bool>("PodeGerenciarClientes")
-                        .HasColumnType("boolean")
-                        .HasColumnName("pode_gerenciar_clientes");
-
-                    b.Property<bool>("PodeGerenciarEstoque")
-                        .HasColumnType("boolean")
-                        .HasColumnName("pode_gerenciar_estoque");
-
-                    b.Property<bool>("PodeGerenciarProdutos")
-                        .HasColumnType("boolean")
-                        .HasColumnName("pode_gerenciar_produtos");
-
                     b.Property<bool>("PodeGerenciarUsuarios")
                         .HasColumnType("boolean")
                         .HasColumnName("pode_gerenciar_usuarios");
-
-                    b.Property<bool>("PodeGerenciarVendas")
-                        .HasColumnType("boolean")
-                        .HasColumnName("pode_gerenciar_vendas");
-
-                    b.Property<bool>("PodeVerFinanceiro")
-                        .HasColumnType("boolean")
-                        .HasColumnName("pode_ver_financeiro");
 
                     b.HasKey("Id")
                         .HasName("pk_permissoes");

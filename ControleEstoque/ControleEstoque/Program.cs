@@ -5,58 +5,66 @@ using Microsoft.EntityFrameworkCore;
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
-Console.WriteLine(builder.Environment.WebRootPath);
-// Add services to the container.
+
+// MVC
 builder.Services.AddControllersWithViews();
 
+// DATABASE
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-           .UseSnakeCaseNamingConvention()
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection"))
+    .UseSnakeCaseNamingConvention()
 );
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+// AUTHENTICATION
+builder.Services
+    .AddAuthentication(
+        CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
         options.LogoutPath = "/Account/Logout";
-        options.AccessDeniedPath = "/Account/AcessoNegado";
+        options.AccessDeniedPath = "/Home/AcessoNegado";
     });
 
+// AUTHORIZATION
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("PodeGerenciarUsuarios", policy =>
-        policy.RequireClaim("PodeGerenciarUsuarios", "True"));
-});
+    options.AddPolicy("PodeGerenciarUsuarios",
+        policy => policy.RequireClaim(
+            "PodeGerenciarUsuarios", "True"));
 
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
+    options.AddPolicy("PodeVerFinanceiro",
+        policy => policy.RequireClaim(
+            "PodeVerFinanceiro", "True"));
+
+    options.AddPolicy("PodeGerenciarEstoque",
+        policy => policy.RequireClaim(
+            "PodeGerenciarEstoque", "True"));
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// PIPELINE
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseSession();
 
 app.UseAuthentication();
+
 app.UseAuthorization();
 
+// ROTA PADRÃO
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");
-
 
 app.Run();

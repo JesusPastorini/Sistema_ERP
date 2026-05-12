@@ -58,16 +58,25 @@ public class AccountController : Controller
         // ==========================
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, usuario.Nome),
+            new Claim(
+                ClaimTypes.Name,
+                usuario.Nome),
 
-            new Claim(ClaimTypes.Email, usuario.Email),
+            new Claim(
+                ClaimTypes.Email,
+                usuario.Email),
 
-            new Claim("UsuarioId", usuario.Id.ToString()),
+            new Claim(
+                "UsuarioId",
+                usuario.Id.ToString()),
 
-            new Claim(ClaimTypes.Role, usuario.Permissao.NomePerfil),
+            new Claim(
+                ClaimTypes.Role,
+                usuario.Permissao?.NomePerfil ?? ""),
 
-            new Claim("PodeGerenciarUsuarios",
-        usuario.Permissao.PodeGerenciarUsuarios.ToString())
+            new Claim(
+                "PodeGerenciarUsuarios",
+                usuario.Permissao?.PodeGerenciarUsuarios.ToString() ?? "False")
         };
 
         // Cria identidade baseada no esquema de autenticação por Cookie
