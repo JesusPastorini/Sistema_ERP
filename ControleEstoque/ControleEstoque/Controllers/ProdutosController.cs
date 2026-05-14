@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
+[Authorize(Policy = "PodeGerenciarProdutos")]
 public class ProdutosController : Controller
 {
     private readonly AppDbContext _context;

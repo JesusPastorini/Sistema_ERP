@@ -3,6 +3,7 @@ using System;
 using ControleEstoque.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ControleEstoque.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260512033529_CreateOrcamentos")]
+    partial class CreateOrcamentos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -327,17 +330,9 @@ namespace ControleEstoque.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("cliente_id");
 
-                    b.Property<int?>("CondicaoPagamentoId")
-                        .HasColumnType("integer")
-                        .HasColumnName("condicao_pagamento_id");
-
                     b.Property<DateTime>("DataOrcamento")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("data_orcamento");
-
-                    b.Property<string>("FormaPagamento")
-                        .HasColumnType("text")
-                        .HasColumnName("forma_pagamento");
 
                     b.Property<string>("Observacoes")
                         .HasColumnType("text")
@@ -352,10 +347,6 @@ namespace ControleEstoque.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("usuario_id");
 
-                    b.Property<int?>("ValidadeDias")
-                        .HasColumnType("integer")
-                        .HasColumnName("validade_dias");
-
                     b.Property<decimal>("ValorTotal")
                         .HasColumnType("numeric")
                         .HasColumnName("valor_total");
@@ -365,9 +356,6 @@ namespace ControleEstoque.Migrations
 
                     b.HasIndex("ClienteId")
                         .HasDatabaseName("ix_orcamentos_cliente_id");
-
-                    b.HasIndex("CondicaoPagamentoId")
-                        .HasDatabaseName("ix_orcamentos_condicao_pagamento_id");
 
                     b.HasIndex("UsuarioId")
                         .HasDatabaseName("ix_orcamentos_usuario_id");
@@ -770,11 +758,6 @@ namespace ControleEstoque.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_orcamentos_clientes_cliente_id");
 
-                    b.HasOne("ControleEstoque.Models.CondicaoPagamento", "CondicaoPagamento")
-                        .WithMany()
-                        .HasForeignKey("CondicaoPagamentoId")
-                        .HasConstraintName("fk_orcamentos_condicoes_pagamento_condicao_pagamento_id");
-
                     b.HasOne("ControleEstoque.Models.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
@@ -783,8 +766,6 @@ namespace ControleEstoque.Migrations
                         .HasConstraintName("fk_orcamentos_usuarios_usuario_id");
 
                     b.Navigation("Cliente");
-
-                    b.Navigation("CondicaoPagamento");
 
                     b.Navigation("Usuario");
                 });

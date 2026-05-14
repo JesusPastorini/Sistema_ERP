@@ -30,17 +30,41 @@ builder.Services
 // AUTHORIZATION
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("PodeGerenciarUsuarios",
+    options.AddPolicy(
+        "PodeGerenciarUsuarios",
         policy => policy.RequireClaim(
-            "PodeGerenciarUsuarios", "True"));
+            "PodeGerenciarUsuarios",
+            "True"));
 
-    options.AddPolicy("PodeVerFinanceiro",
+    options.AddPolicy(
+        "PodeGerenciarClientes",
         policy => policy.RequireClaim(
-            "PodeVerFinanceiro", "True"));
+            "PodeGerenciarClientes",
+            "True"));
 
-    options.AddPolicy("PodeGerenciarEstoque",
+    options.AddPolicy(
+        "PodeGerenciarEstoque",
         policy => policy.RequireClaim(
-            "PodeGerenciarEstoque", "True"));
+            "PodeGerenciarEstoque",
+            "True"));
+
+    options.AddPolicy(
+        "PodeGerenciarProdutos",
+        policy => policy.RequireClaim(
+            "PodeGerenciarProdutos",
+            "True"));
+
+    options.AddPolicy(
+        "PodeGerenciarVendas",
+        policy => policy.RequireClaim(
+            "PodeGerenciarVendas",
+            "True"));
+
+    options.AddPolicy(
+        "PodeVerFinanceiro",
+        policy => policy.RequireClaim(
+            "PodeVerFinanceiro",
+            "True"));
 });
 
 var app = builder.Build();

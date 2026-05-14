@@ -55,6 +55,11 @@
             🛒 Vendas
         </a>
 
+        <a asp-controller="Orcamentos"
+           asp-action="Index">
+            📄 Orçamentos
+        </a>
+
         <a asp-controller="CondicoesPagamento" asp-action="Index">
             💳 Condições de Pagamento
         </a>
@@ -73,10 +78,13 @@
         </a>
 
         <!-- FINANCEIRO -->
-        @if (User.HasClaim("PodeAcessarFinanceiro", "True"))
+        @if (User.HasClaim("PodeVerFinanceiro", "True"))
         {
         <div class="menu-section">
-            <small class="menu-title">FINANCEIRO</small>
+
+            <small class="menu-title">
+                FINANCEIRO
+            </small>
 
             <a asp-controller="ContasReceber" asp-action="Index">
                 💰 Contas a Receber
@@ -85,6 +93,7 @@
             <a asp-controller="ContasPagar" asp-action="Index">
                 💸 Contas a Pagar
             </a>
+
         </div>
         }
 
@@ -101,6 +110,7 @@
             🏭 Fornecedores
         </a>
 
+        <!-- USUARIOS -->
         @if (User.HasClaim("PodeGerenciarUsuarios", "True"))
         {
         <a asp-controller="Usuario"

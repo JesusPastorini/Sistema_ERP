@@ -1,7 +1,9 @@
 ﻿using ControleEstoque.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
+[Authorize(Policy = "PodeGerenciarClientes")]
 public class ClientesController : Controller
 {
     private readonly AppDbContext _context;
