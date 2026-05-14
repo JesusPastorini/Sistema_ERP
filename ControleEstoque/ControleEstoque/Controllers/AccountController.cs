@@ -58,16 +58,51 @@ public class AccountController : Controller
         // ==========================
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, usuario.Nome),
+            new Claim(
+                ClaimTypes.Name,
+                usuario.Nome),
 
-            new Claim(ClaimTypes.Email, usuario.Email),
+            new Claim(
+                ClaimTypes.Email,
+                usuario.Email),
 
-            new Claim("UsuarioId", usuario.Id.ToString()),
+            new Claim(
+                "UsuarioId",
+                usuario.Id.ToString()),
 
-            new Claim(ClaimTypes.Role, usuario.Permissao.NomePerfil),
+            new Claim(
+                ClaimTypes.Role,
+                usuario.Permissao?.NomePerfil ?? ""),
 
-            new Claim("PodeGerenciarUsuarios",
-        usuario.Permissao.PodeGerenciarUsuarios.ToString())
+            // USUÁRIOS
+            new Claim(
+                "PodeGerenciarUsuarios",
+                usuario.Permissao?.PodeGerenciarUsuarios.ToString() ?? "False"),
+
+            // CLIENTES
+            new Claim(
+                "PodeGerenciarClientes",
+                usuario.Permissao?.PodeGerenciarClientes.ToString() ?? "False"),
+
+            // ESTOQUE
+            new Claim(
+                "PodeGerenciarEstoque",
+                usuario.Permissao?.PodeGerenciarEstoque.ToString() ?? "False"),
+
+            // PRODUTOS
+            new Claim(
+                "PodeGerenciarProdutos",
+                usuario.Permissao?.PodeGerenciarProdutos.ToString() ?? "False"),
+
+            // VENDAS
+            new Claim(
+                "PodeGerenciarVendas",
+                usuario.Permissao?.PodeGerenciarVendas.ToString() ?? "False"),
+
+            // FINANCEIRO
+            new Claim(
+                "PodeVerFinanceiro",
+                usuario.Permissao?.PodeVerFinanceiro.ToString() ?? "False")
         };
 
         // Cria identidade baseada no esquema de autenticação por Cookie

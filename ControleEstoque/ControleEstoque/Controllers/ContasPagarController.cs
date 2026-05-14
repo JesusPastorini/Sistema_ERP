@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ControleEstoque.Data;
 using ControleEstoque.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ControleEstoque.Controllers
 {
+    [Authorize(Policy = "PodeAcessarFinanceiro")]
     public class ContasPagarController : Controller
     {
         private readonly AppDbContext _context;

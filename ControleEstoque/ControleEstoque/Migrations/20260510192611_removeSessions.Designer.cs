@@ -3,6 +3,7 @@ using System;
 using ControleEstoque.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ControleEstoque.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260510192611_removeSessions")]
+    partial class removeSessions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -314,108 +317,6 @@ namespace ControleEstoque.Migrations
                     b.ToTable("movimentacoes_estoque", (string)null);
                 });
 
-            modelBuilder.Entity("ControleEstoque.Models.Orcamento", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ClienteId")
-                        .HasColumnType("integer")
-                        .HasColumnName("cliente_id");
-
-                    b.Property<int?>("CondicaoPagamentoId")
-                        .HasColumnType("integer")
-                        .HasColumnName("condicao_pagamento_id");
-
-                    b.Property<DateTime>("DataOrcamento")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("data_orcamento");
-
-                    b.Property<string>("FormaPagamento")
-                        .HasColumnType("text")
-                        .HasColumnName("forma_pagamento");
-
-                    b.Property<string>("Observacoes")
-                        .HasColumnType("text")
-                        .HasColumnName("observacoes");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("status");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("integer")
-                        .HasColumnName("usuario_id");
-
-                    b.Property<int?>("ValidadeDias")
-                        .HasColumnType("integer")
-                        .HasColumnName("validade_dias");
-
-                    b.Property<decimal>("ValorTotal")
-                        .HasColumnType("numeric")
-                        .HasColumnName("valor_total");
-
-                    b.HasKey("Id")
-                        .HasName("pk_orcamentos");
-
-                    b.HasIndex("ClienteId")
-                        .HasDatabaseName("ix_orcamentos_cliente_id");
-
-                    b.HasIndex("CondicaoPagamentoId")
-                        .HasDatabaseName("ix_orcamentos_condicao_pagamento_id");
-
-                    b.HasIndex("UsuarioId")
-                        .HasDatabaseName("ix_orcamentos_usuario_id");
-
-                    b.ToTable("orcamentos", (string)null);
-                });
-
-            modelBuilder.Entity("ControleEstoque.Models.OrcamentoItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("OrcamentoId")
-                        .HasColumnType("integer")
-                        .HasColumnName("orcamento_id");
-
-                    b.Property<decimal>("PrecoUnitario")
-                        .HasColumnType("numeric")
-                        .HasColumnName("preco_unitario");
-
-                    b.Property<int>("ProdutoId")
-                        .HasColumnType("integer")
-                        .HasColumnName("produto_id");
-
-                    b.Property<decimal>("Quantidade")
-                        .HasColumnType("numeric")
-                        .HasColumnName("quantidade");
-
-                    b.Property<decimal>("Subtotal")
-                        .HasColumnType("numeric")
-                        .HasColumnName("subtotal");
-
-                    b.HasKey("Id")
-                        .HasName("pk_orcamento_itens");
-
-                    b.HasIndex("OrcamentoId")
-                        .HasDatabaseName("ix_orcamento_itens_orcamento_id");
-
-                    b.HasIndex("ProdutoId")
-                        .HasDatabaseName("ix_orcamento_itens_produto_id");
-
-                    b.ToTable("orcamento_itens", (string)null);
-                });
-
             modelBuilder.Entity("ControleEstoque.Models.Permissao", b =>
                 {
                     b.Property<int>("Id")
@@ -430,29 +331,9 @@ namespace ControleEstoque.Migrations
                         .HasColumnType("text")
                         .HasColumnName("nome_perfil");
 
-                    b.Property<bool>("PodeGerenciarClientes")
-                        .HasColumnType("boolean")
-                        .HasColumnName("pode_gerenciar_clientes");
-
-                    b.Property<bool>("PodeGerenciarEstoque")
-                        .HasColumnType("boolean")
-                        .HasColumnName("pode_gerenciar_estoque");
-
-                    b.Property<bool>("PodeGerenciarProdutos")
-                        .HasColumnType("boolean")
-                        .HasColumnName("pode_gerenciar_produtos");
-
                     b.Property<bool>("PodeGerenciarUsuarios")
                         .HasColumnType("boolean")
                         .HasColumnName("pode_gerenciar_usuarios");
-
-                    b.Property<bool>("PodeGerenciarVendas")
-                        .HasColumnType("boolean")
-                        .HasColumnName("pode_gerenciar_vendas");
-
-                    b.Property<bool>("PodeVerFinanceiro")
-                        .HasColumnType("boolean")
-                        .HasColumnName("pode_ver_financeiro");
 
                     b.HasKey("Id")
                         .HasName("pk_permissoes");
@@ -761,55 +642,6 @@ namespace ControleEstoque.Migrations
                     b.Navigation("Venda");
                 });
 
-            modelBuilder.Entity("ControleEstoque.Models.Orcamento", b =>
-                {
-                    b.HasOne("Cliente", "Cliente")
-                        .WithMany()
-                        .HasForeignKey("ClienteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_orcamentos_clientes_cliente_id");
-
-                    b.HasOne("ControleEstoque.Models.CondicaoPagamento", "CondicaoPagamento")
-                        .WithMany()
-                        .HasForeignKey("CondicaoPagamentoId")
-                        .HasConstraintName("fk_orcamentos_condicoes_pagamento_condicao_pagamento_id");
-
-                    b.HasOne("ControleEstoque.Models.Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_orcamentos_usuarios_usuario_id");
-
-                    b.Navigation("Cliente");
-
-                    b.Navigation("CondicaoPagamento");
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("ControleEstoque.Models.OrcamentoItem", b =>
-                {
-                    b.HasOne("ControleEstoque.Models.Orcamento", "Orcamento")
-                        .WithMany("Itens")
-                        .HasForeignKey("OrcamentoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_orcamento_itens_orcamentos_orcamento_id");
-
-                    b.HasOne("Produto", "Produto")
-                        .WithMany()
-                        .HasForeignKey("ProdutoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_orcamento_itens_produtos_produto_id");
-
-                    b.Navigation("Orcamento");
-
-                    b.Navigation("Produto");
-                });
-
             modelBuilder.Entity("ControleEstoque.Models.Usuario", b =>
                 {
                     b.HasOne("ControleEstoque.Models.Permissao", "Permissao")
@@ -879,11 +711,6 @@ namespace ControleEstoque.Migrations
                         .HasConstraintName("fk_produtos_fornecedores_fornecedor_id");
 
                     b.Navigation("Fornecedor");
-                });
-
-            modelBuilder.Entity("ControleEstoque.Models.Orcamento", b =>
-                {
-                    b.Navigation("Itens");
                 });
 
             modelBuilder.Entity("ControleEstoque.Models.Permissao", b =>

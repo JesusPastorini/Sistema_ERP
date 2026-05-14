@@ -12,5 +12,10 @@ namespace ControleEstoque.Controllers
         {
             return View();
         }
+
+        public IActionResult AcessoNegado()
+        {
+            return View();
+        }
     }
 }

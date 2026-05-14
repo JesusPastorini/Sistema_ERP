@@ -24,5 +24,9 @@ namespace ControleEstoque.Data
         public DbSet<ContasReceber> ContasReceber { get; set; }
         public DbSet<ContasPagar> ContasPagar { get; set; }
         public DbSet<CondicaoPagamento> CondicoesPagamento { get; set; }
+
+        public DbSet<Orcamento> Orcamentos { get; set; }
+
+        public DbSet<OrcamentoItem> OrcamentoItens { get; set; }
     }
 }

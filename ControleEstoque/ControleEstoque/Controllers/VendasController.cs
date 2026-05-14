@@ -4,9 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using ControleEstoque.Data;
 using ControleEstoque.Models;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ControleEstoque.Controllers
 {
+    [Authorize(Policy = "PodeGerenciarVendas")]
     public class VendasController : Controller
     {
         private readonly AppDbContext _context;

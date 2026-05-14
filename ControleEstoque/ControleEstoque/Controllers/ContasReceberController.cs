@@ -52,6 +52,12 @@ namespace ControleEstoque.Controllers
 
                 if (status == "pago")
                     query = query.Where(c => c.DataPagamento != null);
+                if (status == "vencido")
+                {
+                    query = query.Where(c =>
+                        c.DataPagamento == null &&
+                        c.DataVencimento < hoje);
+                }
 
                 if (status == "vencendo")
                     query = query.Where(c =>

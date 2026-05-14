@@ -1,0 +1,178 @@
+﻿@model ControleEstoque.Models.Orcamento
+
+@{
+    ViewData["Title"] = "Visualizar Orçamento";
+}
+
+<div class="container py-4">
+
+    <!-- TOPO -->
+    <div class="card shadow border-0 mb-4">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-start flex-wrap">
+
+                <div>
+                    <h2 class="fw-bold text-success mb-1">
+                        ORÇAMENTO #@Model.Id
+                    </h2>
+
+                    <div class="text-muted">
+                        Emitido em @Model.DataOrcamento.ToString("dd/MM/yyyy HH:mm")
+                    </div>
+                </div>
+
+                <div class="text-end">
+
+                    <h5 class="fw-bold mb-1">
+                        Sua Empresa
+                    </h5>
+
+                    <div class="text-muted">
+                        Controle de Estoque
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- CLIENTE -->
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Dados do Cliente</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-muted">Cliente</label>
+
+                    <div class="fs-5">
+                        @Model.Cliente?.Nome
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-muted">Telefone</label>
+
+                    <div class="fs-5">
+                        @(Model.Cliente?.Telefone ?? "-")
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ITENS -->
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Itens do Orçamento</h5>
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+
+                        <tr>
+                            <th>Produto</th>
+                            <th width="120">Quantidade</th>
+                            <th width="180">Valor Unitário</th>
+                            <th width="180">Subtotal</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.Itens)
+                        {
+                        <tr>
+
+                            <td>
+                                @item.Produto?.Categoria
+                                -
+                                @item.Produto?.TipoMadeira
+                            </td>
+
+                            <td>
+                                @item.Quantidade
+                            </td>
+
+                            <td>
+                                @item.PrecoUnitario.ToString("C")
+                            </td>
+
+                            <td class="fw-bold">
+                                @((item.Quantidade * item.PrecoUnitario).ToString("C"))
+                            </td>
+
+                        </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TOTAL -->
+    <div class="row">
+
+        <div class="col-md-5 ms-auto">
+
+            <div class="card border-success shadow">
+
+                <div class="card-body text-center">
+
+                    <div class="text-muted fw-bold mb-2">
+                        VALOR TOTAL
+                    </div>
+
+                    <h1 class="display-5 fw-bold text-success">
+                        @Model.ValorTotal.ToString("C")
+                    </h1>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- BOTÕES -->
+    <div class="d-flex gap-2 mt-4">
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+            Voltar
+        </a>
+
+        <button onclick="window.print()"
+                class="btn btn-success">
+            🖨️ Imprimir / Salvar PDF
+        </button>
+
+    </div>
+
+</div>
