@@ -1,0 +1,140 @@
+﻿@model ControleEstoque.Models.ViewModels.EntradaEstoqueImportacaoViewModel
+
+<div class="container-fluid">
+
+    <h2 class="mb-4">
+        📄 Conferir Nota Fiscal
+    </h2>
+
+    <form asp-action="SalvarImportacao" method="post">
+
+        <div class="row">
+
+            <!-- DADOS -->
+            <div class="col-md-4">
+
+                <div class="card shadow-sm border-0 mb-4">
+
+                    <div class="card-header bg-dark text-white">
+                        Dados da NF
+                    </div>
+
+                    <div class="card-body">
+
+                        <label>Fornecedor</label>
+
+                        <select asp-for="FornecedorId"
+                                asp-items="ViewBag.Fornecedores"
+                                class="form-select mb-2">
+
+                            <option value="">
+                                Não encontrado
+                            </option>
+
+                        </select>
+
+                        <a asp-controller="Fornecedores"
+                           asp-action="Create"
+                           target="_blank"
+                           class="btn btn-outline-primary btn-sm w-100 mb-3">
+
+                            ➕ Novo Fornecedor
+
+                        </a>
+
+                        <label>Número NF</label>
+
+                        <input asp-for="NumeroNotaFiscal"
+                               class="form-control mb-3" />
+
+                        <label>Valor Total</label>
+
+                        <input asp-for="ValorTotal"
+                               class="form-control mb-3" />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- PRODUTOS -->
+            <div class="col-md-8">
+
+                <div class="card shadow-sm border-0">
+
+                    <div class="card-header bg-primary text-white">
+                        Produtos Importados
+                    </div>
+
+                    <div class="card-body">
+
+                        <table class="table table-hover">
+
+                            <thead>
+                                <tr>
+                                    <th>XML</th>
+                                    <th>Produto Sistema</th>
+                                    <th>Qtd</th>
+                                    <th>Custo</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @for (int i = 0; i < Model.Itens.Count; i++)
+                                {
+                                <tr>
+
+                                    <td>
+                                        @Model.Itens[i].NomeXml
+
+                                        <input type="hidden"
+                                               asp-for="Itens[i].NomeXml" />
+                                    </td>
+
+                                    <td>
+
+                                        <select asp-for="Itens[i].ProdutoId"
+                                                asp-items="ViewBag.Produtos"
+                                                class="form-select">
+
+                                            <option value="">
+                                                Não encontrado
+                                            </option>
+
+                                        </select>
+                                    </td>
+
+                                    <td>
+                                        <input asp-for="Itens[i].Quantidade"
+                                               class="form-control" />
+                                    </td>
+
+                                    <td>
+                                        <input asp-for="Itens[i].ValorCusto"
+                                               class="form-control" />
+                                    </td>
+
+                                </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+                <button class="btn btn-success btn-lg mt-4">
+                    ✅ Confirmar Entrada
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>

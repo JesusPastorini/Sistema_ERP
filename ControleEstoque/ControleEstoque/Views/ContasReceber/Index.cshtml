@@ -1,115 +1,239 @@
 ﻿@model IEnumerable<ControleEstoque.Models.ContasReceber>
 
+    @{
+    ViewData["Title"] = "Contas a Receber";
+    }
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+    <style>
+
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: 38px;
+        }
+
+        .select2-dropdown {
+            z-index: 9999;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+    </style>
+
     <!-- 🔹 HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>💰 Contas a Receber</h2>
+
+        <h2>
+            💰 Contas a Receber
+        </h2>
 
         <div class="d-flex gap-2">
+
             <span class="badge bg-secondary align-self-center">
+
                 Total Pendente:
                 @Model.Where(c => c.DataPagamento == null).Sum(c => c.Valor).ToString("C")
+
             </span>
 
-            <a asp-action="Create" class="btn btn-primary">
+            <a asp-action="Create"
+               class="btn btn-primary">
+
                 ➕ Nova Conta
+
             </a>
+
         </div>
+
     </div>
 
     <!-- 🔎 FILTRO -->
-    <form method="get" class="mb-4">
+    <form method="get"
+          class="mb-4">
+
         <div class="row g-2 align-items-end">
 
+            <!-- CLIENTE -->
             <div class="col-md-4">
-                <label class="form-label">Cliente</label>
-                <input type="text" name="cliente"
-                       class="form-control"
-                       value="@ViewBag.Cliente"
-                       placeholder="Nome do cliente..." />
+
+                <label class="form-label">
+                    Cliente
+                </label>
+
+                <select id="clienteSelect"
+                        name="cliente"
+                        class="form-select">
+                </select>
+
             </div>
 
-            <!-- 🔥 NOVO PERÍODO -->
+            <!-- DATA -->
             <div class="col-md-2">
-                <label class="form-label">De</label>
-                <input type="date" name="dataInicio"
+
+                <label class="form-label">
+                    De
+                </label>
+
+                <input type="date"
+                       name="dataInicio"
                        class="form-control"
                        value="@ViewBag.DataInicio" />
+
             </div>
 
             <div class="col-md-2">
-                <label class="form-label">Até</label>
-                <input type="date" name="dataFim"
+
+                <label class="form-label">
+                    Até
+                </label>
+
+                <input type="date"
+                       name="dataFim"
                        class="form-control"
                        value="@ViewBag.DataFim" />
+
             </div>
 
+            <!-- STATUS -->
             <div class="col-md-2">
-                <label class="form-label">Status</label>
-                <select name="status" class="form-control">
-                    <option value="">Todos</option>
-                    <option value="pendente" selected="@(ViewBag.Status == "pendente")">Pendente</option>
-                    <option value="pago" selected="@(ViewBag.Status == "pago")">Pago</option>
-                    <option value="vencendo" selected="@(ViewBag.Status == "vencendo")">Vencendo</option>
-                    <option value="vencido" selected="@(ViewBag.Status == "vencido")">Vencido</option>
+
+                <label class="form-label">
+                    Status
+                </label>
+
+                <select name="status"
+                        class="form-control">
+
+                    <option value="">
+                        Todos
+                    </option>
+
+                    <option value="pendente"
+                            selected="@(ViewBag.Status == "pendente")">
+
+                        Pendente
+
+                    </option>
+
+                    <option value="pago"
+                            selected="@(ViewBag.Status == "pago")">
+
+                        Pago
+
+                    </option>
+
+                    <option value="vencendo"
+                            selected="@(ViewBag.Status == "vencendo")">
+
+                        Vencendo
+
+                    </option>
+
+                    <option value="vencido"
+                            selected="@(ViewBag.Status == "vencido")">
+
+                        Vencido
+
+                    </option>
+
                 </select>
+
             </div>
 
             <div class="col-md-2 d-flex align-items-end">
-                <button class="btn btn-dark btn-sm w-100" style="height: 38px;">
+
+                <button class="btn btn-dark btn-sm w-100"
+                        style="height: 38px;">
+
                     🔍
+
                 </button>
+
             </div>
 
         </div>
+
     </form>
 
     <!-- 📋 TABELA -->
     <div class="card shadow-sm border-0">
-        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;" id="scrollContainer">
 
-            <table class="table table-hover align-middle mb-0" id="tabelaContas">
+        <div class="table-responsive"
+             style="max-height: 500px; overflow-y: auto;"
+             id="scrollContainer">
+
+            <table class="table table-hover align-middle mb-0"
+                   id="tabelaContas">
 
                 <thead class="table-dark">
+
                     <tr>
-                        <th>Cliente</th>
-                        <th>Vencimento</th>
-                        <th>Valor</th>
-                        <th>Origem</th>
-                        <th>Status</th>
+
+                        <th>
+                            Cliente
+                        </th>
+
+                        <th>
+                            Vencimento
+                        </th>
+
+                        <th>
+                            Valor
+                        </th>
+
+                        <th>
+                            Origem
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
                         <th></th>
+
                     </tr>
+
                 </thead>
 
                 <tbody>
+
                     @foreach (var item in Model)
-            {
-                var hoje = DateTime.Today;
+                {
+                    var hoje = DateTime.Today;
 
-                string statusClass;
-                string statusTexto;
+                    string statusClass;
+                    string statusTexto;
 
-                if (item.DataPagamento.HasValue)
-                {
-                    statusClass = "bg-success";
-                    statusTexto = $"Pago em {item.DataPagamento.Value:dd/MM}";
-                }
-                else if (item.DataVencimento < hoje)
-                {
-                    statusClass = "bg-danger";
-                    statusTexto = "Vencido";
-                }
-                else if (item.DataVencimento <= hoje.AddDays(30)) // 🔥 NOVO
-                {
-                    statusClass = "bg-warning text-dark";
-                    statusTexto = "Vencendo";
-                }
-                else
-                {
-                    statusClass = "bg-secondary";
-                    statusTexto = "Pendente";
-                }
+                    if (item.DataPagamento.HasValue)
+                    {
+                        statusClass = "bg-success";
+                        statusTexto = $"Pago em {item.DataPagamento.Value:dd/MM}";
+                    }
+                    else if (item.DataVencimento < hoje)
+                    {
+                        statusClass = "bg-danger";
+                        statusTexto = "Vencido";
+                    }
+                    else if (item.DataVencimento <= hoje.AddDays(30))
+                    {
+                        statusClass = "bg-warning text-dark";
+                        statusTexto = "Vencendo";
+                    }
+                    else
+                    {
+                        statusClass = "bg-secondary";
+                        statusTexto = "Pendente";
+                    }
 
                     <tr>
+
                         <td>
                             @(item.Cliente?.Nome ?? item.Venda?.Cliente?.Nome ?? "N/A")
                         </td>
@@ -124,20 +248,22 @@
 
                         <td>
                             @(item.VendaId != null
-                        ? $"Venda #{item.VendaId}"
-                        : item.Descricao ?? "Manual")
+                                ? $"Venda #{item.VendaId}"
+                                : item.Descricao ?? "Manual")
                         </td>
 
                         <td>
+
                             <span class="badge @statusClass">
                                 @statusTexto
                             </span>
+
                         </td>
 
                         <td class="text-end">
 
                             @if (!item.DataPagamento.HasValue)
-                        {
+                            {
                             <form asp-action="Baixar"
                                   asp-route-id="@item.Id"
                                   method="post"
@@ -147,52 +273,162 @@
                                 <button class="btn btn-sm btn-success px-2 py-1">
                                     ✔
                                 </button>
+
                             </form>
-                        }
+                            }
 
                             <a asp-action="Details"
                                asp-route-id="@item.Id"
                                class="btn btn-sm btn-info text-white px-2 py-1">
+
                                 👁
+
                             </a>
 
                         </td>
+
                     </tr>
-            }
+                }
+
                 </tbody>
 
             </table>
+
         </div>
+
     </div>
 
-    <script>
+    @section Scripts {
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+        <script>
+
+        // =========================================
+        // CLIENTE
+        // =========================================
+
+        $('#clienteSelect').select2({
+
+            theme: 'bootstrap-5',
+
+            placeholder: 'Clique ou digite para buscar cliente...',
+
+            minimumInputLength: 0,
+
+            ajax: {
+
+                // 🔥 reutilizando controller já existente
+                url: '/Vendas/BuscarClientesPaginado',
+
+                dataType: 'json',
+
+                delay: 150,
+
+                data: function (params) {
+
+                    return {
+
+                        termo: params.term || '',
+                        pagina: params.page || 1
+                    };
+                },
+
+                processResults: function (data) {
+
+                    return {
+
+                        results: data.items,
+
+                        pagination: {
+
+                            more: data.pagination.more
+                        }
+                    };
+                }
+            }
+        });
+
+        // =========================================
+        // MANTER VALOR SE FILTRADO
+        // =========================================
+
+        const clienteAtual = '@ViewBag.Cliente';
+
+        if (clienteAtual) {
+
+            const option = new Option(
+                clienteAtual,
+                clienteAtual,
+                true,
+                true
+            );
+
+            $('#clienteSelect')
+                .append(option)
+                .trigger('change');
+        }
+
+        // =========================================
+        // SCROLL INFINITO
+        // =========================================
+
         let carregando = false;
         let skip = 10;
         let primeiraCarga = true;
 
-        const container = document.getElementById('scrollContainer');
+        const container =
+            document.getElementById('scrollContainer');
 
         container.addEventListener('scroll', async () => {
 
             if (primeiraCarga) {
+
                 primeiraCarga = false;
                 return;
             }
 
-            if (carregando) return;
+            if (carregando)
+                return;
 
-            if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
+            if (
+                container.scrollTop + container.clientHeight >=
+                container.scrollHeight - 50
+            ) {
 
                 carregando = true;
 
-                const url = `/ContasReceber/CarregarMais?skip=${skip}`;
+                const cliente =
+                    $('#clienteSelect').val() || '';
 
-                const response = await fetch(url);
-                const dados = await response.json();
+                const dataInicio =
+                    document.querySelector('[name="dataInicio"]').value;
 
-                if (dados.length === 0) return;
+                const dataFim =
+                    document.querySelector('[name="dataFim"]').value;
 
-                const tabela = document.querySelector('#tabelaContas tbody');
+                const status =
+                    document.querySelector('[name="status"]').value;
+
+                const url =
+                    `/ContasReceber/CarregarMais?skip=${skip}&cliente=${encodeURIComponent(cliente)}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}`;
+
+                const response =
+                    await fetch(url);
+
+                const dados =
+                    await response.json();
+
+                if (dados.length === 0) {
+
+                    carregando = false;
+                    return;
+                }
+
+                const tabela =
+                    document.querySelector('#tabelaContas tbody');
 
                 dados.forEach(c => {
 
@@ -208,24 +444,51 @@
                         status = `<span class="badge bg-secondary">Pendente</span>`;
 
                     const linha = `
+
                         <tr>
+
                             <td>${c.cliente}</td>
+
                             <td>${c.vencimento}</td>
-                            <td class="fw-bold text-success">R$ ${c.valor}</td>
-                            <td>${c.origem}</td>
-                            <td>${status}</td>
-                            <td class="text-end">
-                                ${!c.pago ? `<button class="btn btn-sm btn-success px-2 py-1">✔</button>` : ""}
-                                <a href="/ContasReceber/Details/${c.id}" class="btn btn-sm btn-info text-white px-2 py-1">👁</a>
+
+                            <td class="fw-bold text-success">
+                                R$ ${c.valor}
                             </td>
+
+                            <td>${c.origem}</td>
+
+                            <td>${status}</td>
+
+                            <td class="text-end">
+
+                                ${!c.pago
+                                    ? `<button class="btn btn-sm btn-success px-2 py-1">✔</button>`
+                                    : ""}
+
+                                <a href="/ContasReceber/Details/${c.id}"
+                                   class="btn btn-sm btn-info text-white px-2 py-1">
+
+                                    👁
+
+                                </a>
+
+                            </td>
+
                         </tr>
                     `;
 
-                    tabela.insertAdjacentHTML('beforeend', linha);
+                    tabela.insertAdjacentHTML(
+                        'beforeend',
+                        linha
+                    );
                 });
 
                 skip += 20;
+
                 carregando = false;
             }
         });
-    </script>
+
+        </script>
+
+    }

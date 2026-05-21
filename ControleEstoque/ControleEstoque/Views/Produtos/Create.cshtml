@@ -1,53 +1,327 @@
 ﻿@model Produto
 
-<h2>Criar Produto</h2>
+@{
+    ViewData["Title"] = "Criar Produto";
+}
 
-<form asp-action="Create" method="post">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
-    <div class="mb-2">
-        <input asp-for="Categoria" class="form-control" placeholder="Categoria" />
-        <span asp-validation-for="Categoria" class="text-danger"></span>
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+<style>
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .select2-container--bootstrap-5 .select2-selection {
+        min-height: 38px;
+    }
+
+    .select2-dropdown {
+        z-index: 9999;
+    }
+
+    body {
+        overflow-x: hidden;
+    }
+</style>
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h2>
+            📦 Criar Produto
+        </h2>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            Voltar
+
+        </a>
+
     </div>
 
-    <div class="mb-2">
-        <input asp-for="TipoMadeira" class="form-control" placeholder="Tipo Madeira" />
-        <span asp-validation-for="TipoMadeira" class="text-danger"></span>
-    </div>
+    <form asp-action="Create"
+          method="post">
 
-    <div class="mb-2">
-        <input asp-for="Descricao" class="form-control" placeholder="Descrição" />
-        <span asp-validation-for="Descricao" class="text-danger"></span>
-    </div>
+        <div class="row">
 
-    <div class="mb-2">
-        <input asp-for="Dimensoes" class="form-control" placeholder="Dimensões" />
-        <span asp-validation-for="Dimensoes" class="text-danger"></span>
-    </div>
+            <!-- DADOS -->
+            <div class="col-md-7">
 
-    <div class="mb-2">
-        <input asp-for="UnidadeMedida" class="form-control" placeholder="Unidade de Medida" />
-        <span asp-validation-for="UnidadeMedida" class="text-danger"></span>
-    </div>
+                <div class="card shadow-sm border-0 mb-4">
 
-    <div class="mb-2">
-        <input asp-for="QuantidadeEstoque" class="form-control" placeholder="Estoque" />
-        <span asp-validation-for="QuantidadeEstoque" class="text-danger"></span>
-    </div>
+                    <div class="card-header bg-dark text-white">
 
-    <div class="mb-3">
-        <select asp-for="FornecedorId"
-                asp-items="ViewBag.Fornecedores"
-                class="form-control">
-            <option value="">Selecione um fornecedor</option>
-        </select>
-        <span asp-validation-for="FornecedorId" class="text-danger"></span>
-    </div>
+                        Dados do Produto
 
-    <button type="submit" class="btn btn-primary">Salvar</button>
-</form>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label fw-bold">
+                                    Categoria
+                                </label>
+
+                                <input asp-for="Categoria"
+                                       class="form-control"
+                                       placeholder="Ex: Tábua, Viga..." />
+
+                                <span asp-validation-for="Categoria"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label fw-bold">
+                                    Tipo Madeira
+                                </label>
+
+                                <input asp-for="TipoMadeira"
+                                       class="form-control"
+                                       placeholder="Ex: Pinus, Cedro..." />
+
+                                <span asp-validation-for="TipoMadeira"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label fw-bold">
+                                Descrição
+                            </label>
+
+                            <input asp-for="Descricao"
+                                   class="form-control"
+                                   placeholder="Descrição do produto" />
+
+                            <span asp-validation-for="Descricao"
+                                  class="text-danger"></span>
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label fw-bold">
+                                    Dimensões
+                                </label>
+
+                                <input asp-for="Dimensoes"
+                                       class="form-control"
+                                       placeholder="Ex: 2x4x3000" />
+
+                                <span asp-validation-for="Dimensoes"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label fw-bold">
+                                    Unidade Medida
+                                </label>
+
+                                <input asp-for="UnidadeMedida"
+                                       class="form-control"
+                                       placeholder="Ex: m³, un, pacote..." />
+
+                                <span asp-validation-for="UnidadeMedida"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label fw-bold">
+                                    Estoque Inicial
+                                </label>
+
+                                <input asp-for="QuantidadeEstoque"
+                                       class="form-control"
+                                       placeholder="0" />
+
+                                <span asp-validation-for="QuantidadeEstoque"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                    <label class="form-label fw-bold mb-0">
+                                        Fornecedor
+                                    </label>
+
+                                    <a asp-controller="Fornecedor"
+                                       asp-action="Create"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+
+                                        ➕ Novo Fornecedor
+
+                                    </a>
+
+                                </div>
+
+                                <select asp-for="FornecedorId"
+                                        id="FornecedorId"
+                                        class="form-select">
+                                </select>
+
+                                <span asp-validation-for="FornecedorId"
+                                      class="text-danger"></span>
+
+                                <small class="text-muted">
+
+                                    Digite ou clique para buscar fornecedor.
+
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- RESUMO -->
+            <div class="col-md-5">
+
+                <div class="card shadow-sm border-0">
+
+                    <div class="card-header bg-primary text-white">
+
+                        Informações
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="alert alert-light border mb-0">
+
+                            <p>
+                                <strong>Categoria:</strong>
+                                grupo principal do produto.
+                            </p>
+
+                            <p>
+                                <strong>Tipo Madeira:</strong>
+                                madeira utilizada.
+                            </p>
+
+                            <p>
+                                <strong>Dimensões:</strong>
+                                medidas do item.
+                            </p>
+
+                            <p class="mb-0">
+                                <strong>Fornecedor:</strong>
+                                empresa responsável pelo fornecimento.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-success btn-lg mt-4">
+
+                    💾 Salvar Produto
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
 
 @section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+
+        // =====================================
+        // SELECT2 FORNECEDOR
+        // =====================================
+
+        $('#FornecedorId').select2({
+
+            theme: 'bootstrap-5',
+
+            placeholder: 'Digite ou clique para buscar fornecedor...',
+
+            minimumInputLength: 0,
+
+            ajax: {
+
+                url: '/EntradaEstoque/BuscarFornecedoresPaginado',
+
+                dataType: 'json',
+
+                delay: 150,
+
+                data: function (params) {
+
+                    return {
+
+                        termo: params.term || '',
+                        pagina: params.page || 1
+                    };
+                },
+
+                processResults: function (data) {
+
+                    return {
+
+                        results: data.items.map(item => ({
+
+                            id: item.id,
+                            text: item.text
+
+                        })),
+
+                        pagination: {
+
+                            more: data.pagination.more
+                        }
+                    };
+                }
+            }
+        });
+
+    </script>
+
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
 }

@@ -1,92 +1,209 @@
 ﻿@model IEnumerable<ControleEstoque.Models.ContasPagar>
 
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+    <style>
+
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: 38px;
+        }
+
+        .select2-dropdown {
+            z-index: 9999;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+    </style>
+
     <!-- 🔹 HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
+
         <h2>💸 Contas a Pagar</h2>
 
         <div class="d-flex gap-2">
+
             <span class="badge bg-secondary align-self-center">
+
                 Total Pendente:
                 @Model.Where(c => c.DataPagamento == null).Sum(c => c.Valor).ToString("C")
+
             </span>
 
-            <a asp-action="Create" class="btn btn-danger">
+            <a asp-action="Create"
+               class="btn btn-danger">
+
                 ➕ Nova Conta
+
             </a>
+
         </div>
+
     </div>
 
     <!-- 🔎 FILTRO -->
-    <form method="get" class="mb-4">
+    <form method="get"
+          class="mb-4">
+
         <div class="row g-2 align-items-end">
 
+            <!-- FORNECEDOR -->
             <div class="col-md-3">
-                <label class="form-label">Fornecedor</label>
-                <input type="text"
-                       name="fornecedor"
-                       class="form-control"
-                       value="@ViewBag.Fornecedor"
-                       placeholder="Nome do fornecedor..." />
+
+                <label class="form-label">
+                    Fornecedor
+                </label>
+
+                <select id="fornecedorSelect"
+                        name="fornecedor"
+                        class="form-select">
+                </select>
+
             </div>
 
             <div class="col-md-2">
-                <label class="form-label">Data Inicial</label>
+
+                <label class="form-label">
+                    Data Inicial
+                </label>
+
                 <input type="date"
                        name="dataInicio"
                        class="form-control"
                        value="@ViewBag.DataInicio" />
+
             </div>
 
             <div class="col-md-2">
-                <label class="form-label">Data Final</label>
+
+                <label class="form-label">
+                    Data Final
+                </label>
+
                 <input type="date"
                        name="dataFim"
                        class="form-control"
                        value="@ViewBag.DataFim" />
+
             </div>
 
             <div class="col-md-3">
-                <label class="form-label">Status</label>
-                <select name="status" class="form-control">
-                    <option value="">Todos</option>
-                    <option value="pendente" selected="@(ViewBag.Status == "pendente")">Pendente</option>
-                    <option value="pago" selected="@(ViewBag.Status == "pago")">Pago</option>
-                    <option value="vencendo" selected="@(ViewBag.Status == "vencendo")">Vencendo</option>
-                    <option value="vencido" selected="@(ViewBag.Status == "vencido")">Vencido</option>
+
+                <label class="form-label">
+                    Status
+                </label>
+
+                <select name="status"
+                        class="form-control">
+
+                    <option value="">
+                        Todos
+                    </option>
+
+                    <option value="pendente"
+                            selected="@(ViewBag.Status == "pendente")">
+
+                        Pendente
+
+                    </option>
+
+                    <option value="pago"
+                            selected="@(ViewBag.Status == "pago")">
+
+                        Pago
+
+                    </option>
+
+                    <option value="vencendo"
+                            selected="@(ViewBag.Status == "vencendo")">
+
+                        Vencendo
+
+                    </option>
+
+                    <option value="vencido"
+                            selected="@(ViewBag.Status == "vencido")">
+
+                        Vencido
+
+                    </option>
+
                 </select>
+
             </div>
 
             <div class="col-md-2 d-flex align-items-end">
-                <button class="btn btn-dark btn-sm w-100" style="height: 38px;">
+
+                <button class="btn btn-dark btn-sm w-100"
+                        style="height: 38px;">
+
                     🔍
+
                 </button>
+
             </div>
 
         </div>
+
     </form>
 
     <!-- 📋 TABELA -->
     <div class="card shadow-sm border-0">
+
         <div class="table-responsive"
              style="max-height: 500px; overflow-y: auto;"
              id="scrollPagar">
 
-            <table class="table table-hover align-middle mb-0" id="tabelaPagar">
+            <table class="table table-hover align-middle mb-0"
+                   id="tabelaPagar">
 
                 <thead class="table-dark">
+
                     <tr>
-                        <th>Fornecedor</th>
-                        <th>Vencimento</th>
-                        <th>Descrição</th>
-                        <th>Categoria</th>
-                        <th>Valor</th>
-                        <th>Documento</th>
-                        <th>Status</th>
+
+                        <th>
+                            Fornecedor
+                        </th>
+
+                        <th>
+                            Vencimento
+                        </th>
+
+                        <th>
+                            Descrição
+                        </th>
+
+                        <th>
+                            Categoria
+                        </th>
+
+                        <th>
+                            Valor
+                        </th>
+
+                        <th>
+                            Documento
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
                         <th></th>
+
                     </tr>
+
                 </thead>
 
                 <tbody>
+
                     @foreach (var item in Model)
                 {
                     var hoje = DateTime.Today;
@@ -130,9 +247,11 @@
                         </td>
 
                         <td>
+
                             <span class="badge bg-secondary">
                                 @item.Categoria
                             </span>
+
                         </td>
 
                         <td class="fw-bold text-danger">
@@ -140,12 +259,15 @@
                         </td>
 
                         <td>
+
                             @if (!string.IsNullOrEmpty(item.UrlDocumento))
                             {
                             <a href="@item.UrlDocumento"
                                target="_blank"
                                class="btn btn-sm btn-outline-primary px-2 py-1">
+
                                 📄
+
                             </a>
                             }
                             else
@@ -154,12 +276,15 @@
                                 Sem nota
                             </span>
                             }
+
                         </td>
 
                         <td>
+
                             <span class="badge @statusClass">
                                 @statusTexto
                             </span>
+
                         </td>
 
                         <td class="text-end">
@@ -167,7 +292,9 @@
                             <a asp-action="Edit"
                                asp-route-id="@item.Id"
                                class="btn btn-sm btn-warning px-2 py-1">
+
                                 ✏
+
                             </a>
 
                             @if (!item.DataPagamento.HasValue)
@@ -181,6 +308,7 @@
                                 <button class="btn btn-sm btn-success px-2 py-1">
                                     ✔
                                 </button>
+
                             </form>
                             }
 
@@ -188,8 +316,68 @@
 
                     </tr>
                 }
+
                 </tbody>
 
             </table>
+
         </div>
+
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+
+        // =========================================
+        // FORNECEDOR
+        // =========================================
+
+        $('#fornecedorSelect').select2({
+
+            theme: 'bootstrap-5',
+
+            placeholder: 'Clique ou digite para buscar fornecedor...',
+
+            minimumInputLength: 0,
+
+            ajax: {
+
+                url: '/EntradaEstoque/BuscarFornecedoresPaginado',
+
+                dataType: 'json',
+
+                delay: 150,
+
+                data: function (params) {
+
+                    return {
+
+                        termo: params.term || '',
+                        pagina: params.page || 1
+                    };
+                },
+
+                processResults: function (data) {
+
+                    return {
+
+                        results: data.items.map(item => ({
+
+                            id: item.text,
+                            text: item.text
+
+                        })),
+
+                        pagination: {
+
+                            more: data.pagination.more
+                        }
+                    };
+                }
+            }
+        });
+
+    </script>

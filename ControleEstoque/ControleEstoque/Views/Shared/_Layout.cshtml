@@ -11,30 +11,50 @@
 
 </head>
 
+<script>
+
+    // =========================================
+    // MANTER POSIÇÃO DO SCROLL DA SIDEBAR
+    // =========================================
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const sidebar = document.querySelector(".sidebar");
+
+        if (!sidebar) return;
+
+        // restaura posição
+        const scrollSalvo = localStorage.getItem("sidebar-scroll");
+
+        if (scrollSalvo !== null) {
+
+            sidebar.scrollTop = parseInt(scrollSalvo);
+
+        }
+
+        // salva posição ao scrollar
+        sidebar.addEventListener("scroll", function () {
+
+            localStorage.setItem("sidebar-scroll", sidebar.scrollTop);
+
+        });
+
+    });
+
+</script>
+
 <body>
 
     @{
         var nomeUsuario = User.Identity?.Name;
-        var emailUsuario = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
     }
 
     <div class="sidebar">
 
         <!-- LOGO -->
-        <div class="text-center p-4 logo-box">
-            <img src="~/images/logo.png"
+        <div class="text-center p-1 logo-box">
+            <img src="~/images/logo1.png"
                  style="max-width: 140px;" />
-        </div>
-
-        <!-- USUÁRIO -->
-        <div class="user-box">
-            <div class="user-name">
-                👤 @nomeUsuario
-            </div>
-
-            <div class="user-email">
-                @emailUsuario
-            </div>
         </div>
 
         <!-- DASHBOARD -->
@@ -71,6 +91,11 @@
 
         <a asp-controller="Produtos" asp-action="Index">
             📦 Produtos
+        </a>
+
+        <a asp-controller="EntradaEstoque"
+           asp-action="Index">
+            📥 Entrada de Estoque
         </a>
 
         <a asp-controller="MovimentacaoEstoque" asp-action="Index">
@@ -120,6 +145,13 @@
         }
 
         <hr />
+
+        <!-- USUÁRIO -->
+        <div class="user-box">
+            <div class="user-name">
+                👤 @nomeUsuario
+            </div>
+        </div>
 
         <!-- LOGOUT -->
         <a asp-controller="Account"

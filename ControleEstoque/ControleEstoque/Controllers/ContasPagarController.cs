@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ControleEstoque.Controllers
 {
-    [Authorize(Policy = "PodeAcessarFinanceiro")]
+    [Authorize(Policy = "PodeVerFinanceiro")]
     public class ContasPagarController : Controller
     {
         private readonly AppDbContext _context;

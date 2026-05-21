@@ -25,6 +25,7 @@
                     <div class="card-body">
                         <!-- Selecionar Cliente -->
                         <div class="mb-3">
+
                             <div class="d-flex justify-content-between align-items-center mb-2">
 
                                 <label class="form-label fw-bold mb-0">
@@ -35,25 +36,23 @@
                                    asp-action="Create"
                                    target="_blank"
                                    class="btn btn-sm btn-outline-primary">
+
                                     ➕ Novo Cliente
+
                                 </a>
 
                             </div>
 
                             <select asp-for="ClienteId"
+                                    id="ClienteId"
                                     class="form-select"
-                                    asp-items="ViewBag.ClienteId"
                                     required>
-
-                                <option value="">
-                                    -- Selecione o Cliente --
-                                </option>
-
                             </select>
 
                             <small class="text-muted">
-                                Caso o cliente não exista, clique em "Novo Cliente".
+                                Clique ou digite para buscar cliente.
                             </small>
+
                         </div>
 
                         <div class="mb-3">
@@ -153,11 +152,83 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <style>
+
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: 38px;
+        }
+
+        .select2-dropdown {
+            z-index: 9999;
+        }
+
+        .select2-results__options {
+            max-height: 300px !important;
+            overflow-y: auto !important;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+    </style>
+
     <script>
         let totalGeral = 0;
         let estoqueLocal = {};
 
         $(document).ready(function () {
+            // =========================================
+            // CLIENTES
+            // =========================================
+
+            $('#ClienteId').select2({
+
+                theme: 'bootstrap-5',
+
+                placeholder: 'Clique ou digite para buscar cliente...',
+
+                minimumInputLength: 0,
+
+                ajax: {
+
+                    url: '/Vendas/BuscarClientesPaginado',
+
+                    dataType: 'json',
+
+                    delay: 150,
+
+                    data: function (params) {
+
+                        return {
+
+                            termo: params.term || '',
+                            pagina: params.page || 1
+                        };
+                    },
+
+                    processResults: function (data) {
+
+                        return {
+
+                            results: data.items.map(item => ({
+
+                                id: item.id,
+                                text: item.text
+
+                            })),
+
+                            pagination: {
+
+                                more: data.pagination.more
+                            }
+                        };
+                    }
+                }
+            });
 
             $('#selectProdutoBusca').select2({
                 theme: 'bootstrap-5',
@@ -249,27 +320,27 @@
             const idUnico = Date.now();
 
             $('#tabelaItens tbody').append(`
-                <tr id="tr-${idUnico}">
-                    <td>${data.text}</td>
-                    <td>${qtd}</td>
-                    <td>R$ ${preco.toFixed(2)}</td>
-                    <td>R$ ${subtotal.toFixed(2)}</td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-sm"
-                            onclick="removerItem(${idUnico}, ${subtotal}, ${produtoId}, ${qtd})">
-                            X
-                        </button>
-                    </td>
-                </tr>
-            `);
+                    <tr id="tr-${idUnico}">
+                        <td>${data.text}</td>
+                        <td>${qtd}</td>
+                        <td>R$ ${preco.toFixed(2)}</td>
+                        <td>R$ ${subtotal.toFixed(2)}</td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm"
+                                onclick="removerItem(${idUnico}, ${subtotal}, ${produtoId}, ${qtd})">
+                                X
+                            </button>
+                        </td>
+                    </tr>
+                `);
 
             $('#listaInputsEscondidos').append(`
-                <div id="cont-${idUnico}">
-                    <input type="hidden" name="ProdutoId" value="${produtoId}" />
-                    <input type="hidden" name="Quantidade" value="${qtd}" />
-                    <input type="hidden" name="PrecoUnitario" value="${preco}" />
-                </div>
-            `);
+                    <div id="cont-${idUnico}">
+                        <input type="hidden" name="ProdutoId" value="${produtoId}" />
+                        <input type="hidden" name="Quantidade" value="${qtd}" />
+                        <input type="hidden" name="PrecoUnitario" value="${preco}" />
+                    </div>
+                `);
 
             totalGeral += subtotal;
             atualizarTotal();
