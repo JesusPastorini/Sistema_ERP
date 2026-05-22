@@ -6,6 +6,16 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    var port = Environment.GetEnvironmentVariable("PORT");
+
+    if (!string.IsNullOrEmpty(port))
+    {
+        serverOptions.ListenAnyIP(int.Parse(port));
+    }
+});
+
 // MVC
 builder.Services.AddControllersWithViews();
 
