@@ -1,0 +1,629 @@
+﻿@model EntradaEstoque
+
+@{
+    ViewData["Title"] = "Nova Entrada";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+<style>
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .select2-container--bootstrap-5 .select2-selection {
+        min-height: 38px;
+    }
+
+    .select2-dropdown {
+        z-index: 9999;
+    }
+
+    body {
+        overflow-x: hidden;
+    }
+</style>
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h2>📥 Nova Entrada</h2>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            Voltar
+
+        </a>
+
+    </div>
+
+    <!-- ================================= -->
+    <!-- TIPO -->
+    <!-- ================================= -->
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-dark text-white">
+
+            Tipo de Entrada
+
+        </div>
+
+        <div class="card-body">
+
+            <label class="form-label">
+                Tipo Entrada
+            </label>
+
+            <select id="tipoEntrada"
+                    class="form-select">
+
+                <option value="Manual">
+                    Manual
+                </option>
+
+                <option value="NotaFiscal">
+                    Nota Fiscal
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <!-- ================================= -->
+    <!-- XML -->
+    <!-- ================================= -->
+
+    <div id="xmlBox" style="display:none;">
+
+        <form asp-action="ImportarXml"
+              asp-controller="EntradaEstoque"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <div class="card shadow-sm border-0 mb-4">
+
+                <div class="card-header bg-primary text-white">
+
+                    Importar XML
+
+                </div>
+
+                <div class="card-body">
+
+                    <label class="form-label">
+                        XML da Nota Fiscal
+                    </label>
+
+                    <input type="file"
+                           name="xmlFile"
+                           accept=".xml"
+                           class="form-control mb-3"
+                           required />
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        📄 Importar XML
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- ================================= -->
+    <!-- MANUAL -->
+    <!-- ================================= -->
+
+    <div id="manualBox">
+
+        <form asp-action="Create" method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div class="row">
+
+                <!-- DADOS -->
+                <div class="col-md-4">
+
+                    <div class="card shadow-sm border-0 mb-4">
+
+                        <div class="card-header bg-dark text-white">
+
+                            Dados da Entrada
+
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                <label class="form-label fw-bold mb-0">
+
+                                    Fornecedor
+
+                                </label>
+
+                                <a asp-controller="Fornecedor"
+                                   asp-action="Create"
+                                   target="_blank"
+                                   class="btn btn-sm btn-outline-primary">
+
+                                    ➕ Novo Fornecedor
+
+                                </a>
+
+                            </div>
+
+                            <select asp-for="FornecedorId"
+                                    id="FornecedorId"
+                                    class="form-select">
+                            </select>
+
+                            <small class="text-muted">
+
+                                Clique ou digite para buscar fornecedor.
+
+                            </small>
+
+                            <div class="mt-3">
+
+                                <label class="form-label">
+
+                                    Número NF
+
+                                </label>
+
+                                <input asp-for="NumeroNotaFiscal"
+                                       class="form-control" />
+
+                            </div>
+
+                            <div class="mt-3">
+
+                                <label class="form-label">
+
+                                    Observação
+
+                                </label>
+
+                                <textarea asp-for="Observacao"
+                                          class="form-control"
+                                          rows="5"></textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- PRODUTOS -->
+                <div class="col-md-8">
+
+                    <div class="card shadow-sm border-0">
+
+                        <div class="card-header bg-success text-white">
+
+                            Produtos
+
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="table-responsive">
+
+                                <table class="table table-hover align-middle">
+
+                                    <thead>
+
+                                        <tr>
+
+                                            <th style="width:45%">
+                                                Produto
+                                            </th>
+
+                                            <th>
+                                                Qtd
+                                            </th>
+
+                                            <th>
+                                                Custo Unit.
+                                            </th>
+
+                                            <th>
+                                                Total
+                                            </th>
+
+                                            <th></th>
+
+                                        </tr>
+
+                                    </thead>
+
+                                    <tbody id="tbodyItens">
+
+                                        <tr>
+
+                                            <td>
+
+                                                <select name="ProdutoId"
+                                                        class="form-control produtoSelect">
+                                                </select>
+
+                                            </td>
+
+                                            <td>
+
+                                                <input type="number"
+                                                       name="Quantidade"
+                                                       class="form-control quantidade"
+                                                       step="0.001" />
+
+                                            </td>
+
+                                            <td>
+
+                                                <input type="number"
+                                                       name="ValorCusto"
+                                                       class="form-control custo"
+                                                       step="0.01" />
+
+                                            </td>
+
+                                            <td>
+
+                                                <input class="form-control totalLinha"
+                                                       readonly />
+
+                                            </td>
+
+                                            <td>
+
+                                                <button type="button"
+                                                        class="btn btn-danger btnRemover">
+
+                                                    ✖
+
+                                                </button>
+
+                                            </td>
+
+                                        </tr>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                            <button type="button"
+                                    id="btnAdd"
+                                    class="btn btn-outline-primary">
+
+                                + Adicionar Linha
+
+                            </button>
+
+                            <hr />
+
+                            <div class="text-end">
+
+                                <h4>
+
+                                    Total Geral:
+                                    <span id="totalGeral">
+
+                                        R$ 0,00
+
+                                    </span>
+
+                                </h4>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <button class="btn btn-success btn-lg mt-4">
+
+                        💾 Salvar Entrada
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+
+        // =========================================
+        // TIPO ENTRADA
+        // =========================================
+
+        const tipoEntrada =
+            document.getElementById('tipoEntrada');
+
+        const xmlBox =
+            document.getElementById('xmlBox');
+
+        const manualBox =
+            document.getElementById('manualBox');
+
+        function atualizarTela() {
+
+            if (tipoEntrada.value === "NotaFiscal") {
+
+                xmlBox.style.display = "block";
+                manualBox.style.display = "none";
+            }
+            else {
+
+                xmlBox.style.display = "none";
+                manualBox.style.display = "block";
+            }
+        }
+
+        atualizarTela();
+
+        tipoEntrada.addEventListener(
+            'change',
+            atualizarTela
+        );
+
+        // =========================================
+        // FORNECEDOR
+        // =========================================
+
+        $('#FornecedorId').select2({
+
+            theme: 'bootstrap-5',
+
+            placeholder: 'Clique ou digite para buscar fornecedor...',
+
+            minimumInputLength: 0,
+
+            ajax: {
+
+                url: '/EntradaEstoque/BuscarFornecedoresPaginado',
+
+                dataType: 'json',
+
+                delay: 150,
+
+                data: function (params) {
+
+                    return {
+
+                        termo: params.term || '',
+                        pagina: params.page || 1
+                    };
+                },
+
+                processResults: function (data) {
+
+                    return {
+
+                        results: data.items,
+
+                        pagination: {
+
+                            more: data.pagination.more
+                        }
+                    };
+                }
+            }
+        });
+
+        // =========================================
+        // PRODUTOS
+        // =========================================
+
+        function inicializarProdutos(elemento) {
+
+            $(elemento).select2({
+
+                theme: 'bootstrap-5',
+
+                placeholder: 'Digite ou clique para buscar...',
+
+                minimumInputLength: 0,
+
+                ajax: {
+
+                    url: '/EntradaEstoque/BuscarProdutosPaginado',
+
+                    dataType: 'json',
+
+                    delay: 150,
+
+                    data: function (params) {
+
+                        return {
+
+                            termo: params.term || '',
+                            pagina: params.page || 1
+                        };
+                    },
+
+                    processResults: function (data) {
+
+                        return {
+
+                            results: data.items.map(item => ({
+
+                                id: item.id,
+                                text: item.text
+
+                            })),
+
+                            pagination: {
+
+                                more: data.pagination.more
+                            }
+                        };
+                    }
+                }
+            });
+        }
+
+        inicializarProdutos($('.produtoSelect'));
+
+        // =========================================
+        // ADICIONAR LINHA
+        // =========================================
+
+        $('#btnAdd').click(function () {
+
+            let linha = `
+
+                    <tr>
+
+                        <td>
+
+                            <select name="ProdutoId"
+                                    class="form-control produtoSelect">
+                            </select>
+
+                        </td>
+
+                        <td>
+
+                            <input type="number"
+                                   name="Quantidade"
+                                   class="form-control quantidade"
+                                   step="0.001" />
+
+                        </td>
+
+                        <td>
+
+                            <input type="number"
+                                   name="ValorCusto"
+                                   class="form-control custo"
+                                   step="0.01" />
+
+                        </td>
+
+                        <td>
+
+                            <input class="form-control totalLinha"
+                                   readonly />
+
+                        </td>
+
+                        <td>
+
+                            <button type="button"
+                                    class="btn btn-danger btnRemover">
+
+                                ✖
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+                `;
+
+            $('#tbodyItens').append(linha);
+
+            let ultimoSelect =
+                $('#tbodyItens tr:last .produtoSelect');
+
+            inicializarProdutos(ultimoSelect);
+        });
+
+        // =========================================
+        // REMOVER
+        // =========================================
+
+        $(document).on('click', '.btnRemover', function () {
+
+            $(this).closest('tr').remove();
+
+            calcularTotais();
+        });
+
+        // =========================================
+        // CALCULAR
+        // =========================================
+
+        $(document).on('input', '.quantidade, .custo', function () {
+
+            calcularTotais();
+        });
+
+        function calcularTotais() {
+
+            let totalGeral = 0;
+
+            $('#tbodyItens tr').each(function () {
+
+                const qtd =
+                    parseFloat(
+                        $(this).find('.quantidade').val()
+                    ) || 0;
+
+                const custo =
+                    parseFloat(
+                        $(this).find('.custo').val()
+                    ) || 0;
+
+                const total = qtd * custo;
+
+                $(this).find('.totalLinha').val(
+
+                    total.toLocaleString('pt-BR', {
+
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+
+                    })
+                );
+
+                totalGeral += total;
+            });
+
+            $('#totalGeral').text(
+
+                totalGeral.toLocaleString('pt-BR', {
+
+                    style: 'currency',
+                    currency: 'BRL'
+
+                })
+            );
+        }
+
+    </script>
+
+}

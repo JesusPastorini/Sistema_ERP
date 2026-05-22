@@ -28,5 +28,9 @@ namespace ControleEstoque.Data
         public DbSet<Orcamento> Orcamentos { get; set; }
 
         public DbSet<OrcamentoItem> OrcamentoItens { get; set; }
+
+        public DbSet<EntradaEstoque> EntradasEstoque { get; set; }
+
+        public DbSet<EntradaEstoqueItem> EntradaEstoqueItens { get; set; }
     }
 }

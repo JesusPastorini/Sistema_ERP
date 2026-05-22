@@ -1,28 +1,255 @@
-﻿@{
+﻿@model ControleEstoque.Models.ViewModels.DashboardViewModel
+
+@{
     ViewData["Title"] = "Dashboard";
 }
 
-<h2 class="mb-4">Dashboard</h2>
+<style>
 
-<div class="row">
+    .dashboard-card {
+        border: none;
+        border-radius: 16px;
+        transition: 0.2s;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-3px);
+        }
+
+    .dashboard-icon {
+        font-size: 30px;
+    }
+
+    .dashboard-value {
+        font-size: 30px;
+        font-weight: bold;
+    }
+</style>
+
+<h2 class="mb-4">
+    📊 Dashboard ERP
+</h2>
+
+<!-- KPI -->
+<div class="row g-4">
+
+    <!-- ESTOQUE -->
+    <div class="col-md-3">
+        <div class="card dashboard-card shadow-sm p-3">
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+                    <small class="text-muted">
+                        Produtos
+                    </small>
+
+                    <div class="dashboard-value">
+                        @Model.TotalProdutos
+                    </div>
+                </div>
+
+                <div class="dashboard-icon">
+                    📦
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card dashboard-card shadow-sm p-3">
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+                    <small class="text-muted">
+                        Estoque Baixo
+                    </small>
+
+                    <div class="dashboard-value text-warning">
+                        @Model.ProdutosBaixoEstoque
+                    </div>
+                </div>
+
+                <div class="dashboard-icon">
+                    ⚠
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MOVIMENTAÇÃO -->
+    <div class="col-md-3">
+        <div class="card dashboard-card shadow-sm p-3">
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+                    <small class="text-muted">
+                        Entradas Hoje
+                    </small>
+
+                    <div class="dashboard-value text-primary">
+                        @Model.EntradasHoje
+                    </div>
+                </div>
+
+                <div class="dashboard-icon">
+                    📥
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card dashboard-card shadow-sm p-3">
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+                    <small class="text-muted">
+                        Saídas Hoje
+                    </small>
+
+                    <div class="dashboard-value text-danger">
+                        @Model.SaidasHoje
+                    </div>
+                </div>
+
+                <div class="dashboard-icon">
+                    📤
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+@if (User.HasClaim("PodeVerFinanceiro", "True"))
+{
+<div class="row g-4 mt-1">
+
+    <div class="col-md-4">
+
+        <div class="card dashboard-card shadow-sm p-3">
+
+            <small class="text-muted">
+                💰 Receber Hoje
+            </small>
+
+            <div class="dashboard-value text-success">
+                @Model.ContasReceberHoje.ToString("C")
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="card dashboard-card shadow-sm p-3">
+
+            <small class="text-muted">
+                💸 Pagar Hoje
+            </small>
+
+            <div class="dashboard-value text-danger">
+                @Model.ContasPagarHoje.ToString("C")
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="card dashboard-card shadow-sm p-3">
+
+            <small class="text-muted">
+                📈 Fluxo do Mês
+            </small>
+
+            <div class="dashboard-value text-primary">
+                @Model.FluxoMes.ToString("C")
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+}
+
+<!-- ALERTAS -->
+<div class="row mt-4">
+
     <div class="col-md-6">
-        <div class="card shadow card-dashboard p-4">
-            <h6>Produtos em Estoque</h6>
-            <h2>0</h2>
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-header bg-warning">
+                ⚠ Alertas
+            </div>
+
+            <div class="card-body">
+
+                <p>
+                    Contas vencidas:
+                    <strong>
+                        @Model.ContasVencidas
+                    </strong>
+                </p>
+
+                <p class="mb-0">
+                    Produtos críticos:
+                    <strong>
+                        @Model.ProdutosCriticos
+                    </strong>
+                </p>
+
+            </div>
+
         </div>
+
     </div>
 
+    <!-- COMERCIAL -->
     <div class="col-md-6">
-        <div class="card shadow card-dashboard p-4">
-            <h6>Entradas Hoje</h6>
-            <h2>0</h2>
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-header bg-primary text-white">
+                🛒 Comercial
+            </div>
+
+            <div class="card-body">
+
+                <p>
+                    Vendas do mês:
+                    <strong>
+                        @Model.VendasMes
+                    </strong>
+                </p>
+
+                <p class="mb-0">
+                    Orçamentos pendentes:
+                    <strong>
+                        @Model.OrcamentosPendentes
+                    </strong>
+                </p>
+
+            </div>
+
         </div>
+
     </div>
 
-    <div class="col-md-12 mt-4">
-        <div class="card shadow card-dashboard p-4">
-            <h6>Saídas Hoje</h6>
-            <h2>0</h2>
-        </div>
-    </div>
 </div>

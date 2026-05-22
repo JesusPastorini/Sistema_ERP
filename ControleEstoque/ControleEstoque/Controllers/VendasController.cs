@@ -139,19 +139,58 @@ namespace ControleEstoque.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> BuscarClientesPaginado(string termo, int pagina = 1)
+        {
+            int itensPorPagina = 10;
+
+            var consulta = _context.Clientes.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(termo))
+            {
+                termo = termo.ToLower();
+
+                consulta = consulta.Where(c =>
+                    c.Nome.ToLower().Contains(termo));
+            }
+
+            var totalItens = await consulta.CountAsync();
+
+            var clientes = await consulta
+                .OrderBy(c => c.Nome)
+                .Skip((pagina - 1) * itensPorPagina)
+                .Take(itensPorPagina)
+                .Select(c => new
+                {
+                    id = c.Id,
+                    text = c.Nome
+                })
+                .ToListAsync();
+
+            return Json(new
+            {
+                items = clientes,
+                pagination = new
+                {
+                    more = (pagina * itensPorPagina) < totalItens
+                }
+            });
+        }
+
+        [HttpGet]
         public async Task<IActionResult> BuscarProdutosPaginado(string termo, int pagina = 1)
         {
             int itensPorPagina = 10;
+
             var consulta = _context.Produtos.AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(termo))
             {
-                var busca = termo.ToLower();
+                termo = termo.ToLower();
 
                 consulta = consulta.Where(p =>
-                    p.Categoria.ToLower().Contains(busca) ||
-                    p.TipoMadeira.ToLower().Contains(busca) ||
-                    p.Dimensoes.ToLower().Contains(busca));
+                    p.Categoria.ToLower().Contains(termo) ||
+                    p.TipoMadeira.ToLower().Contains(termo) ||
+                    p.Dimensoes.ToLower().Contains(termo));
             }
 
             var totalItens = await consulta.CountAsync();
@@ -163,7 +202,12 @@ namespace ControleEstoque.Controllers
                 .Select(p => new
                 {
                     id = p.Id,
-                    text = $"{p.Categoria} - {p.TipoMadeira} ({p.Dimensoes})",
+
+                    text =
+                        p.Categoria + " - " +
+                        p.TipoMadeira + " - " +
+                        p.Dimensoes,
+
                     estoque = p.QuantidadeEstoque
                 })
                 .ToListAsync();
@@ -171,7 +215,10 @@ namespace ControleEstoque.Controllers
             return Json(new
             {
                 items = produtos,
-                pagination = new { more = (pagina * itensPorPagina) < totalItens }
+                pagination = new
+                {
+                    more = (pagina * itensPorPagina) < totalItens
+                }
             });
         }
 

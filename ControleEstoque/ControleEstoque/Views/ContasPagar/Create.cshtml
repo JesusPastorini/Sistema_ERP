@@ -1,81 +1,273 @@
 ﻿@model ControleEstoque.Models.ContasPagar
 
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+<style>
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .select2-container--bootstrap-5 .select2-selection {
+        min-height: 38px;
+    }
+
+    .select2-dropdown {
+        z-index: 9999;
+    }
+
+    body {
+        overflow-x: hidden;
+    }
+
+</style>
+
 <form asp-action="Create" method="post">
-    <!-- Resumo de erros de validação (útil para debugar se não salvar) -->
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <!-- Resumo de erros -->
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger">
+    </div>
 
     <div class="card shadow-sm border-0">
+
         <div class="card-header bg-danger text-white">
-            <h5 class="mb-0">🧾 Lançamento de Nota / Despesa</h5>
+
+            <h5 class="mb-0">
+                🧾 Lançamento de Nota / Despesa
+            </h5>
+
         </div>
+
         <div class="card-body">
+
             <div class="row">
+
                 <div class="col-md-3 mb-3">
-                    <label class="form-label fw-bold">Nº da Nota</label>
-                    <input asp-for="NumeroNota" class="form-control" placeholder="Ex: NF 1050 (Opcional)" />
+
+                    <label class="form-label fw-bold">
+                        Nº da Nota
+                    </label>
+
+                    <input asp-for="NumeroNota"
+                           class="form-control"
+                           placeholder="Ex: NF 1050 (Opcional)" />
+
                 </div>
+
                 <div class="col-md-12 mb-3">
-                    <label class="form-label fw-bold">🔗 Link da Nota (Google Drive)</label>
-                    <input asp-for="UrlDocumento" class="form-control" placeholder="Cole aqui o link de compartilhamento do Drive" />
-                    <small class="text-muted">Dica: No Drive, clique em "Compartilhar" e mude para "Qualquer pessoa com o link".</small>
+
+                    <label class="form-label fw-bold">
+                        🔗 Link da Nota (Google Drive)
+                    </label>
+
+                    <input asp-for="UrlDocumento"
+                           class="form-control"
+                           placeholder="Cole aqui o link de compartilhamento do Drive" />
+
+                    <small class="text-muted">
+
+                        Dica: No Drive, clique em "Compartilhar" e mude para
+                        "Qualquer pessoa com o link".
+
+                    </small>
+
                 </div>
+
                 <div class="col-md-5 mb-3">
-                    <label class="form-label fw-bold">Descrição / Gasto</label>
-                    <input asp-for="Descricao" class="form-control" placeholder="Ex: Compra de Ripas ou Conserto de Máquina" required />
+
+                    <label class="form-label fw-bold">
+                        Descrição / Gasto
+                    </label>
+
+                    <input asp-for="Descricao"
+                           class="form-control"
+                           placeholder="Ex: Compra de Ripas ou Conserto de Máquina"
+                           required />
+
                 </div>
+
                 <div class="col-md-4 mb-3">
-                    <label class="form-label fw-bold">Categoria</label>
-                    <select asp-for="Categoria" class="form-select">
-                        <option value="Madeira">🌲 Compra de Madeira</option>
-                        <option value="Frete">🚚 Frete/Transporte</option>
-                        <option value="Energia">⚡ Energia Elétrica</option>
-                        <option value="Manutenção">⚙️ Manutenção</option>
-                        <option value="Outros">💰 Outros Gastos</option>
+
+                    <label class="form-label fw-bold">
+                        Categoria
+                    </label>
+
+                    <select asp-for="Categoria"
+                            class="form-select">
+
+                        <option value="Madeira">
+                            🌲 Compra de Madeira
+                        </option>
+
+                        <option value="Frete">
+                            🚚 Frete/Transporte
+                        </option>
+
+                        <option value="Energia">
+                            ⚡ Energia Elétrica
+                        </option>
+
+                        <option value="Manutenção">
+                            ⚙️ Manutenção
+                        </option>
+
+                        <option value="Outros">
+                            💰 Outros Gastos
+                        </option>
+
                     </select>
+
                 </div>
+
             </div>
 
             <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label class="form-label fw-bold">Fornecedor (da nota)</label>
-                    <input asp-for="NomeFornecedor"
-                           class="form-control mb-2"
-                           list="listaFornecedores"
-                           placeholder="Digite ou selecione um fornecedor" />
 
-                    <datalist id="listaFornecedores">
-                        @foreach (var fornecedor in ViewBag.Fornecedores)
-    {
-                        <option value="@fornecedor.NomeFantasia"></option>
-    }
-                    </datalist>
+                <!-- FORNECEDOR -->
+                <div class="col-md-4 mb-3">
+
+                    <label class="form-label fw-bold">
+                        Fornecedor (da nota)
+                    </label>
 
                     <select asp-for="FornecedorId"
-                            class="form-select mt-2"
-                            asp-items="@(ViewBag.FornecedorId as Microsoft.AspNetCore.Mvc.Rendering.SelectList)">
-                        <option value="">Selecionar fornecedor do sistema (opcional)</option>
+                            id="FornecedorId"
+                            class="form-select">
                     </select>
+
                 </div>
+
                 <div class="col-md-3 mb-3">
-                    <label class="form-label fw-bold">Valor Total (R$)</label>
-                    <input asp-for="Valor" type="number" step="0.01" class="form-control form-control-lg border-primary" required />
+
+                    <label class="form-label fw-bold">
+                        Valor Total (R$)
+                    </label>
+
+                    <input asp-for="Valor"
+                           type="number"
+                           step="0.01"
+                           class="form-control border-primary"
+                           required />
+
                 </div>
+
                 <div class="col-md-3 mb-3">
-                    <label class="form-label fw-bold">Vencimento</label>
-                    <input asp-for="DataVencimento" type="date" class="form-control" required />
+
+                    <label class="form-label fw-bold">
+                        Vencimento
+                    </label>
+
+                    <input asp-for="DataVencimento"
+                           type="date"
+                           class="form-control"
+                           required />
+
                 </div>
+
                 <div class="col-md-2 mb-3">
-                    <label class="form-label fw-bold">Data Pagto</label>
-                    <input asp-for="DataPagamento" type="date" class="form-control" />
-                    <small class="text-muted">Preecha se já pagou</small>
+
+                    <label class="form-label fw-bold">
+                        Data Pagto
+                    </label>
+
+                    <input asp-for="DataPagamento"
+                           type="date"
+                           class="form-control" />
+
+                    <small class="text-muted">
+                        Preencha se já pagou
+                    </small>
+
                 </div>
+
             </div>
 
             <hr />
+
             <div class="text-end">
-                <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
-                <button type="submit" class="btn btn-danger btn-lg">🚀 Confirmar Lançamento</button>
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+
+                    Cancelar
+
+                </a>
+
+                <button type="submit"
+                        class="btn btn-danger btn-lg">
+
+                    🚀 Confirmar Lançamento
+
+                </button>
+
             </div>
+
         </div>
+
     </div>
+
 </form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+
+    // =====================================
+    // SELECT2 FORNECEDOR
+    // =====================================
+
+    $('#FornecedorId').select2({
+
+        theme: 'bootstrap-5',
+
+        placeholder: 'Digite ou clique para buscar fornecedor...',
+
+        minimumInputLength: 0,
+
+        ajax: {
+
+            url: '/EntradaEstoque/BuscarFornecedoresPaginado',
+
+            dataType: 'json',
+
+            delay: 150,
+
+            data: function (params) {
+
+                return {
+
+                    termo: params.term || '',
+                    pagina: params.page || 1
+                };
+            },
+
+            processResults: function (data) {
+
+                return {
+
+                    results: data.items.map(item => ({
+
+                        id: item.id,
+                        text: item.text
+
+                    })),
+
+                    pagination: {
+
+                        more: data.pagination.more
+                    }
+                };
+            }
+        }
+    });
+
+</script>
+
+@{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}

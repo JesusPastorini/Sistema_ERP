@@ -1,48 +1,110 @@
 ﻿@model ControleEstoque.Models.ContasReceber
 
+@{
+    ViewData["Title"] = "Nova Conta a Receber";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+<style>
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .select2-container--bootstrap-5 .select2-selection {
+        min-height: 38px;
+    }
+
+    .select2-dropdown {
+        z-index: 9999;
+    }
+
+    body {
+        overflow-x: hidden;
+    }
+</style>
+
 <div class="container mt-4">
 
     <!-- 🔹 HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>➕ Nova Conta a Receber</h2>
 
-        <a asp-action="Index" class="btn btn-outline-secondary">
+        <h2>
+            ➕ Nova Conta a Receber
+        </h2>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+
             ⬅ Voltar
+
         </a>
+
     </div>
 
     <div class="card shadow-sm border-0">
+
         <div class="card-body">
 
-            <form asp-action="Create" method="post">
+            <form asp-action="Create"
+                  method="post">
 
                 <div class="row g-3">
 
+                    <!-- CLIENTE -->
                     <div class="col-md-6">
-                        <label class="form-label">Cliente</label>
+
+                        <label class="form-label">
+                            Cliente
+                        </label>
+
                         <select asp-for="ClienteId"
-                                class="form-control"
-                                asp-items="ViewBag.Clientes">
-                            <option value="">Selecione...</option>
+                                id="clienteSelect"
+                                class="form-select">
                         </select>
+
                     </div>
 
+                    <!-- VALOR -->
                     <div class="col-md-3">
-                        <label class="form-label">Valor</label>
-                        <input asp-for="Valor" class="form-control" />
+
+                        <label class="form-label">
+                            Valor
+                        </label>
+
+                        <input asp-for="Valor"
+                               class="form-control" />
+
                     </div>
 
+                    <!-- VENCIMENTO -->
                     <div class="col-md-3">
-                        <label class="form-label">Vencimento</label>
-                        <input asp-for="DataVencimento" type="date" class="form-control" />
+
+                        <label class="form-label">
+                            Vencimento
+                        </label>
+
+                        <input asp-for="DataVencimento"
+                               type="date"
+                               class="form-control" />
+
                     </div>
 
+                    <!-- DESCRIÇÃO -->
                     <div class="col-md-12">
-                        <label class="form-label">Descrição</label>
+
+                        <label class="form-label">
+                            Descrição
+                        </label>
+
                         <textarea asp-for="Descricao"
                                   class="form-control"
                                   rows="2"
                                   placeholder="Ex: Serviço, cobrança manual..."></textarea>
+
                     </div>
 
                 </div>
@@ -50,12 +112,17 @@
                 <!-- 🔘 BOTÕES -->
                 <div class="d-flex justify-content-end gap-2 mt-4">
 
-                    <a asp-action="Index" class="btn btn-outline-secondary">
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary">
+
                         Cancelar
+
                     </a>
 
                     <button class="btn btn-success px-4">
+
                         💾 Salvar
+
                     </button>
 
                 </div>
@@ -63,6 +130,64 @@
             </form>
 
         </div>
+
     </div>
 
 </div>
+
+@section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+
+        // =========================================
+        // CLIENTE
+        // =========================================
+
+        $('#clienteSelect').select2({
+
+            theme: 'bootstrap-5',
+
+            placeholder: 'Clique ou digite para buscar cliente...',
+
+            minimumInputLength: 0,
+
+            ajax: {
+
+                // 🔥 reutilizando endpoint já existente
+                url: '/Vendas/BuscarClientesPaginado',
+
+                dataType: 'json',
+
+                delay: 150,
+
+                data: function (params) {
+
+                    return {
+
+                        termo: params.term || '',
+                        pagina: params.page || 1
+                    };
+                },
+
+                processResults: function (data) {
+
+                    return {
+
+                        results: data.items,
+
+                        pagination: {
+
+                            more: data.pagination.more
+                        }
+                    };
+                }
+            }
+        });
+
+    </script>
+
+}

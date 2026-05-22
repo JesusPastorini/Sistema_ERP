@@ -3,6 +3,7 @@ using System;
 using ControleEstoque.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ControleEstoque.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260515024440_importacaoModel")]
+    partial class importacaoModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -369,10 +372,6 @@ namespace ControleEstoque.Migrations
                         .HasColumnType("text")
                         .HasColumnName("descricao");
 
-                    b.Property<int?>("ProdutoDestinoId")
-                        .HasColumnType("integer")
-                        .HasColumnName("produto_destino_id");
-
                     b.Property<int>("ProdutoId")
                         .HasColumnType("integer")
                         .HasColumnName("produto_id");
@@ -386,19 +385,12 @@ namespace ControleEstoque.Migrations
                         .HasColumnType("text")
                         .HasColumnName("tipo_movimentacao");
 
-                    b.Property<decimal?>("ValorUnitario")
-                        .HasColumnType("numeric")
-                        .HasColumnName("valor_unitario");
-
                     b.Property<int?>("VendaId")
                         .HasColumnType("integer")
                         .HasColumnName("venda_id");
 
                     b.HasKey("Id")
                         .HasName("pk_movimentacoes_estoque");
-
-                    b.HasIndex("ProdutoDestinoId")
-                        .HasDatabaseName("ix_movimentacoes_estoque_produto_destino_id");
 
                     b.HasIndex("ProdutoId")
                         .HasDatabaseName("ix_movimentacoes_estoque_produto_id");
@@ -870,11 +862,6 @@ namespace ControleEstoque.Migrations
 
             modelBuilder.Entity("ControleEstoque.Models.MovimentacaoEstoque", b =>
                 {
-                    b.HasOne("Produto", "ProdutoDestino")
-                        .WithMany()
-                        .HasForeignKey("ProdutoDestinoId")
-                        .HasConstraintName("fk_movimentacoes_estoque_produtos_produto_destino_id");
-
                     b.HasOne("Produto", "Produto")
                         .WithMany()
                         .HasForeignKey("ProdutoId")
@@ -888,8 +875,6 @@ namespace ControleEstoque.Migrations
                         .HasConstraintName("fk_movimentacoes_estoque_vendas_venda_id");
 
                     b.Navigation("Produto");
-
-                    b.Navigation("ProdutoDestino");
 
                     b.Navigation("Venda");
                 });
