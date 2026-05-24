@@ -22,8 +22,12 @@ builder.Services.AddControllersWithViews();
 // DATABASE
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"))
-    .UseSnakeCaseNamingConvention()
+    builder.Configuration.GetConnectionString("DefaultConnection"),
+    npgsqlOptions =>
+    {
+        npgsqlOptions.EnableRetryOnFailure();
+        npgsqlOptions.CommandTimeout(60);
+    })
 );
 
 // AUTHENTICATION
