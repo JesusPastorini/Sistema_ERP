@@ -28,6 +28,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         npgsqlOptions.EnableRetryOnFailure();
         npgsqlOptions.CommandTimeout(60);
     })
+    .UseSnakeCaseNamingConvention()
 );
 
 // AUTHENTICATION
