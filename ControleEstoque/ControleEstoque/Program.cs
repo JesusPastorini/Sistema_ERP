@@ -88,7 +88,7 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<AppDbContext>();
 
-        context.Database.Migrate();
+       // context.Database.Migrate();
     }
     catch (Exception ex)
     {
@@ -97,11 +97,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 // PIPELINE
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
+app.UseDeveloperExceptionPage();
+//if (!app.Environment.IsDevelopment())
+//{
+// app.UseExceptionHandler("/Home/Error");
+//  app.UseHsts();
+//}
 
 app.UseHttpsRedirection();
 
