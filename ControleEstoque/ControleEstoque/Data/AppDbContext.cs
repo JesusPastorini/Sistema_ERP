@@ -32,27 +32,5 @@ namespace ControleEstoque.Data
         public DbSet<EntradaEstoque> EntradasEstoque { get; set; }
 
         public DbSet<EntradaEstoqueItem> EntradaEstoqueItens { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<Usuario>().ToTable("usuarios");
-            modelBuilder.Entity<Permissao>().ToTable("permissoes");
-            modelBuilder.Entity<Cliente>().ToTable("clientes");
-            modelBuilder.Entity<Fornecedor>().ToTable("fornecedores");
-            modelBuilder.Entity<Produto>().ToTable("produtos");
-            modelBuilder.Entity<Compra>().ToTable("compras");
-            modelBuilder.Entity<MovimentacaoEstoque>().ToTable("movimentacoes_estoque");
-            modelBuilder.Entity<Venda>().ToTable("vendas");
-            modelBuilder.Entity<VendaItem>().ToTable("venda_itens");
-            modelBuilder.Entity<ContasReceber>().ToTable("contas_receber");
-            modelBuilder.Entity<ContasPagar>().ToTable("contas_pagar");
-            modelBuilder.Entity<CondicaoPagamento>().ToTable("condicoes_pagamento");
-            modelBuilder.Entity<Orcamento>().ToTable("orcamentos");
-            modelBuilder.Entity<OrcamentoItem>().ToTable("orcamento_itens");
-            modelBuilder.Entity<EntradaEstoque>().ToTable("entradas_estoque");
-            modelBuilder.Entity<EntradaEstoqueItem>().ToTable("entrada_estoque_itens");
-        }
     }
 }
