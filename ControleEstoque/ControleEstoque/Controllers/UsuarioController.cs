@@ -91,5 +91,83 @@ namespace ControleEstoque.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        // ================= EDIT GET =================
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var usuario = await _context.Usuarios.FindAsync(id);
+
+            if (usuario == null)
+                return NotFound();
+
+            ViewBag.PermissaoId = new SelectList(
+                _context.Permissoes.OrderBy(p => p.NomePerfil),
+                "Id",
+                "NomePerfil",
+                usuario.PermissaoId
+            );
+
+            // NÃO EXIBE HASH DA SENHA
+            usuario.Senha = "";
+
+            return View(usuario);
+        }
+
+        // ================= EDIT POST =================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Usuario usuario)
+        {
+            if (id != usuario.Id)
+                return NotFound();
+
+            ModelState.Remove("Permissao");
+
+            var usuarioBanco = await _context.Usuarios.FindAsync(id);
+
+            if (usuarioBanco == null)
+                return NotFound();
+
+            // EMAIL DUPLICADO
+            bool emailExiste = await _context.Usuarios
+                .AnyAsync(u =>
+                    u.Email == usuario.Email &&
+                    u.Id != usuario.Id);
+
+            if (emailExiste)
+            {
+                ModelState.AddModelError(
+                    "Email",
+                    "Já existe um usuário com este email.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.PermissaoId = new SelectList(
+                    _context.Permissoes.OrderBy(p => p.NomePerfil),
+                    "Id",
+                    "NomePerfil",
+                    usuario.PermissaoId
+                );
+
+                return View(usuario);
+            }
+
+            usuarioBanco.Nome = usuario.Nome;
+            usuarioBanco.Email = usuario.Email;
+            usuarioBanco.PermissaoId = usuario.PermissaoId;
+
+            // ALTERA SENHA SOMENTE SE PREENCHER
+            if (!string.IsNullOrWhiteSpace(usuario.Senha))
+            {
+                usuarioBanco.Senha =
+                    BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

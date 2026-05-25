@@ -13,16 +13,16 @@ public class Fornecedor
     [Required(ErrorMessage = "A Razão Social é obrigatória")]
     public string RazaoSocial { get; set; }
 
-    public string Telefone { get; set; }
+    public string? Telefone { get; set; }
 
     [EmailAddress]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
-    public string Rua { get; set; }
+    public string? Rua { get; set; }
 
-    public string Bairro { get; set; }
+    public string? Bairro { get; set; }
 
-    public string Numero { get; set; }
+    public string? Numero { get; set; }
 
-    public string Cidade { get; set; }
+    public string? Cidade { get; set; }
 }
