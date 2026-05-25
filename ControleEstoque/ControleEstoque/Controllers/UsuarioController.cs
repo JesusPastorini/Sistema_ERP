@@ -2,12 +2,12 @@
 using ControleEstoque.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace ControleEstoque.Controllers
 {
+    // 🔐 SOMENTE ADMIN
     [Authorize(Policy = "PodeGerenciarUsuarios")]
     public class UsuarioController : Controller
     {
@@ -47,11 +47,7 @@ namespace ControleEstoque.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            ViewBag.PermissaoId = new SelectList(
-                _context.Permissoes.OrderBy(p => p.NomePerfil),
-                "Id",
-                "NomePerfil"
-            );
+            CarregarPermissoes();
 
             return View();
         }
@@ -63,7 +59,11 @@ namespace ControleEstoque.Controllers
         {
             ModelState.Remove("Permissao");
 
-            if (_context.Usuarios.Any(u => u.Email == usuario.Email))
+            // EMAIL DUPLICADO
+            bool emailExiste = await _context.Usuarios
+                .AnyAsync(u => u.Email == usuario.Email);
+
+            if (emailExiste)
             {
                 ModelState.AddModelError(
                     "Email",
@@ -72,18 +72,14 @@ namespace ControleEstoque.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.PermissaoId = new SelectList(
-                    _context.Permissoes.OrderBy(p => p.NomePerfil),
-                    "Id",
-                    "NomePerfil",
-                    usuario.PermissaoId
-                );
+                CarregarPermissoes(usuario.PermissaoId);
 
                 return View(usuario);
             }
 
-            // HASH DA SENHA
-            usuario.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
+            // HASH SENHA
+            usuario.Senha =
+                BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
 
             _context.Usuarios.Add(usuario);
 
@@ -96,19 +92,15 @@ namespace ControleEstoque.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (usuario == null)
                 return NotFound();
 
-            ViewBag.PermissaoId = new SelectList(
-                _context.Permissoes.OrderBy(p => p.NomePerfil),
-                "Id",
-                "NomePerfil",
-                usuario.PermissaoId
-            );
+            CarregarPermissoes(usuario.PermissaoId);
 
-            // NÃO EXIBE HASH DA SENHA
+            // NÃO MOSTRA HASH
             usuario.Senha = "";
 
             return View(usuario);
@@ -123,8 +115,10 @@ namespace ControleEstoque.Controllers
                 return NotFound();
 
             ModelState.Remove("Permissao");
+            ModelState.Remove("ConfirmarSenha");
 
-            var usuarioBanco = await _context.Usuarios.FindAsync(id);
+            var usuarioBanco = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (usuarioBanco == null)
                 return NotFound();
@@ -144,12 +138,7 @@ namespace ControleEstoque.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.PermissaoId = new SelectList(
-                    _context.Permissoes.OrderBy(p => p.NomePerfil),
-                    "Id",
-                    "NomePerfil",
-                    usuario.PermissaoId
-                );
+                CarregarPermissoes(usuario.PermissaoId);
 
                 return View(usuario);
             }
@@ -158,16 +147,59 @@ namespace ControleEstoque.Controllers
             usuarioBanco.Email = usuario.Email;
             usuarioBanco.PermissaoId = usuario.PermissaoId;
 
-            // ALTERA SENHA SOMENTE SE PREENCHER
+            // ALTERA SENHA SOMENTE SE INFORMAR
             if (!string.IsNullOrWhiteSpace(usuario.Senha))
             {
                 usuarioBanco.Senha =
                     BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
             }
 
+            _context.Update(usuarioBanco);
+
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // ================= DELETE =================
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var usuario = await _context.Usuarios
+                .Include(u => u.Permissao)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (usuario == null)
+                return NotFound();
+
+            return View(usuario);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmado(int id)
+        {
+            var usuario = await _context.Usuarios.FindAsync(id);
+
+            if (usuario == null)
+                return NotFound();
+
+            _context.Usuarios.Remove(usuario);
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ================= AUXILIAR =================
+        private void CarregarPermissoes(int? selecionado = null)
+        {
+            ViewBag.PermissaoId = new SelectList(
+                _context.Permissoes.OrderBy(p => p.NomePerfil),
+                "Id",
+                "NomePerfil",
+                selecionado
+            );
         }
     }
 }
