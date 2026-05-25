@@ -4,125 +4,134 @@
     ViewData["Title"] = "Editar Usuário";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container-fluid">
 
-    <h2>✏ Editar Usuário</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-    <a asp-action="Index"
-       class="btn btn-outline-secondary">
+        <h2>✏ Editar Usuário</h2>
 
-        ← Voltar
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
 
-    </a>
+            ← Voltar
 
-</div>
+        </a>
 
-<form asp-action="Edit"
-      method="post">
-
-    <input type="hidden"
-           asp-for="Id" />
-
-    <div asp-validation-summary="ModelOnly"
-         class="text-danger mb-3">
     </div>
 
-    <div class="card shadow-sm border-0">
+    <form asp-action="Edit"
+          method="post">
 
-        <div class="card-header bg-warning">
+        <input type="hidden"
+               asp-for="Id" />
 
-            <h5 class="mb-0 text-dark">
-                👤 Alterar Usuário
-            </h5>
-
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3">
         </div>
 
-        <div class="card-body">
+        <div class="card shadow-sm border-0">
 
-            <div class="row g-3">
+            <div class="card-header bg-warning">
 
-                <!-- NOME -->
-                <div class="col-md-6">
+                <h5 class="mb-0 text-dark">
+                    👤 Alterar Usuário
+                </h5>
 
-                    <label class="form-label fw-bold">
-                        Nome
-                    </label>
+            </div>
 
-                    <input asp-for="Nome"
-                           class="form-control form-control-lg" />
+            <div class="card-body">
 
-                    <span asp-validation-for="Nome"
-                          class="text-danger">
-                    </span>
+                <div class="row g-3">
 
-                </div>
+                    <!-- NOME -->
+                    <div class="col-md-6">
 
-                <!-- EMAIL -->
-                <div class="col-md-6">
+                        <label class="form-label fw-bold">
+                            Nome
+                        </label>
 
-                    <label class="form-label fw-bold">
-                        Email
-                    </label>
+                        <input asp-for="Nome"
+                               class="form-control form-control-lg" />
 
-                    <input asp-for="Email"
-                           class="form-control form-control-lg" />
+                        <span asp-validation-for="Nome"
+                              class="text-danger">
+                        </span>
 
-                    <span asp-validation-for="Email"
-                          class="text-danger">
-                    </span>
+                    </div>
 
-                </div>
+                    <!-- EMAIL -->
+                    <div class="col-md-6">
 
-                <!-- SENHA -->
-                <div class="col-md-6">
+                        <label class="form-label fw-bold">
+                            Email
+                        </label>
 
-                    <label class="form-label fw-bold">
-                        Nova Senha
-                    </label>
+                        <input asp-for="Email"
+                               class="form-control form-control-lg" />
 
-                    <input asp-for="Senha"
-                           type="password"
-                           class="form-control form-control-lg"
-                           placeholder="Deixe vazio para não alterar" />
+                        <span asp-validation-for="Email"
+                              class="text-danger">
+                        </span>
 
-                    <small class="text-muted">
-                        Preencha somente se quiser trocar a senha.
-                    </small>
+                    </div>
 
-                </div>
+                    <!-- SENHA -->
+                    <div class="col-md-6">
 
-                <!-- PERMISSÃO -->
-                <div class="col-md-6">
+                        <label class="form-label fw-bold">
+                            Nova Senha
+                        </label>
 
-                    <label class="form-label fw-bold">
-                        Perfil / Permissão
-                    </label>
+                        <input asp-for="Senha"
+                               type="password"
+                               class="form-control form-control-lg"
+                               placeholder="Deixe vazio para não alterar" />
 
-                    <select asp-for="PermissaoId"
-                            class="form-select form-select-lg"
-                            asp-items="ViewBag.PermissaoId">
-                    </select>
+                        <small class="text-muted">
+                            Preencha somente se quiser trocar a senha.
+                        </small>
 
-                </div>
+                    </div>
 
-                <!-- BOTÕES -->
-                <div class="col-md-12">
+                    <!-- PERMISSÃO -->
+                    <div class="col-md-6">
 
-                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <label class="form-label fw-bold">
+                            Perfil / Permissão
+                        </label>
 
-                        <a asp-action="Index"
-                           class="btn btn-outline-secondary">
+                        <select asp-for="PermissaoId"
+                                class="form-select form-select-lg"
+                                asp-items="ViewBag.PermissaoId">
 
-                            Cancelar
+                            <option value="">
+                                -- Selecione --
+                            </option>
 
-                        </a>
+                        </select>
 
-                        <button type="submit"
-                                class="btn btn-warning px-4">
+                    </div>
 
-                            💾 Salvar Alterações
+                    <!-- BOTÕES -->
+                    <div class="col-md-12">
 
-                        </button>
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+
+                            <a asp-action="Index"
+                               class="btn btn-outline-secondary">
+
+                                Cancelar
+
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-warning px-4">
+
+                                💾 Salvar Alterações
+
+                            </button>
+
+                        </div>
 
                     </div>
 
@@ -132,9 +141,9 @@
 
         </div>
 
-    </div>
+    </form>
 
-</form>
+</div>
 
 @section Scripts {
 
