@@ -3,7 +3,19 @@
     @{
     ViewData["Title"] = "Condições de Pagamento";
     }
+    @if (TempData["Erro"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Erro"]
+        </div>
+    }
 
+        @if (TempData["Sucesso"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Sucesso"]
+        </div>
+    }
     <!-- 🔹 HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>💳 Condições de Pagamento</h2>
@@ -87,67 +99,67 @@
     </div>
 
     <script>
-    let carregando = false;
-    let skip = 10;
-    let primeiraCarga = true;
+        let carregando = false;
+        let skip = 10;
+        let primeiraCarga = true;
 
-    const container = document.getElementById('scrollContainerCondicoes');
+        const container = document.getElementById('scrollContainerCondicoes');
 
-    container.addEventListener('scroll', async () => {
+        container.addEventListener('scroll', async () => {
 
-        if (primeiraCarga) {
-            primeiraCarga = false;
-            return;
-        }
+            if (primeiraCarga) {
+                primeiraCarga = false;
+                return;
+            }
 
-        if (carregando) return;
+            if (carregando) return;
 
-        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
+            if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
 
-            carregando = true;
+                carregando = true;
 
-            const url = `/CondicoesPagamento/CarregarMais?skip=${skip}`;
+                const url = `/CondicoesPagamento/CarregarMais?skip=${skip}`;
 
-            const response = await fetch(url);
-            const dados = await response.json();
+                const response = await fetch(url);
+                const dados = await response.json();
 
-            if (dados.length === 0) return;
+                if (dados.length === 0) return;
 
-            const tabela = document.querySelector('#tabelaCondicoes tbody');
+                const tabela = document.querySelector('#tabelaCondicoes tbody');
 
-            dados.forEach(c => {
+                dados.forEach(c => {
 
-                const linha = `
-                    <tr>
-                        <td><strong>${c.nome}</strong></td>
+                    const linha = `
+                        <tr>
+                            <td><strong>${c.nome}</strong></td>
 
-                        <td>
-                            <span class="badge bg-secondary">
-                                ${c.tipo}
-                            </span>
-                        </td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    ${c.tipo}
+                                </span>
+                            </td>
 
-                        <td>${c.parcelas}x</td>
+                            <td>${c.parcelas}x</td>
 
-                        <td class="text-danger">${c.juros}%</td>
+                            <td class="text-danger">${c.juros}%</td>
 
-                        <td class="text-warning">${c.taxa}%</td>
+                            <td class="text-warning">${c.taxa}%</td>
 
-                        <td>${c.dias} dias</td>
+                            <td>${c.dias} dias</td>
 
-                        <td class="text-end">
-                            <a href="/CondicoesPagamento/Details/${c.id}" class="btn btn-sm btn-info text-white px-2 py-1">👁</a>
-                            <a href="/CondicoesPagamento/Edit/${c.id}" class="btn btn-sm btn-warning px-2 py-1">✏</a>
-                            <a href="/CondicoesPagamento/Delete/${c.id}" class="btn btn-sm btn-danger px-2 py-1">🗑</a>
-                        </td>
-                    </tr>
-                `;
+                            <td class="text-end">
+                                <a href="/CondicoesPagamento/Details/${c.id}" class="btn btn-sm btn-info text-white px-2 py-1">👁</a>
+                                <a href="/CondicoesPagamento/Edit/${c.id}" class="btn btn-sm btn-warning px-2 py-1">✏</a>
+                                <a href="/CondicoesPagamento/Delete/${c.id}" class="btn btn-sm btn-danger px-2 py-1">🗑</a>
+                            </td>
+                        </tr>
+                    `;
 
-                tabela.insertAdjacentHTML('beforeend', linha);
-            });
+                    tabela.insertAdjacentHTML('beforeend', linha);
+                });
 
-            skip += 20;
-            carregando = false;
-        }
-    });
+                skip += 20;
+                carregando = false;
+            }
+        });
     </script>

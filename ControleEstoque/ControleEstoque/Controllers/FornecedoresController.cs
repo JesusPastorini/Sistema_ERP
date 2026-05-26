@@ -122,13 +122,30 @@ public class FornecedoresController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var fornecedor = await _context.Fornecedores.FindAsync(id);
+        var fornecedor = await _context.Fornecedores
+        .FirstOrDefaultAsync(f => f.Id == id);
 
-        if (fornecedor != null)
+        if (fornecedor == null)
+            return NotFound();
+
+        // 🔒 BLOQUEIA SE EXISTIR PRODUTO VINCULADO
+        bool possuiProdutos = await _context.Produtos
+            .AnyAsync(p => p.FornecedorId == id);
+
+        if (possuiProdutos)
         {
-            _context.Fornecedores.Remove(fornecedor);
-            await _context.SaveChangesAsync();
+            TempData["Erro"] =
+                "❌ Não é possível excluir este fornecedor pois existem produtos vinculados.";
+
+            return RedirectToAction(nameof(Index));
         }
+
+        _context.Fornecedores.Remove(fornecedor);
+
+        await _context.SaveChangesAsync();
+
+        TempData["Sucesso"] =
+            "✅ Fornecedor excluído com sucesso.";
 
         return RedirectToAction(nameof(Index));
     }
