@@ -119,12 +119,37 @@ public class ClientesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var cliente = await _context.Clientes.FindAsync(id);
+        var cliente = await _context.Clientes
+            .FirstOrDefaultAsync(c => c.Id == id);
+
         if (cliente == null)
             return NotFound();
 
+        // 🔒 VERIFICA SE EXISTE VÍNCULO
+        bool possuiContasReceber = await _context.ContasReceber
+            .AnyAsync(c => c.ClienteId == id);
+
+        bool possuiVendas = await _context.Vendas
+            .AnyAsync(v => v.ClienteId == id);
+
+        bool possuiOrcamentos = await _context.Orcamentos
+            .AnyAsync(o => o.ClienteId == id);
+
+        // SE EXISTIR VÍNCULO → BLOQUEIA
+        if (possuiContasReceber || possuiVendas || possuiOrcamentos)
+        {
+            TempData["Erro"] =
+                "❌ Não é possível excluir este cliente porque existem registros vinculados.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
         _context.Clientes.Remove(cliente);
+
         await _context.SaveChangesAsync();
+
+        TempData["Sucesso"] =
+            "✅ Cliente excluído com sucesso.";
 
         return RedirectToAction(nameof(Index));
     }

@@ -1,48 +1,170 @@
 ﻿@model ControleEstoque.Models.ContasReceber
 
+@{
+    ViewData["Title"] = "Detalhes da Conta";
+}
+
 <h2>📄 Detalhes da Conta a Receber</h2>
 
-<div class="mb-3">
-    <strong>Cliente:</strong> @Model.Venda.Cliente.Nome <br />
-    <strong>Data da Venda:</strong> @Model.Venda.DataVenda.ToShortDateString() <br />
-    <strong>Vencimento:</strong> @Model.DataVencimento.ToShortDateString() <br />
-    <strong>Valor:</strong> @Model.Valor.ToString("C") <br />
+<div class="card shadow-sm border-0 mb-4">
 
-    <strong>Status:</strong>
-    @if (Model.DataPagamento.HasValue)
-    {
-    <span class="badge bg-success">Pago em @Model.DataPagamento.Value.ToShortDateString()</span>
-    }
-    else
-    {
-    <span class="badge bg-danger">Pendente</span>
-    }
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Informações da Conta</h5>
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+                <strong>Cliente:</strong><br />
+
+                @if (Model.Cliente != null)
+                {
+                @Model.Cliente.Nome
+                }
+                else if (Model.Venda?.Cliente != null)
+                {
+                @Model.Venda.Cliente.Nome
+                }
+                else
+                {
+                <span class="text-muted">Não informado</span>
+                }
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <strong>Origem:</strong><br />
+
+                @if (Model.VendaId != null)
+                {
+                <span>Venda #@Model.VendaId</span>
+                }
+                else
+                {
+                <span>Conta Manual</span>
+                }
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <strong>Vencimento:</strong><br />
+                @Model.DataVencimento.ToShortDateString()
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <strong>Valor:</strong><br />
+                @Model.Valor.ToString("C")
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <strong>Status:</strong><br />
+
+                @if (Model.DataPagamento.HasValue)
+                {
+                <span class="badge bg-success">
+                    Pago em @Model.DataPagamento.Value.ToShortDateString()
+                </span>
+                }
+                else
+                {
+                <span class="badge bg-danger">
+                    Pendente
+                </span>
+                }
+            </div>
+
+            @if (Model.Venda != null)
+            {
+            <div class="col-md-6 mb-3">
+                <strong>Data da Venda:</strong><br />
+                @Model.Venda.DataVenda.ToShortDateString()
+            </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Model.Descricao))
+            {
+            <div class="col-md-12 mb-3">
+                <strong>Descrição:</strong><br />
+                @Model.Descricao
+            </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Model.Observacao))
+            {
+            <div class="col-md-12 mb-3">
+                <strong>Observação:</strong><br />
+                @Model.Observacao
+            </div>
+            }
+
+        </div>
+
+    </div>
+
 </div>
 
-<hr />
+@if (Model.Venda != null && Model.Venda.Itens != null && Model.Venda.Itens.Any())
+{
+<div class="card shadow-sm border-0">
 
-<h4>🛒 Itens da Venda</h4>
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">🛒 Itens da Venda</h5>
+    </div>
 
-<table class="table table-bordered">
-    <thead class="table-dark">
-        <tr>
-            <th>Produto</th>
-            <th>Qtd</th>
-            <th>Preço</th>
-            <th>Subtotal</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Venda.Itens)
-        {
-        <tr>
-            <td>@item.Produto.TipoMadeira</td>
-            <td>@item.Quantidade</td>
-            <td>@item.PrecoUnitario.ToString("C")</td>
-            <td>@((item.Quantidade * item.PrecoUnitario).ToString("C"))</td>
-        </tr>
-        }
-    </tbody>
-</table>
+    <div class="card-body p-0">
 
-<a asp-action="Index" class="btn btn-secondary">Voltar</a>
+        <table class="table table-hover mb-0">
+
+            <thead class="table-light">
+                <tr>
+                    <th>Produto</th>
+                    <th>Qtd</th>
+                    <th>Preço</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var item in Model.Venda.Itens)
+                    {
+                <tr>
+
+                    <td>
+                        @(item.Produto?.TipoMadeira ?? "Produto removido")
+                    </td>
+
+                    <td>
+                        @item.Quantidade
+                    </td>
+
+                    <td>
+                        @item.PrecoUnitario.ToString("C")
+                    </td>
+
+                    <td>
+                        @((item.Quantidade * item.PrecoUnitario).ToString("C"))
+                    </td>
+
+                </tr>
+                    }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+}
+
+<div class="mt-4">
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+
+        ← Voltar
+
+    </a>
+
+</div>

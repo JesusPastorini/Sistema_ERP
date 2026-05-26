@@ -3,6 +3,29 @@
     @{
     ViewData["Title"] = "Clientes";
     }
+    @if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @TempData["Erro"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+    </div>
+}
+
+    @if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @TempData["Sucesso"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+    </div>
+}
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 

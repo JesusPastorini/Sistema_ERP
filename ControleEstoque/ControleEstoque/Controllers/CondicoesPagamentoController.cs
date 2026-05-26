@@ -143,13 +143,30 @@ namespace ControleEstoque.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var condicao = await _context.CondicoesPagamento.FindAsync(id);
+            var condicao = await _context.CondicoesPagamento
+                .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (condicao != null)
+            if (condicao == null)
+                return NotFound();
+
+            // VERIFICA SE EXISTE VENDA USANDO A CONDIÇÃO
+            bool possuiVendas = await _context.Vendas
+                .AnyAsync(v => v.CondicaoPagamentoId == id);
+
+            if (possuiVendas)
             {
-                _context.CondicoesPagamento.Remove(condicao);
-                await _context.SaveChangesAsync();
+                TempData["Erro"] =
+                    "Não é possível excluir esta condição de pagamento porque ela está vinculada a vendas.";
+
+                return RedirectToAction(nameof(Index));
             }
+
+            _context.CondicoesPagamento.Remove(condicao);
+
+            await _context.SaveChangesAsync();
+
+            TempData["Sucesso"] =
+                "Condição de pagamento excluída com sucesso.";
 
             return RedirectToAction(nameof(Index));
         }

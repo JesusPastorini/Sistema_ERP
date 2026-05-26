@@ -1,0 +1,102 @@
+﻿@model ControleEstoque.Models.CondicaoPagamento
+
+@{
+    ViewData["Title"] = "Excluir Condição";
+}
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-header bg-danger text-white">
+        <h5 class="mb-0">
+            🗑 Excluir Condição de Pagamento
+        </h5>
+    </div>
+
+    <div class="card-body">
+
+        <div class="alert alert-warning">
+            Tem certeza que deseja excluir esta condição de pagamento?
+        </div>
+
+        <dl class="row">
+
+            <dt class="col-sm-3">
+                Nome
+            </dt>
+
+            <dd class="col-sm-9">
+                @Model.Nome
+            </dd>
+
+            <dt class="col-sm-3">
+                Tipo
+            </dt>
+
+            <dd class="col-sm-9">
+                @Model.Tipo
+            </dd>
+
+            <dt class="col-sm-3">
+                Parcelas
+            </dt>
+
+            <dd class="col-sm-9">
+                @Model.Parcelas x
+            </dd>
+
+            <dt class="col-sm-3">
+                Juros
+            </dt>
+
+            <dd class="col-sm-9">
+                @Model.Juros %
+            </dd>
+
+            <dt class="col-sm-3">
+                Taxa Operadora
+            </dt>
+
+            <dd class="col-sm-9">
+                @Model.TaxaOperadora %
+            </dd>
+
+            <dt class="col-sm-3">
+                Dias Recebimento
+            </dt>
+
+            <dd class="col-sm-9">
+                @Model.DiasRecebimento dias
+            </dd>
+
+        </dl>
+
+        <hr />
+
+        <form asp-action="Delete">
+
+            <input type="hidden"
+                   asp-for="Id" />
+
+            <div class="text-end">
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+
+                    Cancelar
+
+                </a>
+
+                <button type="submit"
+                        class="btn btn-danger">
+
+                    🗑 Confirmar Exclusão
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
