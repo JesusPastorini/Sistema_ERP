@@ -19,10 +19,10 @@ namespace ControleEstoque.Controllers
 
         // ================= INDEX =================
         public async Task<IActionResult> Index(
-     string fornecedor,
-     DateTime? dataInicio,
-     DateTime? dataFim,
-     string status)
+            int? fornecedorId,
+            DateTime? dataInicio,
+            DateTime? dataFim,
+            string status)
         {
             var hoje = DateTime.Today;
 
@@ -30,29 +30,30 @@ namespace ControleEstoque.Controllers
                 .Include(c => c.Fornecedor)
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(fornecedor))
+            // FILTRO FORNECEDOR
+            if (fornecedorId.HasValue)
             {
                 query = query.Where(c =>
-                    (c.Fornecedor != null &&
-                     c.Fornecedor.NomeFantasia.Contains(fornecedor))
-                    ||
-                    (c.NomeFornecedor != null &&
-                     c.NomeFornecedor.Contains(fornecedor))
-                );
+                    c.FornecedorId == fornecedorId.Value);
             }
 
+            // DATA INICIAL
             if (dataInicio.HasValue)
             {
                 query = query.Where(c =>
                     c.DataVencimento.Date >= dataInicio.Value.Date);
             }
 
+            // DATA FINAL
             if (dataFim.HasValue)
             {
+                var fimDoDia = dataFim.Value.Date.AddDays(1);
+
                 query = query.Where(c =>
-                    c.DataVencimento.Date <= dataFim.Value.Date);
+                    c.DataVencimento < fimDoDia);
             }
 
+            // STATUS
             if (!string.IsNullOrEmpty(status))
             {
                 if (status == "pendente")
@@ -83,22 +84,175 @@ namespace ControleEstoque.Controllers
                 }
             }
 
-            query = query
-                .OrderBy(c => c.DataPagamento != null ? 3 :
-                             c.DataVencimento < hoje ? 0 :
-                             c.DataVencimento <= hoje.AddDays(30) ? 1 : 2)
-                .ThenBy(c => c.DataVencimento);
+            // ORDENAÇÃO
+            if (dataInicio.HasValue || dataFim.HasValue)
+            {
+                query = query
+                    .OrderBy(c => c.DataVencimento);
+            }
+            else
+            {
+                // SEM FILTRO DE DATA
+                // ORDENA POR STATUS
+                query = query
+                    .OrderBy(c =>
+                        c.DataPagamento != null ? 3 :
+                        c.DataVencimento < hoje ? 0 :
+                        c.DataVencimento <= hoje.AddDays(30) ? 1 : 2)
+                    .ThenBy(c => c.DataVencimento);
+            }
 
             var contas = await query
                 .Take(10)
                 .ToListAsync();
 
-            ViewBag.Fornecedor = fornecedor;
+            // MANTER FILTROS
+            ViewBag.FornecedorId = fornecedorId;
             ViewBag.DataInicio = dataInicio?.ToString("yyyy-MM-dd");
             ViewBag.DataFim = dataFim?.ToString("yyyy-MM-dd");
             ViewBag.Status = status;
 
+            // NOME DO FORNECEDOR PARA O SELECT2
+            if (fornecedorId.HasValue)
+            {
+                var fornecedor = await _context.Fornecedores
+                    .FirstOrDefaultAsync(f => f.Id == fornecedorId.Value);
+
+                ViewBag.FornecedorTexto =
+                    fornecedor != null
+                        ? $"{fornecedor.NomeFantasia} - {fornecedor.RazaoSocial}"
+                        : "";
+            }
+
             return View(contas);
+        }
+
+        // ==========================================
+        // SCROLL INFINITO
+        // ==========================================
+        public async Task<IActionResult> CarregarMais(
+            int skip = 0,
+            int? fornecedorId = null,
+            DateTime? dataInicio = null,
+            DateTime? dataFim = null,
+            string status = "")
+        {
+            var hoje = DateTime.Today;
+            var limite = hoje.AddDays(30);
+
+            var query = _context.ContasPagar
+                .Include(c => c.Fornecedor)
+                .AsQueryable();
+
+            // FORNECEDOR
+            if (fornecedorId.HasValue)
+            {
+                query = query.Where(c =>
+                    c.FornecedorId == fornecedorId.Value);
+            }
+
+            // DATA INICIAL
+            if (dataInicio.HasValue)
+            {
+                query = query.Where(c =>
+                    c.DataVencimento >= dataInicio.Value);
+            }
+
+            // DATA FINAL
+            if (dataFim.HasValue)
+            {
+                var fimDoDia = dataFim.Value.Date.AddDays(1);
+
+                query = query.Where(c =>
+                    c.DataVencimento < fimDoDia);
+            }
+
+            // STATUS
+            if (!string.IsNullOrEmpty(status))
+            {
+                if (status == "pendente")
+                {
+                    query = query.Where(c =>
+                        c.DataPagamento == null);
+                }
+
+                if (status == "pago")
+                {
+                    query = query.Where(c =>
+                        c.DataPagamento != null);
+                }
+
+                if (status == "vencido")
+                {
+                    query = query.Where(c =>
+                        c.DataPagamento == null &&
+                        c.DataVencimento < hoje);
+                }
+
+                if (status == "vencendo")
+                {
+                    query = query.Where(c =>
+                        c.DataPagamento == null &&
+                        c.DataVencimento >= hoje &&
+                        c.DataVencimento <= limite);
+                }
+            }
+
+            // ORDENAÇÃO
+            if (dataInicio.HasValue || dataFim.HasValue)
+            {
+                query = query
+                    .OrderBy(c => c.DataVencimento);
+            }
+            else
+            {
+                query = query
+                    .OrderBy(c =>
+                        c.DataPagamento != null ? 4 :
+                        c.DataVencimento < hoje ? 1 :
+                        c.DataVencimento <= limite ? 2 :
+                        3
+                    )
+                    .ThenBy(c => c.DataVencimento);
+            }
+
+            var contas = await query
+                            .Skip(skip)
+                .Take(20)
+                .Select(c => new
+                {
+                    id = c.Id,
+
+                    fornecedor =
+                        c.Fornecedor != null
+                            ? c.Fornecedor.NomeFantasia
+                            : (c.NomeFornecedor ?? "Sem fornecedor"),
+
+                    vencimento =
+                        c.DataVencimento.ToString("dd/MM/yyyy"),
+
+                    descricao = c.Descricao,
+
+                    categoria = c.Categoria,
+
+                    valor = c.Valor,
+
+                    documento = c.UrlDocumento,
+
+                    pago = c.DataPagamento != null,
+
+                    vencido =
+                        c.DataPagamento == null &&
+                        c.DataVencimento < hoje,
+
+                    vencendo =
+                        c.DataPagamento == null &&
+                        c.DataVencimento >= hoje &&
+                        c.DataVencimento <= limite
+                })
+                .ToListAsync();
+
+            return Json(contas);
         }
 
         // ================= CREATE (GET) =================

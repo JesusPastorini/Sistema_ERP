@@ -68,7 +68,7 @@
                 </label>
 
                 <select id="clienteSelect"
-                        name="cliente"
+                        name="clienteId"
                         class="form-select">
                 </select>
 
@@ -340,7 +340,12 @@
 
                     return {
 
-                        results: data.items,
+                        results: data.items.map(item => ({
+
+                            id: item.id,
+                            text: item.text
+
+                        })),
 
                         pagination: {
 
@@ -355,21 +360,24 @@
         // MANTER VALOR SE FILTRADO
         // =========================================
 
-        const clienteAtual = '@ViewBag.Cliente';
+            const clienteAtual = '@ViewBag.ClienteId';
+            const clienteTexto = $('<div/>')
+                .html('@ViewBag.ClienteTexto')
+                .text();
 
-        if (clienteAtual) {
+            if (clienteAtual) {
 
-            const option = new Option(
-                clienteAtual,
-                clienteAtual,
-                true,
-                true
-            );
+                const option = new Option(
+                    clienteTexto,
+                    clienteAtual,
+                    true,
+                    true
+                );
 
-            $('#clienteSelect')
-                .append(option)
-                .trigger('change');
-        }
+                $('#clienteSelect')
+                    .append(option)
+                    .trigger('change');
+            }
 
         // =========================================
         // SCROLL INFINITO
@@ -400,7 +408,7 @@
 
                 carregando = true;
 
-                const cliente =
+                const clienteId =
                     $('#clienteSelect').val() || '';
 
                 const dataInicio =
@@ -413,8 +421,7 @@
                     document.querySelector('[name="status"]').value;
 
                 const url =
-                    `/ContasReceber/CarregarMais?skip=${skip}&cliente=${encodeURIComponent(cliente)}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}`;
-
+                    `/ContasReceber/CarregarMais?skip=${skip}&clienteId=${encodeURIComponent(clienteId)}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}`;
                 const response =
                     await fetch(url);
 
