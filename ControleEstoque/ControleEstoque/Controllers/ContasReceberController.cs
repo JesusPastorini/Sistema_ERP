@@ -15,7 +15,11 @@ namespace ControleEstoque.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string cliente, DateTime? dataInicio, DateTime? dataFim, string status)
+        public async Task<IActionResult> Index(
+    int? clienteId,
+    DateTime? dataInicio,
+    DateTime? dataFim,
+    string status)
         {
             var hoje = DateTime.Today;
             var limite = hoje.AddDays(30);
@@ -26,25 +30,30 @@ namespace ControleEstoque.Controllers
                 .Include(c => c.Cliente)
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(cliente))
+            // CLIENTE
+            if (clienteId.HasValue)
             {
                 query = query.Where(c =>
-                    (c.Cliente != null && c.Cliente.Nome.Contains(cliente)) ||
-                    (c.Venda != null && c.Venda.Cliente.Nome.Contains(cliente))
-                );
+                    c.ClienteId == clienteId.Value ||
+
+                    (c.Venda != null &&
+                     c.Venda.ClienteId == clienteId.Value));
             }
 
-            // 🔥 NOVO FILTRO POR PERÍODO
+            // DATA
             if (dataInicio.HasValue)
             {
-                query = query.Where(c => c.DataVencimento >= dataInicio.Value);
+                query = query.Where(c =>
+                    c.DataVencimento.Date >= dataInicio.Value.Date);
             }
 
             if (dataFim.HasValue)
             {
-                query = query.Where(c => c.DataVencimento <= dataFim.Value);
+                query = query.Where(c =>
+                    c.DataVencimento.Date <= dataFim.Value.Date);
             }
 
+            // STATUS
             if (!string.IsNullOrEmpty(status))
             {
                 if (status == "pendente")
@@ -52,6 +61,7 @@ namespace ControleEstoque.Controllers
 
                 if (status == "pago")
                     query = query.Where(c => c.DataPagamento != null);
+
                 if (status == "vencido")
                 {
                     query = query.Where(c =>
@@ -60,49 +70,150 @@ namespace ControleEstoque.Controllers
                 }
 
                 if (status == "vencendo")
+                {
                     query = query.Where(c =>
                         c.DataPagamento == null &&
                         c.DataVencimento >= hoje &&
                         c.DataVencimento <= limite);
+                }
             }
 
-            // 🔥 NOVA ORDENAÇÃO INTELIGENTE
+            // 🔥 SE FILTRAR DATA → ORDENA POR DATA
+            if (dataInicio.HasValue || dataFim.HasValue)
+            {
+                query = query.OrderBy(c => c.DataVencimento);
+            }
+            else
+            {
+                // 🔥 SEM FILTRO DE DATA → ORDENAÇÃO INTELIGENTE
+                query = query
+                    .OrderBy(c =>
+                        c.DataPagamento != null ? 4 :
+                        c.DataVencimento < hoje ? 1 :
+                        c.DataVencimento <= limite ? 2 :
+                        3
+                    )
+                    .ThenBy(c => c.DataVencimento);
+            }
+
             var contas = await query
-                .OrderBy(c =>
-                    c.DataPagamento != null ? 4 :
-                    c.DataVencimento < hoje ? 1 :
-                    c.DataVencimento <= limite ? 2 :
-                    3
-                )
-                .ThenBy(c => c.DataVencimento)
                 .Take(10)
                 .ToListAsync();
 
-            ViewBag.Cliente = cliente;
+            // MANTER FILTROS
+            ViewBag.ClienteId = clienteId;
             ViewBag.DataInicio = dataInicio?.ToString("yyyy-MM-dd");
             ViewBag.DataFim = dataFim?.ToString("yyyy-MM-dd");
             ViewBag.Status = status;
+
+            // TEXTO CLIENTE SELECT2
+            if (clienteId.HasValue)
+            {
+                var cliente = await _context.Clientes
+                    .FirstOrDefaultAsync(c => c.Id == clienteId.Value);
+
+                ViewBag.ClienteTexto =
+                    cliente != null
+                        ? cliente.Nome
+                        : "";
+            }
 
             return View(contas);
         }
 
         // Scrool infinito
-        public async Task<IActionResult> CarregarMais(int skip = 0)
+        public async Task<IActionResult> CarregarMais(
+    int skip = 0,
+    int? clienteId = null,
+    DateTime? dataInicio = null,
+    DateTime? dataFim = null,
+    string status = "")
         {
-            var hoje = DateTime.Now;
+            var hoje = DateTime.Today;
             var limite = hoje.AddDays(30);
 
-            var contas = await _context.ContasReceber
+            var query = _context.ContasReceber
                 .Include(c => c.Venda)
-                .ThenInclude(v => v.Cliente)
+                    .ThenInclude(v => v.Cliente)
                 .Include(c => c.Cliente)
-                .OrderBy(c =>
-                    c.DataPagamento != null ? 4 :
-                    c.DataVencimento < hoje ? 1 :
-                    c.DataVencimento <= limite ? 2 :
-                    3
-                )
-                .ThenBy(c => c.DataVencimento)
+                .AsQueryable();
+
+            // CLIENTE
+            if (clienteId.HasValue)
+            {
+                query = query.Where(c =>
+
+                    c.ClienteId == clienteId.Value ||
+
+                    (c.Venda != null &&
+                     c.Venda.ClienteId == clienteId.Value)
+                );
+            }
+
+            // DATA INICIAL
+            if (dataInicio.HasValue)
+            {
+                query = query.Where(c =>
+                    c.DataVencimento.Date >= dataInicio.Value.Date);
+            }
+
+            // DATA FINAL
+            if (dataFim.HasValue)
+            {
+                query = query.Where(c =>
+                    c.DataVencimento.Date <= dataFim.Value.Date);
+            }
+
+            // STATUS
+            if (!string.IsNullOrEmpty(status))
+            {
+                if (status == "pendente")
+                {
+                    query = query.Where(c =>
+                        c.DataPagamento == null);
+                }
+
+                if (status == "pago")
+                {
+                    query = query.Where(c =>
+                        c.DataPagamento != null);
+                }
+
+                if (status == "vencido")
+                {
+                    query = query.Where(c =>
+                        c.DataPagamento == null &&
+                        c.DataVencimento < hoje);
+                }
+
+                if (status == "vencendo")
+                {
+                    query = query.Where(c =>
+                        c.DataPagamento == null &&
+                        c.DataVencimento >= hoje &&
+                        c.DataVencimento <= limite);
+                }
+            }
+
+            // 🔥 SE FILTRAR DATA → ORDENA POR DATA
+            if (dataInicio.HasValue || dataFim.HasValue)
+            {
+                query = query.OrderBy(c => c.DataVencimento);
+            }
+            else
+            {
+                // 🔥 SEM FILTRO DE DATA → ORDENAÇÃO INTELIGENTE
+                query = query
+                    .OrderBy(c =>
+                        c.DataPagamento != null ? 4 :
+                        c.DataVencimento < hoje ? 1 :
+                        c.DataVencimento <= limite ? 2 :
+                        3
+                    )
+                    .ThenBy(c => c.DataVencimento);
+            }
+
+            var contas = await query
                 .Skip(skip)
                 .Take(20)
                 .Select(c => new
@@ -123,12 +234,14 @@ namespace ControleEstoque.Controllers
                         ? "Venda #" + c.VendaId
                         : (c.Descricao ?? "Manual"),
 
-                    // 🔥 NOVOS CAMPOS
-                    vencido = c.DataPagamento == null && c.DataVencimento < hoje,
+                    vencido =
+                        c.DataPagamento == null &&
+                        c.DataVencimento < hoje,
 
-                    vencendo = c.DataPagamento == null &&
-                               c.DataVencimento >= hoje &&
-                               c.DataVencimento <= limite
+                    vencendo =
+                        c.DataPagamento == null &&
+                        c.DataVencimento >= hoje &&
+                        c.DataVencimento <= limite
                 })
                 .ToListAsync();
 

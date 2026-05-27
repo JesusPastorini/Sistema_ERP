@@ -192,38 +192,59 @@ namespace ControleEstoque.Controllers
         // Buscar Fornecedor Paginado
         [HttpGet]
         public async Task<IActionResult> BuscarFornecedoresPaginado(
-     string termo,
-     int pagina = 1)
+            string termo,
+            int pagina = 1)
         {
             int itensPorPagina = 10;
 
             var consulta = _context.Fornecedores
                 .AsNoTracking();
 
+            // =====================================
+            // PESQUISA
+            // =====================================
+
             if (!string.IsNullOrWhiteSpace(termo))
             {
                 termo = termo.ToLower();
 
                 consulta = consulta.Where(f =>
-                    f.RazaoSocial.ToLower().Contains(termo));
+
+                    (f.NomeFantasia != null &&
+                     f.NomeFantasia.ToLower().Contains(termo))
+
+                    ||
+
+                    (f.RazaoSocial != null &&
+                     f.RazaoSocial.ToLower().Contains(termo))
+                );
             }
 
             var total = await consulta.CountAsync();
 
+            // =====================================
+            // RESULTADO
+            // =====================================
+
             var fornecedores = await consulta
-                .OrderBy(f => f.RazaoSocial)
+                .OrderBy(f => f.NomeFantasia)
                 .Skip((pagina - 1) * itensPorPagina)
                 .Take(itensPorPagina)
                 .Select(f => new
                 {
                     id = f.Id,
-                    text = f.RazaoSocial
+
+                    text =
+                    f.NomeFantasia +
+                    " - " +
+                    f.RazaoSocial
                 })
                 .ToListAsync();
 
             return Json(new
             {
                 items = fornecedores,
+
                 pagination = new
                 {
                     more = (pagina * itensPorPagina) < total

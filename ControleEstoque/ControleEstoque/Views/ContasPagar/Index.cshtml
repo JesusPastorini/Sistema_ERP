@@ -62,7 +62,7 @@
                 </label>
 
                 <select id="fornecedorSelect"
-                        name="fornecedor"
+                        name="fornecedorId"
                         class="form-select">
                 </select>
 
@@ -331,9 +331,9 @@
 
     <script>
 
-        // =========================================
-        // FORNECEDOR
-        // =========================================
+    // =========================================
+    // FORNECEDOR
+    // =========================================
 
         $('#fornecedorSelect').select2({
 
@@ -366,7 +366,7 @@
 
                         results: data.items.map(item => ({
 
-                            id: item.text,
+                            id: item.id,
                             text: item.text
 
                         })),
@@ -379,5 +379,169 @@
                 }
             }
         });
+
+    // =========================================
+    // MANTER FORNECEDOR SE FILTRADO
+    // =========================================
+
+        const fornecedorAtual = '@ViewBag.FornecedorId';
+        const fornecedorTexto = '@ViewBag.FornecedorTexto';
+
+        if (fornecedorAtual) {
+
+            const option = new Option(
+                fornecedorTexto,
+                fornecedorAtual,
+                true,
+                true
+            );
+
+            $('#fornecedorSelect')
+                .append(option)
+                .trigger('change');
+        }
+
+    // =========================================
+    // SCROLL INFINITO
+    // =========================================
+
+    let carregando = false;
+    let skip = 10;
+    let primeiraCarga = true;
+
+    const container =
+        document.getElementById('scrollPagar');
+
+    container.addEventListener('scroll', async () => {
+
+        if (primeiraCarga) {
+
+            primeiraCarga = false;
+            return;
+        }
+
+        if (carregando)
+            return;
+
+        if (
+            container.scrollTop + container.clientHeight >=
+            container.scrollHeight - 50
+        ) {
+
+            carregando = true;
+
+            const fornecedorId =
+                $('#fornecedorSelect').val() || '';
+
+            const dataInicio =
+                document.querySelector('[name="dataInicio"]').value;
+
+            const dataFim =
+                document.querySelector('[name="dataFim"]').value;
+
+            const status =
+                document.querySelector('[name="status"]').value;
+
+            const url =
+                `/ContasPagar/CarregarMais?skip=${skip}&fornecedorId=${encodeURIComponent(fornecedorId)}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}`;
+
+            const response =
+                await fetch(url);
+
+            const dados =
+                await response.json();
+
+            if (dados.length === 0) {
+
+                carregando = false;
+                return;
+            }
+
+            const tabela =
+                document.querySelector('#tabelaPagar tbody');
+
+            dados.forEach(c => {
+
+                let status = "";
+
+                if (c.pago)
+                    status = `<span class="badge bg-success">Pago</span>`;
+                else if (c.vencido)
+                    status = `<span class="badge bg-danger">Vencido</span>`;
+                else if (c.vencendo)
+                    status = `<span class="badge bg-warning text-dark">Vencendo</span>`;
+                else
+                    status = `<span class="badge bg-secondary">Pendente</span>`;
+
+                const documento = c.documento
+                    ? `
+                        <a href="${c.documento}"
+                           target="_blank"
+                           class="btn btn-sm btn-outline-primary px-2 py-1">
+                            📄
+                        </a>
+                    `
+                    : `<span class="text-muted small">Sem nota</span>`;
+
+                const linha = `
+
+                    <tr>
+
+                        <td>${c.fornecedor}</td>
+
+                        <td>${c.vencimento}</td>
+
+                        <td>${c.descricao ?? ''}</td>
+
+                        <td>
+                            <span class="badge bg-secondary">
+                                ${c.categoria ?? ''}
+                            </span>
+                        </td>
+
+                        <td class="fw-bold text-danger">
+                            R$ ${c.valor}
+                        </td>
+
+                        <td>
+                            ${documento}
+                        </td>
+
+                        <td>
+                            ${status}
+                        </td>
+
+                        <td class="text-end">
+
+                            <a href="/ContasPagar/Edit/${c.id}"
+                               class="btn btn-sm btn-warning px-2 py-1">
+                                ✏
+                            </a>
+
+                            ${!c.pago
+                                ? `
+                                <button class="btn btn-sm btn-success px-2 py-1">
+                                    ✔
+                                </button>
+                                `
+                                : ""
+                            }
+
+                        </td>
+
+                    </tr>
+                `;
+
+                tabela.insertAdjacentHTML(
+                    'beforeend',
+                    linha
+                );
+            });
+
+            skip += 20;
+
+            carregando = false;
+        }
+    });
 
     </script>
