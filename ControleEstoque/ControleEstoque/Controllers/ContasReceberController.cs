@@ -297,15 +297,110 @@ namespace ControleEstoque.Controllers
 
         // Método para dar baixa (pagar)
         [HttpPost]
-        public async Task<IActionResult> Baixar(int id)
+        public async Task<IActionResult> Baixar(
+    int id,
+    DateTime? dataPagamento,
+    string? observacao)
         {
-            var conta = await _context.ContasReceber.FindAsync(id);
-            if (conta != null)
+            var conta = await _context.ContasReceber
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (conta == null)
+                return NotFound();
+
+            conta.DataPagamento =
+                dataPagamento ?? DateTime.Now;
+
+            // adiciona observação sem perder antiga
+            if (!string.IsNullOrWhiteSpace(observacao))
             {
-                conta.DataPagamento = DateTime.UtcNow;
-                _context.Update(conta);
-                await _context.SaveChangesAsync();
+                conta.Observacao =
+                    string.IsNullOrWhiteSpace(conta.Observacao)
+                        ? observacao
+                        : conta.Observacao + "\n" + observacao;
             }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ================= EDIT =================
+
+        public async Task<IActionResult> Edit(int id)
+        {
+            var conta = await _context.ContasReceber
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (conta == null)
+                return NotFound();
+
+            ViewBag.Clientes = new SelectList(
+                _context.Clientes.OrderBy(c => c.Nome),
+                "Id",
+                "Nome",
+                conta.ClienteId
+            );
+
+            return View(conta);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, ContasReceber conta)
+        {
+            if (id != conta.Id)
+                return NotFound();
+
+            var contaBanco = await _context.ContasReceber
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (contaBanco == null)
+                return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                // 🔥 Atualiza apenas os campos editáveis
+                contaBanco.ClienteId = conta.ClienteId;
+                contaBanco.Valor = conta.Valor;
+                contaBanco.DataVencimento = conta.DataVencimento;
+                contaBanco.Descricao = conta.Descricao;
+                contaBanco.Observacao = conta.Observacao;
+
+                // 🔥 STATUS
+                contaBanco.DataPagamento = conta.DataPagamento;
+
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewBag.Clientes = new SelectList(
+                _context.Clientes.OrderBy(c => c.Nome),
+                "Id",
+                "Nome",
+                conta.ClienteId
+            );
+
+            return View(conta);
+        }
+
+        // ================= DELETE =================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var conta = await _context.ContasReceber
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (conta == null)
+                return NotFound();
+
+            _context.ContasReceber.Remove(conta);
+
+            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
     }

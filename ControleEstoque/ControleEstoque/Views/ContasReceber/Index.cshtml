@@ -262,20 +262,37 @@
 
                         <td class="text-end">
 
+                            <a asp-action="Edit"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-warning px-2 py-1">
+
+                                ✏
+
+                            </a>
+
                             @if (!item.DataPagamento.HasValue)
-                            {
-                            <form asp-action="Baixar"
+    {
+                            <button class="btn btn-sm btn-success px-2 py-1"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#baixarModal"
+                                    data-id="@item.Id">
+
+                                ✔
+
+                            </button>
+    }
+
+                            <form asp-action="Delete"
                                   asp-route-id="@item.Id"
                                   method="post"
                                   class="d-inline"
-                                  onsubmit="return confirm('Confirmar baixa desta conta?');">
+                                  onsubmit="return confirm('Deseja realmente excluir esta conta?');">
 
-                                <button class="btn btn-sm btn-success px-2 py-1">
-                                    ✔
+                                <button class="btn btn-sm btn-danger px-2 py-1">
+                                    🗑
                                 </button>
 
                             </form>
-                            }
 
                             <a asp-action="Details"
                                asp-route-id="@item.Id"
@@ -298,13 +315,136 @@
 
     </div>
 
+    <!-- MODAL BAIXA -->
+    <div class="modal fade"
+         id="baixarModal"
+         tabindex="-1">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content border-0 shadow">
+
+                <form asp-action="Baixar"
+                      method="post">
+
+                    <div class="modal-header bg-success text-white">
+
+                        <h5 class="modal-title">
+                            Confirmar Recebimento
+                        </h5>
+
+                        <button type="button"
+                                class="btn-close btn-close-white"
+                                data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+                    <div class="modal-body">
+
+                        <input type="hidden"
+                               name="id"
+                               id="contaIdInput" />
+
+                        <!-- DATA -->
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Data do Recebimento
+                            </label>
+
+                            <input type="date"
+                                   name="dataPagamento"
+                                   class="form-control"
+                                   id="dataPagamentoModal" />
+
+                            <small class="text-muted">
+                                Se não informar, será usada a data atual.
+                            </small>
+
+                        </div>
+
+                        <!-- OBS -->
+                        <div>
+
+                            <label class="form-label">
+                                Observação
+                            </label>
+
+                            <textarea name="observacao"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Opcional"></textarea>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+
+                            Cancelar
+
+                        </button>
+
+                        <button class="btn btn-success">
+
+                            💰 Confirmar Baixa
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
     @section Scripts {
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+
+
         <script>
+
+            const baixarModal =
+                document.getElementById('baixarModal');
+
+            baixarModal.addEventListener('show.bs.modal', function (event) {
+
+                const button = event.relatedTarget;
+
+                const contaId =
+                    button.getAttribute('data-id');
+
+                document.getElementById('contaIdInput').value =
+                    contaId;
+
+                // DATA HOJE AUTOMÁTICA
+                const hoje = new Date();
+
+                const ano = hoje.getFullYear();
+
+                const mes =
+                    String(hoje.getMonth() + 1)
+                        .padStart(2, '0');
+
+                const dia =
+                    String(hoje.getDate())
+                        .padStart(2, '0');
+
+                document.getElementById('dataPagamentoModal').value =
+                    `${ano}-${mes}-${dia}`;
+            });
 
         // =========================================
         // CLIENTE
@@ -468,9 +608,39 @@
 
                             <td class="text-end">
 
+                                <a href="/ContasReceber/Edit/${c.id}"
+                                   class="btn btn-sm btn-warning px-2 py-1">
+
+                                    ✏
+
+                                </a>
+
                                 ${!c.pago
-                                    ? `<button class="btn btn-sm btn-success px-2 py-1">✔</button>`
-                                    : ""}
+                                                ? `
+                                    <form action="/ContasReceber/Baixar/${c.id}"
+                                          method="post"
+                                          class="d-inline"
+                                          onsubmit="return confirm('Confirmar baixa desta conta?');">
+
+                                        <button class="btn btn-sm btn-success px-2 py-1">
+                                            ✔
+                                        </button>
+
+                                    </form>
+                                    `
+                                                : ""
+                                            }
+
+                                <form action="/ContasReceber/Delete/${c.id}"
+                                      method="post"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Deseja realmente excluir esta conta?');">
+
+                                    <button class="btn btn-sm btn-danger px-2 py-1">
+                                        🗑
+                                    </button>
+
+                                </form>
 
                                 <a href="/ContasReceber/Details/${c.id}"
                                    class="btn btn-sm btn-info text-white px-2 py-1">

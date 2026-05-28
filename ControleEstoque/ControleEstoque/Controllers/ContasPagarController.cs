@@ -390,16 +390,42 @@ namespace ControleEstoque.Controllers
 
         // ================= BAIXAR =================
         [HttpPost]
-        public async Task<IActionResult> Baixar(int id)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Baixar(
+            int id,
+            DateTime? dataPagamento)
         {
-            var conta = await _context.ContasPagar.FindAsync(id);
+            var conta = await _context.ContasPagar
+                .FindAsync(id);
 
-            if (conta != null)
-            {
-                conta.DataPagamento = DateTime.UtcNow;
-                _context.Update(conta);
-                await _context.SaveChangesAsync();
-            }
+            if (conta == null)
+                return NotFound();
+
+            conta.DataPagamento =
+                dataPagamento?.Date
+                ?? DateTime.Today;
+
+            _context.Update(conta);
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ================= DELETE =================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var conta = await _context.ContasPagar
+                .FindAsync(id);
+
+            if (conta == null)
+                return NotFound();
+
+            _context.ContasPagar.Remove(conta);
+
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
