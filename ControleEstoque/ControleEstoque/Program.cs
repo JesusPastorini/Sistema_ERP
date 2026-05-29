@@ -1,6 +1,7 @@
 ﻿using ControleEstoque.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
@@ -108,6 +109,11 @@ app.UseDeveloperExceptionPage();
 // app.UseExceptionHandler("/Home/Error");
 //  app.UseHsts();
 //}
+
+var cultura = new CultureInfo("pt-BR");
+
+CultureInfo.DefaultThreadCurrentCulture = cultura;
+CultureInfo.DefaultThreadCurrentUICulture = cultura;
 
 app.UseHttpsRedirection();
 
