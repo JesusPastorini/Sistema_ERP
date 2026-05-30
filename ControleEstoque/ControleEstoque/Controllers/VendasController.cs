@@ -231,7 +231,8 @@ namespace ControleEstoque.Controllers
             decimal[] PrecoUnitario,
             int QtdParcelas,
             decimal Juros,
-            int? CondicaoPagamentoId)
+            int? CondicaoPagamentoId,
+            bool PermitirSemEstoque = false)
         {          
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -261,9 +262,17 @@ namespace ControleEstoque.Controllers
                         .AsNoTracking()
                         .FirstOrDefaultAsync(p => p.Id == ProdutoId[i]);
 
-                    if (produto == null || produto.QuantidadeEstoque < Quantidade[i])
+                    if (produto == null)
                     {
-                        ModelState.AddModelError("", $"❌ Estoque insuficiente para {produto?.TipoMadeira}.");
+                        ModelState.AddModelError("", "Produto não encontrado.");
+                    }
+                    else if (!PermitirSemEstoque &&
+                             produto.QuantidadeEstoque < Quantidade[i])
+                    {
+                        ModelState.AddModelError(
+                            "",
+                            $"❌ Estoque insuficiente para {produto.TipoMadeira}."
+                        );
                     }
                 }
             }
@@ -348,9 +357,17 @@ namespace ControleEstoque.Controllers
 
                 var prodEstoque = await _context.Produtos.FindAsync(pId);
 
-                if (prodEstoque == null || prodEstoque.QuantidadeEstoque < qtd)
+                if (prodEstoque == null)
                 {
-                    throw new Exception("Estoque inconsistente no momento da venda.");
+                    throw new Exception("Produto não encontrado.");
+                }
+
+                if (!PermitirSemEstoque &&
+                    prodEstoque.QuantidadeEstoque < qtd)
+                {
+                    throw new Exception(
+                        $"Estoque insuficiente para {prodEstoque.TipoMadeira}."
+                    );
                 }
 
                 prodEstoque.QuantidadeEstoque -= qtd;

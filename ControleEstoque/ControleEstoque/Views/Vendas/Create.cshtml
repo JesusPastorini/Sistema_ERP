@@ -55,6 +55,23 @@
 
                         </div>
 
+                        <div class="form-check my-3">
+
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="PermitirSemEstoque"
+                                   name="PermitirSemEstoque"
+                                   value="true" />
+
+                            <label class="form-check-label fw-bold"
+                                   for="PermitirSemEstoque">
+
+                                Permitir venda sem estoque
+
+                            </label>
+
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label fw-bold">Forma de Pagamento</label>
                             <select asp-for="FormaPagamento" class="form-select" required>
@@ -84,7 +101,7 @@
                                 </select>
                             </div>
                         </div>
-                    </div>
+                    </div>                  
                 </div>
 
                 <!-- 🔹 TOTAL -->
@@ -120,8 +137,15 @@
                                 <input type="number" id="inputPreco" class="form-control" step="0.01" />
                             </div>
 
-                            <div class="col-md-2">
-                                <button type="button" id="btnAdicionar" class="btn btn-primary w-100 fw-bold">Adicionar</button>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="button"
+                                        id="btnAdicionar"
+                                        class="btn btn-primary w-100"
+                                        style="height:38px;">
+
+                                    Adicionar
+
+                                </button>
                             </div>
                         </div>
 
@@ -300,7 +324,11 @@
             const produtoId = data.id;
             let jaNaLista = estoqueLocal[produtoId] || 0;
 
-            if (data.estoque !== undefined) {
+            const permitirSemEstoque =
+                document.getElementById('PermitirSemEstoque').checked;
+
+            if (!permitirSemEstoque && data.estoque !== undefined) {
+
                 const disponivel = data.estoque - jaNaLista;
 
                 if (disponivel <= 0) {
