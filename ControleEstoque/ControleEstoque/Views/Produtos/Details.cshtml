@@ -1,13 +1,93 @@
 ﻿@model Produto
 
-<h2>Detalhes</h2>
+<div class="row">
 
-<p><strong>Categoria:</strong> @Model.Categoria</p>
-<p><strong>Tipo:</strong> @Model.TipoMadeira</p>
-<p><strong>Descrição:</strong> @Model.Descricao</p>
-<p><strong>Dimensões:</strong> @Model.Dimensoes</p>
-<p><strong>Unidade:</strong> @Model.UnidadeMedida</p>
-<p><strong>Estoque:</strong> @Model.QuantidadeEstoque</p>
-<p><strong>Fornecedor:</strong> @Model.Fornecedor?.NomeFantasia</p>
+    <div class="col-md-6 mb-3">
 
-<a asp-action="Index" class="btn btn-secondary">Voltar</a>
+        <label class="fw-bold">
+            Categoria
+        </label>
+
+        <div class="form-control">
+            @Model.Categoria
+        </div>
+
+    </div>
+
+    <div class="col-md-6 mb-3">
+
+        <label class="fw-bold">
+            Tipo Madeira
+        </label>
+
+        <div class="form-control">
+            @Model.TipoMadeira
+        </div>
+
+    </div>
+
+</div>
+
+<div class="mb-3">
+
+    <label class="fw-bold">
+        Descrição
+    </label>
+
+    <div class="form-control">
+        @Model.Descricao
+    </div>
+
+</div>
+
+<div class="row">
+
+    <div class="col-md-4 mb-3">
+
+        <label class="fw-bold">
+            Dimensões
+        </label>
+
+        <div class="form-control">
+            @Model.Dimensoes
+        </div>
+
+    </div>
+
+    <div class="col-md-4 mb-3">
+
+        <label class="fw-bold">
+            Unidade
+        </label>
+
+        <div class="form-control">
+            @Model.UnidadeMedida
+        </div>
+
+    </div>
+
+    <div class="col-md-4 mb-3">
+
+        <label class="fw-bold">
+            Estoque
+        </label>
+
+        <div class="form-control">
+            @Model.QuantidadeEstoque
+        </div>
+
+    </div>
+
+</div>
+
+<div class="mb-3">
+
+    <label class="fw-bold">
+        Fornecedor
+    </label>
+
+    <div class="form-control">
+        @(Model.Fornecedor?.NomeFantasia ?? "N/A")
+    </div>
+
+</div>

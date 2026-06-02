@@ -1,11 +1,46 @@
 ﻿@model Produto
 
-<h2>Confirmar Exclusão</h2>
+<div class="text-center">
 
-<p>Tem certeza que deseja excluir o produto <strong>@Model.Categoria</strong>?</p>
+    <h5 class="mb-3">
 
-<form asp-action="Delete">
-    <input type="hidden" asp-for="Id" />
-    <button type="submit" class="btn btn-danger">Excluir</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-</form>
+        Deseja realmente excluir?
+
+    </h5>
+
+    <div class="alert alert-warning">
+
+        <strong>@Model.TipoMadeira</strong>
+
+        <br />
+
+        @Model.Dimensoes
+
+    </div>
+
+    <form asp-action="Delete"
+          method="post">
+
+        <input type="hidden"
+               asp-for="Id" />
+
+        @Html.AntiForgeryToken()
+
+        <button type="submit"
+                class="btn btn-danger">
+
+            🗑 Excluir
+
+        </button>
+
+        <button type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal">
+
+            Cancelar
+
+        </button>
+
+    </form>
+
+</div>
