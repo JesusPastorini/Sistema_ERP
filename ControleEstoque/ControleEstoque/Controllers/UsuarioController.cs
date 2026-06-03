@@ -162,22 +162,9 @@ namespace ControleEstoque.Controllers
         }
 
         // ================= DELETE =================
-        [HttpGet]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var usuario = await _context.Usuarios
-                .Include(u => u.Permissao)
-                .FirstOrDefaultAsync(u => u.Id == id);
-
-            if (usuario == null)
-                return NotFound();
-
-            return View(usuario);
-        }
-
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmado(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var usuario = await _context.Usuarios.FindAsync(id);
 
@@ -200,6 +187,27 @@ namespace ControleEstoque.Controllers
                 "NomePerfil",
                 selecionado
             );
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObterUsuario(int id)
+        {
+            var usuario = await _context.Usuarios
+                .Include(u => u.Permissao)
+                .Where(u => u.Id == id)
+                .Select(u => new
+                {
+                    id = u.Id,
+                    nome = u.Nome,
+                    email = u.Email,
+                    perfil = u.Permissao.NomePerfil
+                })
+                .FirstOrDefaultAsync();
+
+            if (usuario == null)
+                return NotFound();
+
+            return Json(usuario);
         }
     }
 }

@@ -77,11 +77,13 @@
                                 ✏
                             </a>
 
-                            <a asp-action="Delete"
-                               asp-route-id="@item.Id"
-                               class="btn btn-sm btn-danger">
+                            <button type="button"
+                                    class="btn btn-sm btn-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#excluirModal"
+                                    data-id="@item.Id">
                                 🗑
-                            </a>
+                            </button>
 
                         </td>
 
@@ -104,3 +106,112 @@
         </div>
 
     </div>
+    <!-- MODAL EXCLUIR -->
+
+    <div class="modal fade"
+         id="excluirModal"
+         tabindex="-1">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content border-0 shadow">
+
+                <form asp-action="Delete"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="modal-header bg-danger text-white">
+
+                        <h5 class="modal-title">
+                            🗑 Excluir Usuário
+                        </h5>
+
+                        <button type="button"
+                                class="btn-close btn-close-white"
+                                data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+                    <div class="modal-body text-center">
+
+                        <input type="hidden"
+                               id="usuarioIdExcluir"
+                               name="id" />
+
+                        <div class="alert alert-warning">
+
+                            Tem certeza que deseja excluir este usuário?
+
+                        </div>
+
+                        <h5 id="usuarioNomeExcluir"></h5>
+
+                        <p class="text-muted"
+                           id="usuarioEmailExcluir">
+                        </p>
+
+                        <span class="badge bg-primary"
+                              id="usuarioPerfilExcluir">
+                        </span>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+
+                            Cancelar
+
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-danger">
+
+                            🗑 Confirmar Exclusão
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+const excluirModal =
+    document.getElementById('excluirModal');
+
+excluirModal.addEventListener('show.bs.modal', async function (event) {
+
+    const button = event.relatedTarget;
+
+    const id =
+        button.getAttribute('data-id');
+
+    const dados =
+        await fetch(`/Usuario/ObterUsuario?id=${id}`)
+            .then(r => r.json());
+
+    document.getElementById('usuarioIdExcluir').value =
+        dados.id;
+
+    document.getElementById('usuarioNomeExcluir').innerText =
+        dados.nome;
+
+    document.getElementById('usuarioEmailExcluir').innerText =
+        dados.email;
+
+    document.getElementById('usuarioPerfilExcluir').innerText =
+        dados.perfil;
+});
+
+    </script>

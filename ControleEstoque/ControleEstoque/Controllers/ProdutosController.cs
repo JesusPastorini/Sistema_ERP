@@ -30,6 +30,7 @@ public class ProdutosController : Controller
     public async Task<IActionResult> CarregarMais(int skip = 0)
     {
         var produtos = await _context.Produtos
+            .Include(p => p.Fornecedor)
             .OrderByDescending(p => p.Id)
             .Skip(skip)
             .Take(20)
@@ -45,6 +46,47 @@ public class ProdutosController : Controller
             .ToListAsync();
 
         return Json(produtos);
+    }
+
+    // ================= API MODAIS =================
+
+    [HttpGet]
+    public async Task<IActionResult> ObterDetalhes(int id)
+    {
+        var produto = await _context.Produtos
+            .Include(p => p.Fornecedor)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (produto == null)
+            return NotFound();
+
+        return Json(new
+        {
+            categoria = produto.Categoria,
+            tipoMadeira = produto.TipoMadeira,
+            descricao = produto.Descricao,
+            dimensoes = produto.Dimensoes,
+            unidadeMedida = produto.UnidadeMedida,
+            quantidadeEstoque = produto.QuantidadeEstoque,
+            fornecedor = produto.Fornecedor?.NomeFantasia ?? "N/A"
+        });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ObterProduto(int id)
+    {
+        var produto = await _context.Produtos
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (produto == null)
+            return NotFound();
+
+        return Json(new
+        {
+            id = produto.Id,
+            tipoMadeira = produto.TipoMadeira,
+            dimensoes = produto.Dimensoes
+        });
     }
 
     // ================= CREATE =================
@@ -141,21 +183,9 @@ public class ProdutosController : Controller
     }
 
     // ================= DELETE =================
-    public async Task<IActionResult> Delete(int id)
-    {
-        var produto = await _context.Produtos
-            .Include(p => p.Fornecedor)
-            .FirstOrDefaultAsync(p => p.Id == id);
-
-        if (produto == null)
-            return NotFound();
-
-        return View(produto);
-    }
-
-    [HttpPost, ActionName("Delete")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         var produto = await _context.Produtos.FindAsync(id);
 

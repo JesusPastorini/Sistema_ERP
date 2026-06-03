@@ -79,23 +79,31 @@
 
                         <td class="text-end">
 
-                            <a asp-action="Details"
-                               asp-route-id="@item.Id"
-                               class="btn btn-sm btn-info text-white px-2 py-1">
+                            <button class="btn btn-sm btn-info text-white px-2 py-1"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#detalhesModal"
+                                    data-id="@item.Id">
+
                                 👁
-                            </a>
+
+                            </button>
 
                             <a asp-action="Edit"
                                asp-route-id="@item.Id"
                                class="btn btn-sm btn-warning px-2 py-1">
+
                                 ✏
+
                             </a>
 
-                            <a asp-action="Delete"
-                               asp-route-id="@item.Id"
-                               class="btn btn-sm btn-danger px-2 py-1">
+                            <button class="btn btn-sm btn-danger px-2 py-1"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#excluirModal"
+                                    data-id="@item.Id">
+
                                 🗑
-                            </a>
+
+                            </button>
 
                         </td>
                     </tr>
@@ -106,72 +114,398 @@
         </div>
     </div>
 
+    <!-- ================================= -->
+    <!-- MODAL DETALHES -->
+    <!-- ================================= -->
+
+    <div class="modal fade"
+         id="detalhesModal"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-lg">
+
+            <div class="modal-content border-0 shadow">
+
+                <div class="modal-header bg-info text-white">
+
+                    <h5 class="modal-title">
+                        📦 Detalhes do Produto
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="fw-bold">Categoria</label>
+
+                            <input id="dCategoria"
+                                   class="form-control"
+                                   readonly />
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="fw-bold">Tipo Madeira</label>
+
+                            <input id="dTipoMadeira"
+                                   class="form-control"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="fw-bold">Descrição</label>
+
+                        <textarea id="dDescricao"
+                                  class="form-control"
+                                  rows="3"
+                                  readonly></textarea>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+
+                            <label class="fw-bold">Dimensões</label>
+
+                            <input id="dDimensoes"
+                                   class="form-control"
+                                   readonly />
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <label class="fw-bold">Unidade</label>
+
+                            <input id="dUnidade"
+                                   class="form-control"
+                                   readonly />
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <label class="fw-bold">Estoque</label>
+
+                            <input id="dEstoque"
+                                   class="form-control"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+                    <div class="mt-3">
+
+                        <label class="fw-bold">Fornecedor</label>
+
+                        <input id="dFornecedor"
+                               class="form-control"
+                               readonly />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- MODAL EXCLUIR -->
+    <!-- ================================= -->
+
+    <div class="modal fade"
+         id="excluirModal"
+         tabindex="-1">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content border-0 shadow">
+
+                <form asp-action="Delete"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="modal-header bg-danger text-white">
+
+                        <h5 class="modal-title">
+
+                            🗑 Excluir Produto
+
+                        </h5>
+
+                        <button type="button"
+                                class="btn-close btn-close-white"
+                                data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+                    <div class="modal-body text-center">
+
+                        <input type="hidden"
+                               id="produtoIdExcluir"
+                               name="id" />
+
+                        <div class="alert alert-warning">
+
+                            Tem certeza que deseja excluir este produto?
+
+                        </div>
+
+                        <h5 id="produtoNomeExcluir"></h5>
+
+                        <p class="text-muted"
+                           id="produtoDimensaoExcluir">
+                        </p>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+
+                            Cancelar
+
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-danger">
+
+                            🗑 Confirmar Exclusão
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
     <script>
-    let carregando = false;
-    let skip = 10;
-    let primeiraCarga = true;
+        let carregando = false;
+        let skip = 10;
 
-    const container = document.getElementById('scrollContainerProdutos');
+        const container =
+            document.getElementById('scrollContainerProdutos');
 
-    container.addEventListener('scroll', async () => {
+        async function carregarMaisProdutos() {
 
-        if (primeiraCarga) {
-            primeiraCarga = false;
-            return;
-        }
-
-        if (carregando) return;
-
-        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
+            if (carregando)
+                return;
 
             carregando = true;
 
-            const url = `/Produtos/CarregarMais?skip=${skip}`;
+            const response =
+                await fetch(`/Produtos/CarregarMais?skip=${skip}`);
 
-            const response = await fetch(url);
-            const dados = await response.json();
+            const dados =
+                await response.json();
 
-            if (dados.length === 0) return;
+            if (dados.length === 0) {
+                carregando = false;
+                return false;
+            }
 
-            const tabela = document.querySelector('#tabelaProdutos tbody');
+            const tabela =
+                document.querySelector('#tabelaProdutos tbody');
 
             dados.forEach(p => {
 
                 let estoqueClass = "bg-danger";
 
-                if (p.estoque > 5) estoqueClass = "bg-success";
-                else if (p.estoque > 0) estoqueClass = "bg-warning text-dark";
+                if (p.estoque > 5)
+                    estoqueClass = "bg-success";
+                else if (p.estoque > 0)
+                    estoqueClass = "bg-warning text-dark";
 
                 const linha = `
-                    <tr>
-                        <td>
-                            <strong>${p.nome}</strong><br/>
-                            <small class="text-muted">${p.dimensoes}</small>
-                        </td>
+                            <tr>
+                                <td>
+                                    <strong>${p.nome}</strong><br/>
+                                    <small class="text-muted">${p.dimensoes}</small>
+                                </td>
 
-                        <td>${p.categoria}</td>
+                                <td>${p.categoria}</td>
 
-                        <td>${p.fornecedor ?? 'N/A'}</td>
+                                <td>${p.fornecedor ?? 'N/A'}</td>
 
-                        <td>
-                            <span class="badge ${estoqueClass}">
-                                ${p.estoque}
-                            </span>
-                        </td>
+                                <td>
+                                    <span class="badge ${estoqueClass}">
+                                        ${p.estoque}
+                                    </span>
+                                </td>
 
-                        <td class="text-end">
-                            <a href="/Produtos/Details/${p.id}" class="btn btn-sm btn-info text-white px-2 py-1">👁</a>
-                            <a href="/Produtos/Edit/${p.id}" class="btn btn-sm btn-warning px-2 py-1">✏</a>
-                            <a href="/Produtos/Delete/${p.id}" class="btn btn-sm btn-danger px-2 py-1">🗑</a>
-                        </td>
-                    </tr>
-                `;
+                                <td class="text-end">
+                                    <button
+                                        class="btn btn-sm btn-info text-white px-2 py-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#detalhesModal"
+                                        data-id="${p.id}">
+                                        👁
+                                    </button>
 
-                tabela.insertAdjacentHTML('beforeend', linha);
+                                    <a href="/Produtos/Edit/${p.id}"
+                                       class="btn btn-sm btn-warning px-2 py-1">
+                                       ✏
+                                    </a>
+
+                                    <button
+                                        class="btn btn-sm btn-danger px-2 py-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#excluirModal"
+                                        data-id="${p.id}">
+                                        🗑
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+
+                tabela.insertAdjacentHTML(
+                    'beforeend',
+                    linha
+                );
             });
 
-            skip += 20;
+            skip += dados.length;
+
             carregando = false;
+
+            return true;
         }
-    });
+
+        async function preencherTelaSeNecessario() {
+
+            while (
+                container.scrollHeight <= container.clientHeight
+            ) {
+
+                const carregou =
+                    await carregarMaisProdutos();
+
+                if (!carregou)
+                    break;
+            }
+        }
+
+        container.addEventListener('scroll', async () => {
+
+            if (carregando)
+                return;
+
+            if (
+                container.scrollTop + container.clientHeight >=
+                container.scrollHeight - 50
+            ) {
+                await carregarMaisProdutos();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+
+            await preencherTelaSeNecessario();
+        });
+
+        // =====================================
+        // MODAL DETALHES
+        // =====================================
+
+        const detalhesModal =
+            document.getElementById('detalhesModal');
+
+        detalhesModal.addEventListener(
+            'show.bs.modal',
+            async function (event) {
+
+                const button =
+                    event.relatedTarget;
+
+                const id =
+                    button.getAttribute('data-id');
+
+                const produto =
+                    await fetch(`/Produtos/ObterDetalhes/${id}`)
+                        .then(r => r.json());
+
+                document.getElementById('dCategoria').value =
+                    produto.categoria ?? '';
+
+                document.getElementById('dTipoMadeira').value =
+                    produto.tipoMadeira ?? '';
+
+                document.getElementById('dDescricao').value =
+                    produto.descricao ?? '';
+
+                document.getElementById('dDimensoes').value =
+                    produto.dimensoes ?? '';
+
+                document.getElementById('dUnidade').value =
+                    produto.unidadeMedida ?? '';
+
+                document.getElementById('dEstoque').value =
+                    produto.quantidadeEstoque ?? '';
+
+                document.getElementById('dFornecedor').value =
+                    produto.fornecedor ?? '';
+            }
+        );
+
+        // =====================================
+        // MODAL EXCLUIR
+        // =====================================
+
+        const excluirModal =
+            document.getElementById('excluirModal');
+
+        excluirModal.addEventListener(
+            'show.bs.modal',
+            async function (event) {
+
+                const button =
+                    event.relatedTarget;
+
+                const id =
+                    button.getAttribute('data-id');
+
+                const produto =
+                    await fetch(`/Produtos/ObterProduto/${id}`)
+                        .then(r => r.json());
+
+                document.getElementById('produtoIdExcluir').value =
+                    produto.id;
+
+                document.getElementById('produtoNomeExcluir').innerText =
+                    produto.tipoMadeira;
+
+                document.getElementById('produtoDimensaoExcluir').innerText =
+                    produto.dimensoes;
+            }
+        );
+
     </script>

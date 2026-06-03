@@ -5,16 +5,16 @@
     }
     @if (TempData["Erro"] != null)
     {
-        <div class="alert alert-danger">
-            @TempData["Erro"]
-        </div>
+    <div class="alert alert-danger">
+        @TempData["Erro"]
+    </div>
     }
 
-        @if (TempData["Sucesso"] != null)
+    @if (TempData["Sucesso"] != null)
     {
-        <div class="alert alert-success">
-            @TempData["Sucesso"]
-        </div>
+    <div class="alert alert-success">
+        @TempData["Sucesso"]
+    </div>
     }
     <!-- 🔹 HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -71,11 +71,14 @@
 
                         <td class="text-end">
 
-                            <a asp-action="Details"
-                               asp-route-id="@item.Id"
-                               class="btn btn-sm btn-info text-white px-2 py-1">
+                            <button class="btn btn-sm btn-info text-white px-2 py-1"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#detalhesModal"
+                                    data-id="@item.Id">
+
                                 👁
-                            </a>
+
+                            </button>
 
                             <a asp-action="Edit"
                                asp-route-id="@item.Id"
@@ -83,11 +86,14 @@
                                 ✏
                             </a>
 
-                            <a asp-action="Delete"
-                               asp-route-id="@item.Id"
-                               class="btn btn-sm btn-danger px-2 py-1">
+                            <button class="btn btn-sm btn-danger px-2 py-1"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#excluirModal"
+                                    data-id="@item.Id">
+
                                 🗑
-                            </a>
+
+                            </button>
 
                         </td>
                     </tr>
@@ -98,68 +104,376 @@
         </div>
     </div>
 
-    <script>
-        let carregando = false;
-        let skip = 10;
-        let primeiraCarga = true;
+    <div class="modal fade"
+         id="detalhesModal"
+         tabindex="-1">
 
-        const container = document.getElementById('scrollContainerCondicoes');
+        <div class="modal-dialog modal-lg">
 
-        container.addEventListener('scroll', async () => {
+            <div class="modal-content border-0 shadow">
 
-            if (primeiraCarga) {
-                primeiraCarga = false;
-                return;
-            }
+                <div class="modal-header bg-info text-white">
 
-            if (carregando) return;
+                    <h5 class="modal-title">
+                        💳 Detalhes da Condição
+                    </h5>
 
-            if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal">
+                    </button>
 
-                carregando = true;
+                </div>
 
-                const url = `/CondicoesPagamento/CarregarMais?skip=${skip}`;
+                <div class="modal-body">
 
-                const response = await fetch(url);
-                const dados = await response.json();
+                    <div class="row">
 
-                if (dados.length === 0) return;
+                        <div class="col-md-6 mb-3">
 
-                const tabela = document.querySelector('#tabelaCondicoes tbody');
+                            <label class="fw-bold">
+                                Nome
+                            </label>
 
-                dados.forEach(c => {
+                            <input id="dNome"
+                                   class="form-control"
+                                   readonly />
 
-                    const linha = `
-                        <tr>
-                            <td><strong>${c.nome}</strong></td>
+                        </div>
 
-                            <td>
-                                <span class="badge bg-secondary">
-                                    ${c.tipo}
-                                </span>
-                            </td>
+                        <div class="col-md-6 mb-3">
 
-                            <td>${c.parcelas}x</td>
+                            <label class="fw-bold">
+                                Tipo
+                            </label>
 
-                            <td class="text-danger">${c.juros}%</td>
+                            <input id="dTipo"
+                                   class="form-control"
+                                   readonly />
 
-                            <td class="text-warning">${c.taxa}%</td>
+                        </div>
 
-                            <td>${c.dias} dias</td>
+                    </div>
 
-                            <td class="text-end">
-                                <a href="/CondicoesPagamento/Details/${c.id}" class="btn btn-sm btn-info text-white px-2 py-1">👁</a>
-                                <a href="/CondicoesPagamento/Edit/${c.id}" class="btn btn-sm btn-warning px-2 py-1">✏</a>
-                                <a href="/CondicoesPagamento/Delete/${c.id}" class="btn btn-sm btn-danger px-2 py-1">🗑</a>
-                            </td>
-                        </tr>
-                    `;
+                    <div class="row">
 
-                    tabela.insertAdjacentHTML('beforeend', linha);
+                        <div class="col-md-4">
+
+                            <label class="fw-bold">
+                                Parcelas
+                            </label>
+
+                            <input id="dParcelas"
+                                   class="form-control"
+                                   readonly />
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <label class="fw-bold">
+                                Juros
+                            </label>
+
+                            <input id="dJuros"
+                                   class="form-control"
+                                   readonly />
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <label class="fw-bold">
+                                Taxa Operadora
+                            </label>
+
+                            <input id="dTaxa"
+                                   class="form-control"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+                    <div class="mt-3">
+
+                        <label class="fw-bold">
+                            Dias para Receber
+                        </label>
+
+                        <input id="dDias"
+                               class="form-control"
+                               readonly />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="modal fade"
+         id="excluirModal"
+         tabindex="-1">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content border-0 shadow">
+
+                <form asp-action="Delete"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="modal-header bg-danger text-white">
+
+                        <h5 class="modal-title">
+                            🗑 Excluir Condição
+                        </h5>
+
+                        <button type="button"
+                                class="btn-close btn-close-white"
+                                data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+                    <div class="modal-body text-center">
+
+                        <input type="hidden"
+                               id="condicaoIdExcluir"
+                               name="id" />
+
+                        <div class="alert alert-warning">
+
+                            Tem certeza que deseja excluir esta condição?
+
+                        </div>
+
+                        <h5 id="condicaoNomeExcluir"></h5>
+
+                        <p id="condicaoTipoExcluir"
+                           class="text-muted">
+                        </p>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+
+                            Cancelar
+
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-danger">
+
+                            🗑 Confirmar Exclusão
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    @section Scripts {
+
+        <script>
+
+            // ==========================
+            // SCROLL INFINITO
+            // ==========================
+
+            let carregando = false;
+            let skip = 10;
+            let primeiraCarga = true;
+
+            const container =
+                document.getElementById('scrollContainerCondicoes');
+
+            container.addEventListener('scroll', async () => {
+
+                if (primeiraCarga) {
+                    primeiraCarga = false;
+                    return;
+                }
+
+                if (carregando)
+                    return;
+
+                if (
+                    container.scrollTop + container.clientHeight >=
+                    container.scrollHeight - 50
+                ) {
+
+                    carregando = true;
+
+                    const response =
+                        await fetch(`/CondicoesPagamento/CarregarMais?skip=${skip}`);
+
+                    const dados =
+                        await response.json();
+
+                    if (dados.length === 0) {
+                        carregando = false;
+                        return;
+                    }
+
+                    const tabela =
+                        document.querySelector('#tabelaCondicoes tbody');
+
+                    dados.forEach(c => {
+
+                        const linha = `
+                            <tr>
+
+                                <td>
+                                    <strong>${c.nome}</strong>
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        ${c.tipo}
+                                    </span>
+                                </td>
+
+                                <td>${c.parcelas}x</td>
+
+                                <td class="text-danger">
+                                    ${c.juros}%
+                                </td>
+
+                                <td class="text-warning">
+                                    ${c.taxa}%
+                                </td>
+
+                                <td>
+                                    ${c.dias} dias
+                                </td>
+
+                                <td class="text-end">
+
+                                    <button
+                                        class="btn btn-sm btn-info text-white px-2 py-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#detalhesModal"
+                                        data-id="${c.id}">
+                                        👁
+                                    </button>
+
+                                    <a href="/CondicoesPagamento/Edit/${c.id}"
+                                       class="btn btn-sm btn-warning px-2 py-1">
+                                        ✏
+                                    </a>
+
+                                    <button
+                                        class="btn btn-sm btn-danger px-2 py-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#excluirModal"
+                                        data-id="${c.id}">
+                                        🗑
+                                    </button>
+
+                                </td>
+
+                            </tr>
+                        `;
+
+                        tabela.insertAdjacentHTML(
+                            'beforeend',
+                            linha
+                        );
+                    });
+
+                    skip += 20;
+
+                    carregando = false;
+                }
+            });
+
+            // ==========================
+            // MODAL DETALHES
+            // ==========================
+
+            const detalhesModal =
+                document.getElementById('detalhesModal');
+
+            detalhesModal.addEventListener(
+                'show.bs.modal',
+                async function (event) {
+
+                    const button =
+                        event.relatedTarget;
+
+                    const id =
+                        button.getAttribute('data-id');
+
+                    const dados =
+                        await fetch(`/CondicoesPagamento/ObterDetalhes/${id}`)
+                            .then(r => r.json());
+
+                    document.getElementById('dNome').value =
+                        dados.nome;
+
+                    document.getElementById('dTipo').value =
+                        dados.tipo;
+
+                    document.getElementById('dParcelas').value =
+                        dados.parcelas;
+
+                    document.getElementById('dJuros').value =
+                        dados.juros + ' %';
+
+                    document.getElementById('dTaxa').value =
+                        dados.taxaOperadora + ' %';
+
+                    document.getElementById('dDias').value =
+                        dados.diasRecebimento + ' dias';
                 });
 
-                skip += 20;
-                carregando = false;
-            }
-        });
-    </script>
+            // ==========================
+            // MODAL EXCLUIR
+            // ==========================
+
+            const excluirModal =
+                document.getElementById('excluirModal');
+
+            excluirModal.addEventListener(
+                'show.bs.modal',
+                async function (event) {
+
+                    const button =
+                        event.relatedTarget;
+
+                    const id =
+                        button.getAttribute('data-id');
+
+                    const dados =
+                        await fetch(`/CondicoesPagamento/ObterCondicao/${id}`)
+                            .then(r => r.json());
+
+                    document.getElementById('condicaoIdExcluir').value =
+                        dados.id;
+
+                    document.getElementById('condicaoNomeExcluir').innerText =
+                        dados.nome;
+
+                    document.getElementById('condicaoTipoExcluir').innerText =
+                        dados.tipo;
+                });
+
+        </script>
+
+    }
