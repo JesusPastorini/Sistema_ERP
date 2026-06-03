@@ -168,4 +168,28 @@ public class ClientesController : Controller
 
         return View(cliente);
     }
+
+    // ========================================
+    // DADOS PARA MODAL DE EXCLUSÃO
+    // ========================================
+    [HttpGet]
+    public async Task<IActionResult> ObterCliente(int id)
+    {
+        var cliente = await _context.Clientes
+            .Where(c => c.Id == id)
+            .Select(c => new
+            {
+                id = c.Id,
+                nome = c.Nome,
+                cpfCnpj = c.CpfCnpj,
+                telefone = c.Telefone,
+                email = c.Email
+            })
+            .FirstOrDefaultAsync();
+
+        if (cliente == null)
+            return NotFound();
+
+        return Json(cliente);
+    }
 }

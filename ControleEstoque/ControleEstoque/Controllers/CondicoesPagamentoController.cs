@@ -176,5 +176,46 @@ namespace ControleEstoque.Controllers
         {
             return _context.CondicoesPagamento.Any(e => e.Id == id);
         }
+
+        // ================= MODAL DETALHES =================
+
+        [HttpGet]
+        public async Task<IActionResult> ObterDetalhes(int id)
+        {
+            var condicao = await _context.CondicoesPagamento
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (condicao == null)
+                return NotFound();
+
+            return Json(new
+            {
+                nome = condicao.Nome,
+                tipo = condicao.Tipo,
+                parcelas = condicao.Parcelas,
+                juros = condicao.Juros,
+                taxaOperadora = condicao.TaxaOperadora,
+                diasRecebimento = condicao.DiasRecebimento
+            });
+        }
+
+        // ================= MODAL EXCLUIR =================
+
+        [HttpGet]
+        public async Task<IActionResult> ObterCondicao(int id)
+        {
+            var condicao = await _context.CondicoesPagamento
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (condicao == null)
+                return NotFound();
+
+            return Json(new
+            {
+                id = condicao.Id,
+                nome = condicao.Nome,
+                tipo = condicao.Tipo
+            });
+        }
     }
 }
